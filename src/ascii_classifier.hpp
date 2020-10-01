@@ -2,7 +2,6 @@
 #define ASCII_CLASSIFIER_HPP
 
 #include <fstream>
-#include <string>
 
 #define LINE_START 1
 #define COLUMN_START 1
@@ -21,7 +20,7 @@ class position {
         int line, column;
 
         position(int line, int column):
-        line(line), column(column) {}
+            line(line), column(column) {}
 };
 
 class ascii_character {
@@ -31,7 +30,7 @@ class ascii_character {
         position pos;
         
         ascii_character(char character, ascii_type type, position pos) :
-        type(type), character(character), pos(pos) {}
+            type(type), character(character), pos(pos) {}
 };
 
 class ascii_classifier {
