@@ -1,27 +1,25 @@
 #include <fstream>
 #include <string>
 
-#include "ascii_classifier.hpp"
+#include "ASCIIClassifier.hpp"
 
 using namespace std;
 
-ascii_classifier::ascii_classifier(ifstream& file): 
+ASCIIClassifier::ASCIIClassifier(ifstream& file): 
     file(file), line(LINE_START), column(COLUMN_START) {}
 
-ascii_character ascii_classifier::get_next() {
+ascii_character ASCIIClassifier::get_next() {
     char c;
     ascii_type t;
 
-    if (!file.eof()) {
-        file.get(c);
-        t = classify_character(c);
-    }
-    else {
+    file.get(c);
+
+    if (file.eof())
         c = EOF;
-        t = CONTROL;
-    }
-    
+
+    t = classify_character(c);
     position p(line, column);
+
     ascii_character ac(c, t, p);
 
     if (c == '\n') {
@@ -35,7 +33,11 @@ ascii_character ascii_classifier::get_next() {
     return ac;
 }
 
-ascii_type ascii_classifier::classify_character(char c) {
+void ASCIIClassifier::back() {
+    file.unget();
+}
+
+ascii_type ASCIIClassifier::classify_character(char c) {
     if (
         c == '0' || c == '1' || c == '2' || c == '3' || c == '4' ||
         c == '5' || c == '6' || c == '7' || c == '8' || c == '9'
@@ -67,10 +69,8 @@ ascii_type ascii_classifier::classify_character(char c) {
     )
         return SPECIAL;
     else if (
-        c == '\n' || c == '\t' || c == '\r'
+        c == ' ' || c == '\n' || c == '\t' || c == '\r' || c == EOF
     )
-        return CONTROL;
-    else if (c == ' ')
         return DELIMITER;
     else
         return UNKNOWN;

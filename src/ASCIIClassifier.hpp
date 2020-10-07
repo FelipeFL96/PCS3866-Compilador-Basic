@@ -11,7 +11,6 @@ enum ascii_type {
     DIGIT,
     LETTER,
     SPECIAL,
-    CONTROL,
     DELIMITER
 };
 
@@ -19,6 +18,7 @@ class position {
     public:
         int line, column;
 
+        position() {};
         position(int line, int column):
             line(line), column(column) {}
 };
@@ -33,11 +33,12 @@ class ascii_character {
             type(type), character(character), pos(pos) {}
 };
 
-class ascii_classifier {
+class ASCIIClassifier {
     public:
-        ascii_classifier(std::ifstream& file);
+        ASCIIClassifier(std::ifstream& file);
 
         ascii_character get_next();
+        void back();
 
     private:
         ascii_type classify_character(char c);
