@@ -5,6 +5,8 @@
 #include "LexicalAnalyser.hpp"
 using namespace std;
 
+string type2name(token_type t);
+
 int main(int argc, char* argv[]) {
     std::cout << "Bem-Vindo ao compilador basicc!" << std::endl;
 
@@ -18,10 +20,12 @@ int main(int argc, char* argv[]) {
 
     LexicalAnalyser lex(file);
 
-    for (int i = 0; i < 10; i++) {
-        token s = lex.get_next();
-        cout << "LEXEME: " << s.value << endl;
+    token s = lex.get_next();
+    while (s.value != "") {
+        cout << "(" << s.pos.line << "," << s.pos.line << ")\t[" << type2name(s.type) << "] " << s.value << endl;
+        s = lex.get_next();
     }
+
 /*    cout << "Caractere que sobrou: ";
     lex.get_next();*/
 
@@ -39,4 +43,55 @@ int main(int argc, char* argv[]) {
     file.close();
 
     return 0;
+}
+
+string type2name(token_type t) {
+    switch(t) {
+        case LET: return "LET";
+        case FN: return "FN";
+        case DEF: return "DEF";
+        case READ: return "READ";
+        case DATA: return "DATA";
+        case PRINT: return "PRINT";
+        case GO: return "GO";
+        case TO: return "TO";
+        case GOTO: return "GOTO";
+        case IF: return "IF";
+        case THEN: return "THEN";
+        case FOR: return "FOR";
+        case STEP: return "STEP";
+        case NEXT: return "NEXT";
+        case DIM: return "DIM";
+        case GOSUB: return "GOSUB";
+        case RETURN: return "RETURN";
+        case REM: return "REM";
+        case END: return "END";
+        case ADD: return "ADD";
+        case SUB: return "SUB";
+        case MUL: return "MUL";
+        case DIV: return "DIV";
+        case POW: return "POW";
+        case EQL: return "EQL";
+        case NEQ: return "NEQ";
+        case LTN: return "LTN";
+        case GTN: return "GTN";
+        case LEQ: return "LEQ";
+        case GEQ: return "GEQ";
+        case COM: return "COM";
+        case PNT: return "PNT";
+        case PRO: return "PRO";
+        case PRC: return "PRC";
+        case DQT: return "DQT";
+        case EXD: return "EXD";
+        case SIN: return "SIN";
+        case COS: return "COS";
+        case TAN: return "TAN";
+        case ATN: return "ATN";
+        case EXP: return "EXP";
+        case ABS: return "ABS";
+        case LOG: return "LOG";
+        case SQR: return "SQR";
+        case INT: return "INT";
+        case RND: return "RND";
+    }
 }

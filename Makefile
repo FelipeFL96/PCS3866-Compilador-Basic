@@ -4,11 +4,14 @@ COMPILER=g++
 
 all: basicc
 
-basicc: src/basicc.cpp ascii_classifier.o
-	$(COMPILER) src/basicc.cpp bin/ascii_classifier.o -o bin/basicc
+basicc: src/basicc.cpp ASCIIClassifier.o LexicalAnalyser.o
+	$(COMPILER) src/basicc.cpp bin/ASCIIClassifier.o bin/LexicalAnalyser.o -o bin/basicc
 
-ascii_classifier.o: src/ascii_classifier.hpp src/ascii_classifier.cpp
-	$(COMPILER) -c src/ascii_classifier.cpp -o bin/ascii_classifier.o
+LexicalAnalyser.o: src/LexicalAnalyser.hpp src/LexicalAnalyser.cpp
+	$(COMPILER) -c src/LexicalAnalyser.cpp -o bin/LexicalAnalyser.o
+
+ASCIIClassifier.o: src/ASCIIClassifier.hpp src/ASCIIClassifier.cpp
+	$(COMPILER) -c src/ASCIIClassifier.cpp -o bin/ASCIIClassifier.o
 
 clean:
 	rm -f bin/*

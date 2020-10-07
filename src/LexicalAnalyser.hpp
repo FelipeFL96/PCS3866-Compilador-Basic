@@ -82,13 +82,12 @@ class token {
 class LexicalAnalyser {
     public:
         LexicalAnalyser(std::ifstream& file);
-        token get_next();
-        //std::string read_num();
-        //std::string read_word();
-    
+        token get_next();    
 
     private:
-        std::string extract_token();
+        token extract_token();
+        token_type categorize_token(std::string value);
+
         std::ifstream& file;
         ASCIIClassifier ac;
 };
