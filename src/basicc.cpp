@@ -16,18 +16,18 @@ int main(int argc, char* argv[]) {
     }
 
     char* filename = argv[1];
-    std::ifstream file(filename, ios::binary);
+    std::ifstream file(filename);
 
     LexicalAnalyser lex(file);
 
-    token s = lex.get_next();
-    while (s.value != "") {
-        cout << "(" << s.pos.line << "," << s.pos.line << ")\t[" << type2name(s.type) << "] " << s.value << endl;
-        s = lex.get_next();
+    while (true) {
+        token s = lex.get_next();
+        if (s.value == "") break;
+        cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
     }
 
-/*    cout << "Caractere que sobrou: ";
-    lex.get_next();*/
+    /*ASCIIClassifier ac(file);
+    cout << ac.get_next().character << endl;*/
 
     /*while (!file.eof()) {
         token t = lex.get_next();
@@ -47,6 +47,8 @@ int main(int argc, char* argv[]) {
 
 string type2name(token_type t) {
     switch(t) {
+        case IDENTIFIER: return "IDENTIFIER";
+        case INTEGER: return "INTEGER";
         case LET: return "LET";
         case FN: return "FN";
         case DEF: return "DEF";

@@ -7,6 +7,8 @@
 #include "ASCIIClassifier.hpp"
 
 enum token_type {
+    IDENTIFIER, // Identificador
+    INTEGER,    // Sequência numérica
 //Palavras reservadas:
     LET,        // Palavra reservada "LET"
     FN,         // Palavra reservada "FN"
@@ -28,7 +30,6 @@ enum token_type {
     REM,        // Palavra reservada "REM"
     END,        // Palavra reservada "END"
 // Símbolos:
-    NEG,        // '-'  Sinal Negativo
     ADD,        // '+'  Operador de adição
     SUB,        // '-'  Operador de subtração
     MUL,        // '*'  Operador de multiplicação

@@ -20,48 +20,40 @@ token LexicalAnalyser::get_next() {
 
 token LexicalAnalyser::extract_token() {
     token lexeme;
-    ascii_character c = ac.get_next();
 
-    while (c.type == DELIMITER) {
+    while (ac.peek_next().type == DELIMITER) {
+        ascii_character c = ac.get_next();
         if (c.character == EOF)
             return lexeme;
-        c = ac.get_next();
     }
 
+    ascii_character c = ac.peek_next();
     lexeme.set_position(c.pos);
 
     if (c.type == LETTER) {
         while (c.type == LETTER || c.type == DIGIT) {
-            lexeme.add_char(c.character);
-            c = ac.get_next();
+            lexeme.add_char(ac.get_next().character);
+            c = ac.peek_next();
         }
-        ac.back();
     }
     else if (c.type == DIGIT) {
         while (c.type == DIGIT) {
-            lexeme.add_char(c.character);
-            c = ac.get_next();
+            lexeme.add_char(ac.get_next().character);
+            c = ac.peek_next();
         }
-        ac.back();
     }
     else if (c.type == SPECIAL) {
-        lexeme.add_char(c.character);
+        lexeme.add_char(ac.get_next().character);
         if (c.character == '<') {
-            c = ac.get_next();
+            c = ac.peek_next();
             if (c.character == '=' || c.character == '>') {
-                lexeme.add_char(c.character);
-            }
-            else {
-                ac.back();
+                lexeme.add_char(ac.get_next().character);
             }
         } 
         else if (c.character == '>') {
-            c = ac.get_next();
+            c = ac.peek_next();
             if (c.character == '=') {
-                lexeme.add_char(c.character);
-            }
-            else {
-                ac.back();
+                lexeme.add_char(ac.get_next().character);
             }
         }
     }
@@ -165,4 +157,7 @@ token_type LexicalAnalyser::categorize_token(string value) {
         return INT;
     if (value == "RND")
         return RND;
+    if (value.c_str()[0] >= '0' && value.c_str()[0] <= '9')
+        return INTEGER;
+    return IDENTIFIER;
 }

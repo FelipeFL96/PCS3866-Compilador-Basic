@@ -38,7 +38,7 @@ class ASCIIClassifier {
         ASCIIClassifier(std::ifstream& file);
 
         ascii_character get_next();
-        void back();
+        ascii_character peek_next();
 
     private:
         ascii_type classify_character(char c);

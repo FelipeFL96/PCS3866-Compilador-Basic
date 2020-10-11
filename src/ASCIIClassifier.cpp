@@ -33,8 +33,21 @@ ascii_character ASCIIClassifier::get_next() {
     return ac;
 }
 
-void ASCIIClassifier::back() {
-    file.unget();
+ascii_character ASCIIClassifier::peek_next() {
+    char c;
+    ascii_type t;
+
+    c = file.peek();
+
+    if (file.eof())
+        c = EOF;
+
+    t = classify_character(c);
+    position p(line, column);
+
+    ascii_character ac(c, t, p);
+
+    return ac;
 }
 
 ascii_type ASCIIClassifier::classify_character(char c) {
