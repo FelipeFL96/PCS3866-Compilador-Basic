@@ -13,9 +13,9 @@ LexicalAnalyser::LexicalAnalyser(ifstream& file):
     file(file), ac(file) {}
 
 token LexicalAnalyser::get_next() {
-   token t = extract_token();
-   t.type = categorize_token(t.value);
-   return t;
+    token t = extract_token();
+    t.type = categorize_token(t.value);
+    return t;
 }
 
 token LexicalAnalyser::extract_token() {
@@ -58,7 +58,7 @@ token LexicalAnalyser::extract_token() {
         }
     }
     else {
-        cout << "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEPA!!!!!" << endl;
+        throw lexical_exception(lexeme.pos, "Caractere não reconhecido");
     }
 
     return lexeme;

@@ -2,6 +2,7 @@
 #define ASCII_CLASSIFIER_HPP
 
 #include <fstream>
+#include <string>
 
 #define LINE_START 1
 #define COLUMN_START 1
@@ -21,6 +22,11 @@ class position {
         position() {};
         position(int line, int column):
             line(line), column(column) {}
+
+        std::string position_str() {
+            std::string s = "(" + std::to_string(line) + "," + std::to_string(column) + ")";
+            return s;
+        }
 };
 
 class ascii_character {

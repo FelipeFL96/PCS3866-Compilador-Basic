@@ -19,11 +19,15 @@ int main(int argc, char* argv[]) {
     std::ifstream file(filename);
 
     LexicalAnalyser lex(file);
-
-    while (true) {
-        token s = lex.get_next();
-        if (s.value == "") break;
-        cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
+    try {
+        while (true) {
+            token s = lex.get_next();
+            if (s.value == "") break;
+            cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
+        }
+    }
+    catch (lexical_exception& e) {
+        cerr << "Erro léxico: " << filename << e.message() << endl;
     }
 
     /*ASCIIClassifier ac(file);

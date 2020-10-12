@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <string>
+#include <exception>
 
 #include "ASCIIClassifier.hpp"
 
@@ -58,6 +59,22 @@ enum token_type {
     SQR,        // Função Raíz Quadrada
     INT,        // Função Valor Inteiro
     RND         // Função Valor Aleatório
+};
+
+class lexical_exception: public std::exception {
+    public:
+        lexical_exception(position loc, const char* error_message)
+            : loc(loc), error_message(error_message) {
+            exception();
+        }
+
+        std::string message() {
+            return loc.position_str() + ": " + error_message;
+        }
+
+    private:
+        position loc;
+        const char* error_message;
 };
 
 class token {
