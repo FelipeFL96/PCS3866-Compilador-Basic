@@ -1,17 +1,41 @@
-#-*-Makefile-*-
+COMPILER = g++
+FLAGS = -c -std=c++11
 
-COMPILER=g++
+OBJPATH = bin
+
+LEXSRC = lexical/sources
+LEXHDR = lexical/headers
+LEXOBJ = $(OBJPATH)/lexical
+MAINSRC = main
+MAINHDR = lexical/headers
+MAINOBJ = $(OBJPATH)/main
+
+SOURCES = \
+	$(wildcard $(LEXSRC)/*.cpp)\
+	$(wildcard $(MAINSRC)/*.cpp)
+HEADERS = \
+	$(wildcard $(LEXHDR)/*.hpp)
+OBJECTS = \
+	$(subst .cpp,.o,\
+	$(subst $(LEXSRC),$(LEXOBJ),\
+	$(subst $(MAINSRC),$(MAINOBJ),\
+	$(SOURCES))))
+
 
 all: basicc
 
-basicc: src/basicc.cpp ASCIIClassifier.o LexicalAnalyser.o
-	$(COMPILER) -std=c++11 src/basicc.cpp bin/ASCIIClassifier.o bin/LexicalAnalyser.o -o bin/basicc
+basicc: $(OBJECTS)
+	$(COMPILER) $^ -o $(OBJPATH)/$@
+	cp $(OBJPATH)/$@ ./$@
 
-LexicalAnalyser.o: src/LexicalAnalyser.hpp src/LexicalAnalyser.cpp
-	$(COMPILER) -c -std=c++11 src/LexicalAnalyser.cpp -o bin/LexicalAnalyser.o
+./$(MAINOBJ)/%.o: ./$(MAINSRC)/%.cpp
+	mkdir -p $(MAINOBJ)
+	$(COMPILER) $(FLAGS) -I $(MAINHDR) -o $@ $^
 
-ASCIIClassifier.o: src/ASCIIClassifier.hpp src/ASCIIClassifier.cpp
-	$(COMPILER) -c -std=c++11 src/ASCIIClassifier.cpp -o bin/ASCIIClassifier.o
+./$(LEXOBJ)/%.o: ./$(LEXSRC)/%.cpp ./$(LEXHDR)/%.hpp
+	mkdir -p $(LEXOBJ)
+	$(COMPILER) $(FLAGS) -I $(LEXHDR) -o $@ $<
 
 clean:
-	rm -f bin/*
+	rm -rf bin/*
+	rm -f basicc
