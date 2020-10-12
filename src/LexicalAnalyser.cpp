@@ -7,6 +7,7 @@
 #include "LexicalAnalyser.hpp"
 
 using namespace std;
+using namespace lexical;
 
 LexicalAnalyser::LexicalAnalyser(ifstream& file):
     file(file), ac(file) {}
@@ -20,7 +21,7 @@ token LexicalAnalyser::get_next() {
 token LexicalAnalyser::extract_token() {
     token lexeme;
 
-    while (ac.peek_next().type == DELIMITER) {
+    while (ac.peek_next().type == ascii_type::DELIMITER) {
         ascii_character c = ac.get_next();
         if (c.character == EOF)
             return lexeme;
@@ -29,19 +30,19 @@ token LexicalAnalyser::extract_token() {
     ascii_character c = ac.peek_next();
     lexeme.set_position(c.pos);
 
-    if (c.type == LETTER) {
-        while (c.type == LETTER || c.type == DIGIT) {
+    if (c.type == ascii_type::LETTER) {
+        while (c.type == ascii_type::LETTER || c.type == ascii_type::DIGIT) {
             lexeme.add_char(ac.get_next().character);
             c = ac.peek_next();
         }
     }
-    else if (c.type == DIGIT) {
-        while (c.type == DIGIT) {
+    else if (c.type == ascii_type::DIGIT) {
+        while (c.type == ascii_type::DIGIT) {
             lexeme.add_char(ac.get_next().character);
             c = ac.peek_next();
         }
     }
-    else if (c.type == SPECIAL) {
+    else if (c.type == ascii_type::SPECIAL) {
         lexeme.add_char(ac.get_next().character);
         if (c.character == '<') {
             c = ac.peek_next();
@@ -65,98 +66,98 @@ token LexicalAnalyser::extract_token() {
 
 token_type LexicalAnalyser::categorize_token(string& value) {
     if (value == "LET")
-        return LET;
+        return token_type::LET;
     if (value == "FN")
-        return FN;
+        return token_type::FN;
     if (value == "DEF")
-        return DEF;
+        return token_type::DEF;
     if (value == "READ")
-        return READ;
+        return token_type::READ;
     if (value == "DATA")
-        return DATA;
+        return token_type::DATA;
     if (value == "PRINT")
-        return PRINT;
+        return token_type::PRINT;
     if (value == "GO")
-        return GO;
+        return token_type::GO;
     if (value == "TO")
-        return TO;
+        return token_type::TO;
     if (value == "GOTO")
-        return GOTO;
+        return token_type::GOTO;
     if (value == "IF")
-        return IF;
+        return token_type::IF;
     if (value == "THEN")
-        return THEN;
+        return token_type::THEN;
     if (value == "FOR")
-        return FOR;
+        return token_type::FOR;
     if (value == "STEP")
-        return STEP;
+        return token_type::STEP;
     if (value == "NEXT")
-        return NEXT;
+        return token_type::NEXT;
     if (value == "DIM")
-        return DIM;
+        return token_type::DIM;
     if (value == "GOSUB")
-        return GOSUB;
+        return token_type::GOSUB;
     if (value == "RETURN")
-        return RETURN;
+        return token_type::RETURN;
     if (value == "REM")
-        return REM;
+        return token_type::REM;
     if (value == "END")
-        return END;
+        return token_type::END;
     if (value == "+")
-        return ADD;
+        return token_type::ADD;
     if (value == "-")
-        return SUB;
+        return token_type::SUB;
     if (value == "*")
-        return MUL;
+        return token_type::MUL;
     if (value == "/")
-        return DIV;
+        return token_type::DIV;
     if (value == "^")
-        return POW;
+        return token_type::POW;
     if (value == "=")
-        return EQL;
+        return token_type::EQL;
     if (value == "<>")
-        return NEQ;
+        return token_type::NEQ;
     if (value == "<")
-        return LTN;
+        return token_type::LTN;
     if (value == ">")
-        return GTN;
+        return token_type::GTN;
     if (value == "<=")
-        return LEQ;
+        return token_type::LEQ;
     if (value == ">=")
-        return GEQ;
+        return token_type::GEQ;
     if (value == ",")
-        return COM;
+        return token_type::COM;
     if (value == ".")
-        return PNT;
+        return token_type::PNT;
     if (value == "(")
-        return PRO;
+        return token_type::PRO;
     if (value == ")")
-        return PRC;
+        return token_type::PRC;
     if (value == "\"")
-        return DQT;
+        return token_type::DQT;
     if (value == "EXD")
-        return EXD;
+        return token_type::EXD;
     if (value == "SIN")
-        return SIN;
+        return token_type::SIN;
     if (value == "COS")
-        return COS;
+        return token_type::COS;
     if (value == "TAN")
-        return TAN;
+        return token_type::TAN;
     if (value == "ATN")
-        return ATN;
+        return token_type::ATN;
     if (value == "EXP")
-        return EXP;
+        return token_type::EXP;
     if (value == "ABS")
-        return ABS;
+        return token_type::ABS;
     if (value == "LOG")
-        return LOG;
+        return token_type::LOG;
     if (value == "SQR")
-        return SQR;
+        return token_type::SQR;
     if (value == "INT")
-        return INT;
+        return token_type::INT;
     if (value == "RND")
-        return RND;
+        return token_type::RND;
     if (value.c_str()[0] >= '0' && value.c_str()[0] <= '9')
-        return INTEGER;
-    return IDENTIFIER;
+        return token_type::INTEGER;
+    return token_type::IDENTIFIER;
 }

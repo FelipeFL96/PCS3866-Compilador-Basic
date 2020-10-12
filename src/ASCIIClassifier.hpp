@@ -7,6 +7,8 @@
 #define LINE_START 1
 #define COLUMN_START 1
 
+namespace lexical {
+
 class ASCIIClassifier {
     public:
         ASCIIClassifier(std::ifstream& file);
@@ -20,5 +22,7 @@ class ASCIIClassifier {
         std::ifstream& file;
         int line, column;
 };
+
+} // namespace lexical
 
 #endif //ASCII_CLASSIFIER_HPP

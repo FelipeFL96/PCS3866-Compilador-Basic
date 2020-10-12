@@ -9,17 +9,21 @@
 
 #include "ASCIIClassifier.hpp"
 
+namespace lexical {
+
 class LexicalAnalyser {
     public:
         LexicalAnalyser(std::ifstream& file);
-        token get_next();    
+        lexical::token get_next();
 
     private:
-        token extract_token();
-        token_type categorize_token(std::string& value);
+        lexical::token extract_token();
+        lexical::token_type categorize_token(std::string& value);
 
         std::ifstream& file;
         ASCIIClassifier ac;
 };
+
+} // namespace lexical
 
 #endif // LEXICAL_ANALYZER_HPP

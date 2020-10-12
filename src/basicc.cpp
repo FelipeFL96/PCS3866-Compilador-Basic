@@ -7,7 +7,7 @@
 
 using namespace std;
 
-string type2name(token_type t);
+string type2name(lexical::token_type t);
 
 int main(int argc, char* argv[]) {
     std::cout << "Bem-Vindo ao compilador basicc!" << std::endl;
@@ -20,15 +20,15 @@ int main(int argc, char* argv[]) {
     char* filename = argv[1];
     std::ifstream file(filename);
 
-    LexicalAnalyser lex(file);
+    lexical::LexicalAnalyser lex(file);
     try {
         while (true) {
-            token s = lex.get_next();
+            lexical::token s = lex.get_next();
             if (s.value == "") break;
             cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
         }
     }
-    catch (lexical_exception& e) {
+    catch (lexical::lexical_exception& e) {
         cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
     }
 
@@ -51,55 +51,55 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-string type2name(token_type t) {
+string type2name(lexical::token_type t) {
     switch(t) {
-        case IDENTIFIER: return "IDENTIFIER";
-        case INTEGER: return "INTEGER";
-        case LET: return "LET";
-        case FN: return "FN";
-        case DEF: return "DEF";
-        case READ: return "READ";
-        case DATA: return "DATA";
-        case PRINT: return "PRINT";
-        case GO: return "GO";
-        case TO: return "TO";
-        case GOTO: return "GOTO";
-        case IF: return "IF";
-        case THEN: return "THEN";
-        case FOR: return "FOR";
-        case STEP: return "STEP";
-        case NEXT: return "NEXT";
-        case DIM: return "DIM";
-        case GOSUB: return "GOSUB";
-        case RETURN: return "RETURN";
-        case REM: return "REM";
-        case END: return "END";
-        case ADD: return "ADD";
-        case SUB: return "SUB";
-        case MUL: return "MUL";
-        case DIV: return "DIV";
-        case POW: return "POW";
-        case EQL: return "EQL";
-        case NEQ: return "NEQ";
-        case LTN: return "LTN";
-        case GTN: return "GTN";
-        case LEQ: return "LEQ";
-        case GEQ: return "GEQ";
-        case COM: return "COM";
-        case PNT: return "PNT";
-        case PRO: return "PRO";
-        case PRC: return "PRC";
-        case DQT: return "DQT";
-        case EXD: return "EXD";
-        case SIN: return "SIN";
-        case COS: return "COS";
-        case TAN: return "TAN";
-        case ATN: return "ATN";
-        case EXP: return "EXP";
-        case ABS: return "ABS";
-        case LOG: return "LOG";
-        case SQR: return "SQR";
-        case INT: return "INT";
-        case RND: return "RND";
+        case lexical::token_type::IDENTIFIER: return "IDENTIFIER";
+        case lexical::token_type::INTEGER: return "INTEGER";
+        case lexical::token_type::LET: return "LET";
+        case lexical::token_type::FN: return "FN";
+        case lexical::token_type::DEF: return "DEF";
+        case lexical::token_type::READ: return "READ";
+        case lexical::token_type::DATA: return "DATA";
+        case lexical::token_type::PRINT: return "PRINT";
+        case lexical::token_type::GO: return "GO";
+        case lexical::token_type::TO: return "TO";
+        case lexical::token_type::GOTO: return "GOTO";
+        case lexical::token_type::IF: return "IF";
+        case lexical::token_type::THEN: return "THEN";
+        case lexical::token_type::FOR: return "FOR";
+        case lexical::token_type::STEP: return "STEP";
+        case lexical::token_type::NEXT: return "NEXT";
+        case lexical::token_type::DIM: return "DIM";
+        case lexical::token_type::GOSUB: return "GOSUB";
+        case lexical::token_type::RETURN: return "RETURN";
+        case lexical::token_type::REM: return "REM";
+        case lexical::token_type::END: return "END";
+        case lexical::token_type::ADD: return "ADD";
+        case lexical::token_type::SUB: return "SUB";
+        case lexical::token_type::MUL: return "MUL";
+        case lexical::token_type::DIV: return "DIV";
+        case lexical::token_type::POW: return "POW";
+        case lexical::token_type::EQL: return "EQL";
+        case lexical::token_type::NEQ: return "NEQ";
+        case lexical::token_type::LTN: return "LTN";
+        case lexical::token_type::GTN: return "GTN";
+        case lexical::token_type::LEQ: return "LEQ";
+        case lexical::token_type::GEQ: return "GEQ";
+        case lexical::token_type::COM: return "COM";
+        case lexical::token_type::PNT: return "PNT";
+        case lexical::token_type::PRO: return "PRO";
+        case lexical::token_type::PRC: return "PRC";
+        case lexical::token_type::DQT: return "DQT";
+        case lexical::token_type::EXD: return "EXD";
+        case lexical::token_type::SIN: return "SIN";
+        case lexical::token_type::COS: return "COS";
+        case lexical::token_type::TAN: return "TAN";
+        case lexical::token_type::ATN: return "ATN";
+        case lexical::token_type::EXP: return "EXP";
+        case lexical::token_type::ABS: return "ABS";
+        case lexical::token_type::LOG: return "LOG";
+        case lexical::token_type::SQR: return "SQR";
+        case lexical::token_type::INT: return "INT";
+        case lexical::token_type::RND: return "RND";
     }
 }

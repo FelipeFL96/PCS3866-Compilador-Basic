@@ -3,7 +3,9 @@
 
 #include <string>
 
-enum ascii_type {
+namespace lexical {
+
+enum class ascii_type {
     UNKNOWN,
     DIGIT,
     LETTER,
@@ -11,7 +13,7 @@ enum ascii_type {
     DELIMITER
 };
 
-enum token_type {
+enum class token_type {
     IDENTIFIER, // Identificador
     INTEGER,    // Sequência numérica
 //Palavras reservadas:
@@ -124,5 +126,7 @@ class token {
             pos.column = p.column;
         }
 };
+
+}; // namespace lexical
 
 #endif // LEXICAL_HPP

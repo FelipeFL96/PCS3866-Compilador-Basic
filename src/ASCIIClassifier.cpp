@@ -5,6 +5,7 @@
 #include "ASCIIClassifier.hpp"
 
 using namespace std;
+using namespace lexical;
 
 ASCIIClassifier::ASCIIClassifier(ifstream& file): 
     file(file), line(LINE_START), column(COLUMN_START) {}
@@ -56,7 +57,7 @@ ascii_type ASCIIClassifier::classify_character(char c) {
         c == '0' || c == '1' || c == '2' || c == '3' || c == '4' ||
         c == '5' || c == '6' || c == '7' || c == '8' || c == '9'
     )
-        return DIGIT;
+        return ascii_type::DIGIT;
     else if ( 
         c == 'A' || c == 'B' || c == 'C' || c == 'D' || c == 'E' ||
         c == 'F' || c == 'G' || c == 'H' || c == 'I' || c == 'J' ||
@@ -70,7 +71,7 @@ ascii_type ASCIIClassifier::classify_character(char c) {
         c == 't' || c == 'u' || c == 'v' || c == 'w' || c == 'x' ||
         c == 'y' || c == 'z'
     )
-        return LETTER;
+        return ascii_type::LETTER;
     else if (
         c == '!' || c == '@' || c == '#' || c == '%' || /*  ̈   */
         c == '&' || c == '*' || c == '(' || c == ')' || c == '_' ||
@@ -81,11 +82,11 @@ ascii_type ASCIIClassifier::classify_character(char c) {
         c == '.' || c == ':' || c == ';' || c == '|' || c == '\\'||
         c == '"'
     )
-        return SPECIAL;
+        return ascii_type::SPECIAL;
     else if (
         c == ' ' || c == '\n' || c == '\t' || c == '\r' || c == EOF
     )
-        return DELIMITER;
+        return ascii_type::DELIMITER;
     else
-        return UNKNOWN;
+        return ascii_type::UNKNOWN;
 }
