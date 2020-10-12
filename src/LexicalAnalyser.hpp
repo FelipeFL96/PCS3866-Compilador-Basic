@@ -63,7 +63,7 @@ enum token_type {
 
 class lexical_exception: public std::exception {
     public:
-        lexical_exception(position loc, const char* error_message)
+        lexical_exception(position& loc, const char* error_message)
             : loc(loc), error_message(error_message) {
             exception();
         }
@@ -73,7 +73,7 @@ class lexical_exception: public std::exception {
         }
 
     private:
-        position loc;
+        position& loc;
         const char* error_message;
 };
 
@@ -91,7 +91,7 @@ class token {
             value = new_value;
         }
 
-        void set_position(position p) {
+        void set_position(position& p) {
             pos.line = p.line;
             pos.column = p.column;
         }
@@ -104,7 +104,7 @@ class LexicalAnalyser {
 
     private:
         token extract_token();
-        token_type categorize_token(std::string value);
+        token_type categorize_token(std::string& value);
 
         std::ifstream& file;
         ASCIIClassifier ac;

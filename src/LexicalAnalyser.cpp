@@ -1,6 +1,4 @@
-#include <iostream>
 #include <fstream>
-#include <exception>
 #include <string>
 
 #include "ASCIIClassifier.hpp"
@@ -64,7 +62,7 @@ token LexicalAnalyser::extract_token() {
     return lexeme;
 }
 
-token_type LexicalAnalyser::categorize_token(string value) {
+token_type LexicalAnalyser::categorize_token(string& value) {
     if (value == "LET")
         return LET;
     if (value == "FN")

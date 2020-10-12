@@ -1,5 +1,4 @@
 #include <fstream>
-#include <string>
 
 #include "ASCIIClassifier.hpp"
 
@@ -12,7 +11,7 @@ ascii_character ASCIIClassifier::get_next() {
     char c;
     ascii_type t;
 
-    file.get(c);
+    c = file.get();
 
     if (file.eof())
         c = EOF;
