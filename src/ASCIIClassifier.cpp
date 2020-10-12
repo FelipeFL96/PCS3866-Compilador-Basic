@@ -1,5 +1,7 @@
 #include <fstream>
 
+#include "lexical.hpp"
+
 #include "ASCIIClassifier.hpp"
 
 using namespace std;

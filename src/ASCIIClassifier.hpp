@@ -7,38 +7,6 @@
 #define LINE_START 1
 #define COLUMN_START 1
 
-enum ascii_type {
-    UNKNOWN,
-    DIGIT,
-    LETTER,
-    SPECIAL,
-    DELIMITER
-};
-
-class position {
-    public:
-        int line, column;
-
-        position() {};
-        position(int line, int column):
-            line(line), column(column) {}
-
-        std::string position_str() {
-            std::string s = "(" + std::to_string(line) + "," + std::to_string(column) + ")";
-            return s;
-        }
-};
-
-class ascii_character {
-    public:
-        char character;
-        ascii_type type;
-        position pos;
-        
-        ascii_character(char character, ascii_type type, position pos) :
-            type(type), character(character), pos(pos) {}
-};
-
 class ASCIIClassifier {
     public:
         ASCIIClassifier(std::ifstream& file);

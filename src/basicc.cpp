@@ -1,8 +1,10 @@
 #include <iostream>
 #include <string>
 
+#include "lexical.hpp"
 #include "ASCIIClassifier.hpp"
 #include "LexicalAnalyser.hpp"
+
 using namespace std;
 
 string type2name(token_type t);
@@ -27,7 +29,7 @@ int main(int argc, char* argv[]) {
         }
     }
     catch (lexical_exception& e) {
-        cerr << "Erro léxico: " << filename << e.message() << endl;
+        cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
     }
 
     /*ASCIIClassifier ac(file);
