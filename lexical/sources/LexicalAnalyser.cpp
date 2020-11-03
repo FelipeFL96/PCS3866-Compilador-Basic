@@ -10,12 +10,37 @@ using namespace std;
 using namespace lexical;
 
 LexicalAnalyser::LexicalAnalyser(ifstream& file):
-    file(file), ac(file) {}
+    file(file), ac(file), analyser_state(state::NORMAL) {}
 
 token LexicalAnalyser::get_next() {
-    token t = extract_token();
-    t.type = categorize_token(t.value);
+    token t;
+
+    if (analyser_state == state::COMMENT) {
+        t = read_comment();
+        t.type = token_type::CMT;
+    }
+    else {
+        t = extract_token();
+        t.type = categorize_token(t.value);
+    }
+
+    change_analyser_state(t.type);
+
     return t;
+}
+
+void LexicalAnalyser::change_analyser_state(token_type type) {
+    switch(type) {
+        case token_type::REM:
+            analyser_state = state::COMMENT;
+            break;
+        case token_type::INT:
+        case token_type::PNT:
+            analyser_state = state::NUMBER;
+            break;
+        default:
+            analyser_state = state::NORMAL;
+    }
 }
 
 token LexicalAnalyser::extract_token() {
@@ -56,12 +81,33 @@ token LexicalAnalyser::extract_token() {
                 lexeme.add_char(ac.get_next().character);
             }
         }
+        else if (c.character ==  '"') {
+            do {
+                c = ac.get_next();
+                lexeme.add_char(c.character);
+                if (ac.peek_next().character == EOF)
+                    throw lexical_exception(lexeme.pos, "String não terminada. Esperando '\"'");
+            } while (c.character != '"');
+        }
     }
     else {
         throw lexical_exception(lexeme.pos, "Caractere não reconhecido");
     }
 
     return lexeme;
+}
+
+token LexicalAnalyser::read_comment() {
+    token comment;
+
+    ascii_character c = ac.get_next();
+    comment.set_position(c.pos);
+    while (c.character != 0xA) {
+        comment.add_char(c.character);
+        c = ac.get_next();
+    }
+    comment.add_char(' ');
+    return comment;
 }
 
 token_type LexicalAnalyser::categorize_token(string& value) {
@@ -133,31 +179,31 @@ token_type LexicalAnalyser::categorize_token(string& value) {
         return token_type::PRO;
     if (value == ")")
         return token_type::PRC;
-    if (value == "\"")
-        return token_type::DQT;
-    if (value == "EXD")
-        return token_type::EXD;
     if (value == "SIN")
-        return token_type::SIN;
+        return token_type::FNSIN;
     if (value == "COS")
-        return token_type::COS;
+        return token_type::FNCOS;
     if (value == "TAN")
-        return token_type::TAN;
+        return token_type::FNTAN;
     if (value == "ATN")
-        return token_type::ATN;
+        return token_type::FNATN;
     if (value == "EXP")
-        return token_type::EXP;
+        return token_type::FNEXP;
     if (value == "ABS")
-        return token_type::ABS;
+        return token_type::FNABS;
     if (value == "LOG")
-        return token_type::LOG;
+        return token_type::FNLOG;
     if (value == "SQR")
-        return token_type::SQR;
+        return token_type::FNSQR;
     if (value == "INT")
-        return token_type::INT;
+        return token_type::FNINT;
     if (value == "RND")
-        return token_type::RND;
+        return token_type::FNRND;
+    if (value.c_str()[0] == '"')
+        return token_type::STR;
+    if (value == "E" && analyser_state == state::NUMBER)
+        return token_type::EXD;
     if (value.c_str()[0] >= '0' && value.c_str()[0] <= '9')
-        return token_type::INTEGER;
-    return token_type::IDENTIFIER;
+        return token_type::INT;
+    return token_type::IDN;
 }

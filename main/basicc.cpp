@@ -53,8 +53,9 @@ int main(int argc, char* argv[]) {
 
 string type2name(lexical::token_type t) {
     switch(t) {
-        case lexical::token_type::IDENTIFIER: return "IDENTIFIER";
-        case lexical::token_type::INTEGER: return "INTEGER";
+        case lexical::token_type::STR: return "STR";
+        case lexical::token_type::INT: return "INT";
+        case lexical::token_type::IDN: return "IDN";
         case lexical::token_type::LET: return "LET";
         case lexical::token_type::FN: return "FN";
         case lexical::token_type::DEF: return "DEF";
@@ -91,15 +92,16 @@ string type2name(lexical::token_type t) {
         case lexical::token_type::PRC: return "PRC";
         case lexical::token_type::DQT: return "DQT";
         case lexical::token_type::EXD: return "EXD";
-        case lexical::token_type::SIN: return "SIN";
-        case lexical::token_type::COS: return "COS";
-        case lexical::token_type::TAN: return "TAN";
-        case lexical::token_type::ATN: return "ATN";
-        case lexical::token_type::EXP: return "EXP";
-        case lexical::token_type::ABS: return "ABS";
-        case lexical::token_type::LOG: return "LOG";
-        case lexical::token_type::SQR: return "SQR";
-        case lexical::token_type::INT: return "INT";
-        case lexical::token_type::RND: return "RND";
+        case lexical::token_type::FNSIN: return "FNSIN";
+        case lexical::token_type::FNCOS: return "FNCOS";
+        case lexical::token_type::FNTAN: return "FNTAN";
+        case lexical::token_type::FNATN: return "FNATN";
+        case lexical::token_type::FNEXP: return "FNEXP";
+        case lexical::token_type::FNABS: return "FNABS";
+        case lexical::token_type::FNLOG: return "FNLOG";
+        case lexical::token_type::FNSQR: return "FNSQR";
+        case lexical::token_type::FNINT: return "FNINT";
+        case lexical::token_type::FNRND: return "FNRND";
+        case lexical::token_type::CMT: return "CMT";
     }
 }

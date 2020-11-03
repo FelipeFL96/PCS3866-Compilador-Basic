@@ -14,8 +14,9 @@ enum class ascii_type {
 };
 
 enum class token_type {
-    IDENTIFIER, // Identificador
-    INTEGER,    // Sequência numérica
+    STR,        // Cadeia de carcteres
+    INT,        // Sequência numérica
+    IDN,        // Identificador
 //Palavras reservadas:
     LET,        // Palavra reservada "LET"
     FN,         // Palavra reservada "FN"
@@ -55,16 +56,24 @@ enum class token_type {
     DQT,        // '"'  Aspas duplas
     EXD,        // 'E'  Expoente decimal para notação exponencial
 // Funções prédefinidas
-    SIN,        // Função Seno
-    COS,        // Função Cosseno
-    TAN,        // Função Tangente
-    ATN,        // Função Arco-Tangente
-    EXP,        // Função Exponencial
-    ABS,        // Função Valor Absoluto
-    LOG,        // Função Logarítmo
-    SQR,        // Função Raíz Quadrada
-    INT,        // Função Valor Inteiro
-    RND         // Função Valor Aleatório
+    FNSIN,      // Função Seno
+    FNCOS,      // Função Cosseno
+    FNTAN,      // Função Tangente
+    FNATN,      // Função Arco-Tangente
+    FNEXP,      // Função Exponencial
+    FNABS,      // Função Valor Absoluto
+    FNLOG,      // Função Logarítmo
+    FNSQR,      // Função Raíz Quadrada
+    FNINT,      // Função Valor Inteiro
+    FNRND,      // Função Valor Aleatório
+// Outros
+    CMT         // Comentários
+};
+
+enum class state {
+    NORMAL,
+    NUMBER,
+    COMMENT
 };
 
 class position {
