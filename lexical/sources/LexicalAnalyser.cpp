@@ -73,6 +73,9 @@ token LexicalAnalyser::extract_token() {
         while (c.type == ascii_type::DIGIT) {
             lexeme.add_char(ac.get_next().character);
             c = ac.peek_next();
+            if (c.type == ascii_type::LETTER) {
+                throw lexical_exception(lexeme.pos, "Identificador inválido");
+            }
         }
     }
     else if (c.type == ascii_type::SPECIAL) {
