@@ -4,6 +4,7 @@
 #include "lexical.hpp"
 #include "ASCIIClassifier.hpp"
 #include "LexicalAnalyser.hpp"
+#include "SyntacticalAnalyser.hpp"
 
 using namespace std;
 
@@ -20,35 +21,33 @@ int main(int argc, char* argv[]) {
     char* filename = argv[1];
     std::ifstream file(filename);
 
-    lexical::LexicalAnalyser lex(file);
     try {
-        while (true) {
-            lexical::token s = lex.get_next();
-            if (s.value == "") break;
-            cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
-        }
+        for (int i = 0; i < 3; i++)
+            syntax_read(file);
     }
     catch (lexical::lexical_exception& e) {
         cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
     }
 
-    /*ASCIIClassifier ac(file);
-    cout << ac.get_next().character << endl;*/
-
-    /*while (!file.eof()) {
-        token t = lex.get_next();
-        cout << "(" << c.pos.line << "," << c.pos.column << ") ";
-        printf("[ %.2X  %c ]", (unsigned char) c.character, c.character);
-        if (c.type == DIGIT) cout << "DIGIT" << endl;
-        if (c.type == LETTER) cout << "LETTER" << endl;
-        if (c.type == SPECIAL) cout << "SPECIAL" << endl;
-        if (c.type == DELIMITER ) cout << "DELIMITER" << endl;
-        if (c.type == UNKNOWN) cout << "UNKNOWN" << endl;
-    }*/
-
     file.close();
 
     return 0;
+}
+
+void lex_test(ifstream& file, string& filename) {
+    using namespace lexical;
+
+    LexicalAnalyser lex(file);
+    try {
+        while (true) {
+            token s = lex.get_next();
+            if (s.value == "") break;
+            cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
+        }
+    }
+    catch (lexical_exception& e) {
+        cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+    }
 }
 
 string type2name(lexical::token_type t) {
