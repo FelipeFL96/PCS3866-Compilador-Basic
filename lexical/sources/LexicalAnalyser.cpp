@@ -55,6 +55,14 @@ token LexicalAnalyser::extract_token() {
     ascii_character c = ac.peek_next();
     lexeme.set_position(c.pos);
 
+    if (analyser_state == state::NUMBER && c.character == 'E') {
+        c = ac.get_next();
+        if (ac.peek_next().type == ascii_type::DIGIT || ac.peek_next().character == '+' || ac.peek_next().character == '-') {
+            lexeme.add_char(c.character);
+            return lexeme;
+        }
+    }
+ 
     if (c.type == ascii_type::LETTER) {
         while (c.type == ascii_type::LETTER || c.type == ascii_type::DIGIT) {
             lexeme.add_char(ac.get_next().character);
