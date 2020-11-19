@@ -196,8 +196,8 @@ const struct state EXP1 = {1, true};
 const struct state EXP2 = {2, true};
 
 const struct transition exp[EXP_FSM_SIZE] = {
-    {EXP0, true,  (int) lexical::token_type::ADD, EXP1},
-    {EXP0, true,  (int) lexical::token_type::SUB, EXP1},
+    {EXP0, true,  (int) lexical::token_type::ADD, EXP0},
+    {EXP0, true,  (int) lexical::token_type::SUB, EXP0},
     {EXP0, false, (int) type::EB,  EXP1},
     {EXP1, true,  (int) lexical::token_type::ADD, EXP2},
     {EXP1, true,  (int) lexical::token_type::SUB, EXP2},
@@ -209,9 +209,9 @@ const struct transition exp[EXP_FSM_SIZE] = {
 
 bool FSM_exp(lexical::LexicalAnalyser& lex) {
     struct state s = EXP0;
-    //std::cout << "<EXP>" << std::endl;
+    std::cout << "<EXP>" << std::endl;
     while (true) {
-        //std::cout << "Estado " << s.id << ": [" << type_name(tk.type) << "] " << tk.value << std::endl;
+        std::cout << "Estado " << s.id << ": [" << type_name(tk.type) << "] " << tk.value << std::endl;
         const struct transition *t = NULL;
 
         for (int i = 0; i < EXP_FSM_SIZE; i++) {
@@ -234,11 +234,11 @@ bool FSM_exp(lexical::LexicalAnalyser& lex) {
         }
 
         if (s.accepting) {
-            //std::cout << "</EXP> : APROVADO" << std::endl;
+            std::cout << "</EXP> : APROVADO" << std::endl;
             return true;
         }
         else {
-            //std::cout << "</EXP> : REPROVADO" << std::endl;
+            std::cout << "</EXP> : REPROVADO" << std::endl;
             return false;
         }
     }
@@ -275,9 +275,9 @@ struct transition eb[EB_FSM_SIZE] = {
 
 bool FSM_eb(lexical::LexicalAnalyser& lex) {
     struct state s = EB0;
-    //std::cout << "<EB>" << std::endl;
+    std::cout << "<EB>" << std::endl;
     while (true) {
-        //std::cout << "Estado " << s.id << ": [" << type_name(tk.type) << "] " << tk.value << std::endl;
+        std::cout << "Estado " << s.id << ": [" << type_name(tk.type) << "] " << tk.value << std::endl;
         const struct transition *t = NULL;
 
         for (int i = 0; i < EB_FSM_SIZE; i++) {
@@ -308,11 +308,11 @@ bool FSM_eb(lexical::LexicalAnalyser& lex) {
         }
 
         if (s.accepting) {
-            //std::cout << "</EB> : APROVADO" << std::endl;
+            std::cout << "</EB> : APROVADO" << std::endl;
             return true;
         }
         else {
-            //std::cout << "</EB> : REPROVADO" << std::endl;
+            std::cout << "</EB> : REPROVADO" << std::endl;
             return false;
         }
     }
@@ -336,9 +336,9 @@ const struct transition var[5] = {
 
 bool FSM_var(lexical::LexicalAnalyser& lex) {
     struct state s = VAR0;
-    //std::cout << "<VAR>" << std::endl;
+    std::cout << "<VAR>" << std::endl;
     while (true) {
-        //std::cout << "Estado " << s.id << ": [" << type_name(tk.type) << "] " << tk.value << std::endl;
+        std::cout << "Estado " << s.id << ": [" << type_name(tk.type) << "] " << tk.value << std::endl;
         const struct transition *t = NULL;
 
         for (int i = 0; i < VAR_FSM_SIZE; i++) {
@@ -361,11 +361,11 @@ bool FSM_var(lexical::LexicalAnalyser& lex) {
         }
 
         if (s.accepting) {
-            //std::cout << "</VAR> : APROVADO" << std::endl;
+            std::cout << "</VAR> : APROVADO" << std::endl;
             return true;
         }
         else {
-            //std::cout << "</VAR> : REPROVADO" << std::endl;
+            std::cout << "</VAR> : REPROVADO" << std::endl;
             return false;
         }
     }
@@ -402,9 +402,9 @@ const struct transition num[NUM_FSM_SIZE] = {
 
 bool FSM_num(lexical::LexicalAnalyser& lex) {
     struct state s = NUM0;
-    //std::cout << "<NUM>" << std::endl;
+    std::cout << "<NUM>" << std::endl;
     while (true) {
-        //std::cout << "Estado " << s.id << ": [" << type_name(tk.type) << "] " << tk.value << std::endl;
+        std::cout << "Estado " << s.id << ": [" << type_name(tk.type) << "] " << tk.value << std::endl;
         const struct transition *t = NULL;
 
         for (int i = 0; i < NUM_FSM_SIZE; i++) {
@@ -423,11 +423,11 @@ bool FSM_num(lexical::LexicalAnalyser& lex) {
         }
 
         if (s.accepting) {
-            //std::cout << "</NUM> : APROVADO" << std::endl;
+            std::cout << "</NUM> : APROVADO" << std::endl;
             return true;
         }
         else {
-            //std::cout << "</NUM> : REPROVADO" << std::endl;
+            std::cout << "</NUM> : REPROVADO" << std::endl;
             return false;
         }
     }
