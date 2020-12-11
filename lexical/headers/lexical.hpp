@@ -67,7 +67,8 @@ enum class token_type {
     FNINT,      // Função Valor Inteiro
     FNRND,      // Função Valor Aleatório
 // Outros
-    CMT         // Comentários
+    CMT,         // Comentários
+    EoF         // Fim de Arquivo
 };
 
 enum class state {

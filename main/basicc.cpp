@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <string.h>
 
 #include "lexical.hpp"
 #include "ASCIIClassifier.hpp"
@@ -9,6 +10,7 @@
 using namespace std;
 
 string type2name(lexical::token_type t);
+void lex_test(ifstream& file, const char* filename);
 
 int main(int argc, char* argv[]) {
     std::cout << "Bem-Vindo ao compilador basicc!" << std::endl;
@@ -21,12 +23,21 @@ int main(int argc, char* argv[]) {
     char* filename = argv[1];
     std::ifstream file(filename);
 
-    try {
-        for (int i = 0; i < 3; i++)
-            syntax_read(file);
+    if (argc > 2 && 0 == strcmp(argv[2], "L")) {
+        try {
+        lex_test(file, filename);
+        }
+        catch (lexical::lexical_exception& e) {
+            cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+        }
     }
-    catch (lexical::lexical_exception& e) {
-        cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+    else {
+        try {
+        syntax_read(file);
+        }
+        catch (lexical::lexical_exception& e) {
+            cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+        }
     }
 
     file.close();
@@ -34,7 +45,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void lex_test(ifstream& file, string& filename) {
+void lex_test(ifstream& file, const char* filename) {
     using namespace lexical;
 
     LexicalAnalyser lex(file);
@@ -102,5 +113,6 @@ string type2name(lexical::token_type t) {
         case lexical::token_type::FNINT: return "FNINT";
         case lexical::token_type::FNRND: return "FNRND";
         case lexical::token_type::CMT: return "CMT";
+        case lexical::token_type::EoF: return "EOF";
     }
 }

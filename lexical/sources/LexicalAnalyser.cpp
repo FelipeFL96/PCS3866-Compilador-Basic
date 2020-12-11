@@ -25,7 +25,6 @@ token LexicalAnalyser::get_next() {
     }
 
     change_analyser_state(t.type);
-
     return t;
 }
 
@@ -57,8 +56,8 @@ token LexicalAnalyser::extract_token() {
 
     if (analyser_state == state::NUMBER && c.character == 'E') {
         c = ac.get_next();
+        lexeme.add_char(c.character);
         if (ac.peek_next().type == ascii_type::DIGIT || ac.peek_next().character == '+' || ac.peek_next().character == '-') {
-            lexeme.add_char(c.character);
             return lexeme;
         }
     }
@@ -74,7 +73,10 @@ token LexicalAnalyser::extract_token() {
             lexeme.add_char(ac.get_next().character);
             c = ac.peek_next();
             if (c.type == ascii_type::LETTER) {
-                throw lexical_exception(lexeme.pos, "Identificador inválido");
+                if (c.character != 'E')
+                    throw lexical_exception(lexeme.pos, "Identificador inválido");
+                else
+                    break;
             }
         }
     }
@@ -216,5 +218,7 @@ token_type LexicalAnalyser::categorize_token(string& value) {
         return token_type::EXD;
     if (value.c_str()[0] >= '0' && value.c_str()[0] <= '9')
         return token_type::INT;
-    return token_type::IDN;
+    if (value != "")
+        return token_type::IDN;
+    return token_type::EoF;
 }

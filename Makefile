@@ -1,5 +1,5 @@
 COMPILER = g++
-FLAGS = -c -std=c++11
+FLAGS = -c -g -std=c++11
 
 OBJPATH = bin
 
