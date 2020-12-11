@@ -3,16 +3,16 @@ FLAGS = -c -g -std=c++11
 
 OBJPATH = bin
 
-LEXSRC = lexical/sources
-LEXHDR = lexical/headers
-LEXOBJ = $(OBJPATH)/lexical
+LEXSRC = lexic/sources
+LEXHDR = lexic/headers
+LEXOBJ = $(OBJPATH)/lexic
 
-STXHDR = syntactical/headers
-STXSRC = syntactical/sources
-STXOBJ = $(OBJPATH)/syntactical
+STXHDR = syntax/headers
+STXSRC = syntax/sources
+STXOBJ = $(OBJPATH)/syntax
 
 MAINSRC = main
-MAINHDR = "syntactical/headers lexical/headers"
+MAINHDR = "syntax/headers lexic/headers"
 MAINOBJ = $(OBJPATH)/main
 
 SOURCES = \
