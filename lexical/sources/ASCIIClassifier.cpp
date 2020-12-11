@@ -5,7 +5,7 @@
 #include "ASCIIClassifier.hpp"
 
 using namespace std;
-using namespace lexical;
+using namespace lexic;
 
 ASCIIClassifier::ASCIIClassifier(ifstream& file): 
     file(file), line(LINE_START), column(COLUMN_START) {}

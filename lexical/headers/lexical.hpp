@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace lexical {
+namespace lexic {
 
 enum class ascii_type {
     UNKNOWN,
@@ -13,7 +13,7 @@ enum class ascii_type {
     DELIMITER
 };
 
-enum class token_type {
+enum class type {
     STR,        // Cadeia de carcteres
     INT,        // Sequência numérica
     IDN,        // Identificador
@@ -119,7 +119,7 @@ class lexical_exception: public std::exception {
 
 class token {
     public:
-        token_type type;
+        lexic::type type;
         std::string value;
         position pos;
 

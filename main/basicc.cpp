@@ -9,7 +9,7 @@
 
 using namespace std;
 
-string type2name(lexical::token_type t);
+string type2name(lexic::type t);
 void lex_test(ifstream& file, const char* filename);
 
 int main(int argc, char* argv[]) {
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
         try {
         lex_test(file, filename);
         }
-        catch (lexical::lexical_exception& e) {
+        catch (lexic::lexical_exception& e) {
             cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
         }
     }
@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
         try {
         syntax_read(file);
         }
-        catch (lexical::lexical_exception& e) {
+        catch (lexic::lexical_exception& e) {
             cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
         }
     }
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 }
 
 void lex_test(ifstream& file, const char* filename) {
-    using namespace lexical;
+    using namespace lexic;
 
     LexicalAnalyser lex(file);
     try {
@@ -61,58 +61,58 @@ void lex_test(ifstream& file, const char* filename) {
     }
 }
 
-string type2name(lexical::token_type t) {
+string type2name(lexic::type t) {
     switch(t) {
-        case lexical::token_type::STR: return "STR";
-        case lexical::token_type::INT: return "INT";
-        case lexical::token_type::IDN: return "IDN";
-        case lexical::token_type::LET: return "LET";
-        case lexical::token_type::FN: return "FN";
-        case lexical::token_type::DEF: return "DEF";
-        case lexical::token_type::READ: return "READ";
-        case lexical::token_type::DATA: return "DATA";
-        case lexical::token_type::PRINT: return "PRINT";
-        case lexical::token_type::GO: return "GO";
-        case lexical::token_type::TO: return "TO";
-        case lexical::token_type::GOTO: return "GOTO";
-        case lexical::token_type::IF: return "IF";
-        case lexical::token_type::THEN: return "THEN";
-        case lexical::token_type::FOR: return "FOR";
-        case lexical::token_type::STEP: return "STEP";
-        case lexical::token_type::NEXT: return "NEXT";
-        case lexical::token_type::DIM: return "DIM";
-        case lexical::token_type::GOSUB: return "GOSUB";
-        case lexical::token_type::RETURN: return "RETURN";
-        case lexical::token_type::REM: return "REM";
-        case lexical::token_type::END: return "END";
-        case lexical::token_type::ADD: return "ADD";
-        case lexical::token_type::SUB: return "SUB";
-        case lexical::token_type::MUL: return "MUL";
-        case lexical::token_type::DIV: return "DIV";
-        case lexical::token_type::POW: return "POW";
-        case lexical::token_type::EQL: return "EQL";
-        case lexical::token_type::NEQ: return "NEQ";
-        case lexical::token_type::LTN: return "LTN";
-        case lexical::token_type::GTN: return "GTN";
-        case lexical::token_type::LEQ: return "LEQ";
-        case lexical::token_type::GEQ: return "GEQ";
-        case lexical::token_type::COM: return "COM";
-        case lexical::token_type::PNT: return "PNT";
-        case lexical::token_type::PRO: return "PRO";
-        case lexical::token_type::PRC: return "PRC";
-        case lexical::token_type::DQT: return "DQT";
-        case lexical::token_type::EXD: return "EXD";
-        case lexical::token_type::FNSIN: return "FNSIN";
-        case lexical::token_type::FNCOS: return "FNCOS";
-        case lexical::token_type::FNTAN: return "FNTAN";
-        case lexical::token_type::FNATN: return "FNATN";
-        case lexical::token_type::FNEXP: return "FNEXP";
-        case lexical::token_type::FNABS: return "FNABS";
-        case lexical::token_type::FNLOG: return "FNLOG";
-        case lexical::token_type::FNSQR: return "FNSQR";
-        case lexical::token_type::FNINT: return "FNINT";
-        case lexical::token_type::FNRND: return "FNRND";
-        case lexical::token_type::CMT: return "CMT";
-        case lexical::token_type::EoF: return "EOF";
+        case lexic::type::STR: return "STR";
+        case lexic::type::INT: return "INT";
+        case lexic::type::IDN: return "IDN";
+        case lexic::type::LET: return "LET";
+        case lexic::type::FN: return "FN";
+        case lexic::type::DEF: return "DEF";
+        case lexic::type::READ: return "READ";
+        case lexic::type::DATA: return "DATA";
+        case lexic::type::PRINT: return "PRINT";
+        case lexic::type::GO: return "GO";
+        case lexic::type::TO: return "TO";
+        case lexic::type::GOTO: return "GOTO";
+        case lexic::type::IF: return "IF";
+        case lexic::type::THEN: return "THEN";
+        case lexic::type::FOR: return "FOR";
+        case lexic::type::STEP: return "STEP";
+        case lexic::type::NEXT: return "NEXT";
+        case lexic::type::DIM: return "DIM";
+        case lexic::type::GOSUB: return "GOSUB";
+        case lexic::type::RETURN: return "RETURN";
+        case lexic::type::REM: return "REM";
+        case lexic::type::END: return "END";
+        case lexic::type::ADD: return "ADD";
+        case lexic::type::SUB: return "SUB";
+        case lexic::type::MUL: return "MUL";
+        case lexic::type::DIV: return "DIV";
+        case lexic::type::POW: return "POW";
+        case lexic::type::EQL: return "EQL";
+        case lexic::type::NEQ: return "NEQ";
+        case lexic::type::LTN: return "LTN";
+        case lexic::type::GTN: return "GTN";
+        case lexic::type::LEQ: return "LEQ";
+        case lexic::type::GEQ: return "GEQ";
+        case lexic::type::COM: return "COM";
+        case lexic::type::PNT: return "PNT";
+        case lexic::type::PRO: return "PRO";
+        case lexic::type::PRC: return "PRC";
+        case lexic::type::DQT: return "DQT";
+        case lexic::type::EXD: return "EXD";
+        case lexic::type::FNSIN: return "FNSIN";
+        case lexic::type::FNCOS: return "FNCOS";
+        case lexic::type::FNTAN: return "FNTAN";
+        case lexic::type::FNATN: return "FNATN";
+        case lexic::type::FNEXP: return "FNEXP";
+        case lexic::type::FNABS: return "FNABS";
+        case lexic::type::FNLOG: return "FNLOG";
+        case lexic::type::FNSQR: return "FNSQR";
+        case lexic::type::FNINT: return "FNINT";
+        case lexic::type::FNRND: return "FNRND";
+        case lexic::type::CMT: return "CMT";
+        case lexic::type::EoF: return "EOF";
     }
 }

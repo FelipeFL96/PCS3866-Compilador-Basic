@@ -7,7 +7,7 @@
 #define LINE_START 1
 #define COLUMN_START 1
 
-namespace lexical {
+namespace lexic {
 
 class ASCIIClassifier {
     public:
@@ -23,6 +23,6 @@ class ASCIIClassifier {
         int line, column;
 };
 
-} // namespace lexical
+} // namespace lexic
 
 #endif //ASCII_CLASSIFIER_HPP

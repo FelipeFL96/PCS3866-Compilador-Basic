@@ -7,7 +7,7 @@
 #include "LexicalAnalyser.hpp"
 
 using namespace std;
-using namespace lexical;
+using namespace lexic;
 
 LexicalAnalyser::LexicalAnalyser(ifstream& file):
     file(file), ac(file), analyser_state(state::NORMAL) {}
@@ -17,7 +17,7 @@ token LexicalAnalyser::get_next() {
 
     if (analyser_state == state::COMMENT) {
         t = read_comment();
-        t.type = token_type::CMT;
+        t.type = type::CMT;
     }
     else {
         t = extract_token();
@@ -28,13 +28,13 @@ token LexicalAnalyser::get_next() {
     return t;
 }
 
-void LexicalAnalyser::change_analyser_state(token_type type) {
+void LexicalAnalyser::change_analyser_state(type type) {
     switch(type) {
-        case token_type::REM:
+        case lexic::type::REM:
             analyser_state = state::COMMENT;
             break;
-        case token_type::INT:
-        case token_type::PNT:
+        case lexic::type::INT:
+        case lexic::type::PNT:
             analyser_state = state::NUMBER;
             break;
         default:
@@ -123,102 +123,102 @@ token LexicalAnalyser::read_comment() {
     return comment;
 }
 
-token_type LexicalAnalyser::categorize_token(string& value) {
+type LexicalAnalyser::categorize_token(string& value) {
     if (value == "LET")
-        return token_type::LET;
+        return type::LET;
     if (value == "FN")
-        return token_type::FN;
+        return type::FN;
     if (value == "DEF")
-        return token_type::DEF;
+        return type::DEF;
     if (value == "READ")
-        return token_type::READ;
+        return type::READ;
     if (value == "DATA")
-        return token_type::DATA;
+        return type::DATA;
     if (value == "PRINT")
-        return token_type::PRINT;
+        return type::PRINT;
     if (value == "GO")
-        return token_type::GO;
+        return type::GO;
     if (value == "TO")
-        return token_type::TO;
+        return type::TO;
     if (value == "GOTO")
-        return token_type::GOTO;
+        return type::GOTO;
     if (value == "IF")
-        return token_type::IF;
+        return type::IF;
     if (value == "THEN")
-        return token_type::THEN;
+        return type::THEN;
     if (value == "FOR")
-        return token_type::FOR;
+        return type::FOR;
     if (value == "STEP")
-        return token_type::STEP;
+        return type::STEP;
     if (value == "NEXT")
-        return token_type::NEXT;
+        return type::NEXT;
     if (value == "DIM")
-        return token_type::DIM;
+        return type::DIM;
     if (value == "GOSUB")
-        return token_type::GOSUB;
+        return type::GOSUB;
     if (value == "RETURN")
-        return token_type::RETURN;
+        return type::RETURN;
     if (value == "REM")
-        return token_type::REM;
+        return type::REM;
     if (value == "END")
-        return token_type::END;
+        return type::END;
     if (value == "+")
-        return token_type::ADD;
+        return type::ADD;
     if (value == "-")
-        return token_type::SUB;
+        return type::SUB;
     if (value == "*")
-        return token_type::MUL;
+        return type::MUL;
     if (value == "/")
-        return token_type::DIV;
+        return type::DIV;
     if (value == "^")
-        return token_type::POW;
+        return type::POW;
     if (value == "=")
-        return token_type::EQL;
+        return type::EQL;
     if (value == "<>")
-        return token_type::NEQ;
+        return type::NEQ;
     if (value == "<")
-        return token_type::LTN;
+        return type::LTN;
     if (value == ">")
-        return token_type::GTN;
+        return type::GTN;
     if (value == "<=")
-        return token_type::LEQ;
+        return type::LEQ;
     if (value == ">=")
-        return token_type::GEQ;
+        return type::GEQ;
     if (value == ",")
-        return token_type::COM;
+        return type::COM;
     if (value == ".")
-        return token_type::PNT;
+        return type::PNT;
     if (value == "(")
-        return token_type::PRO;
+        return type::PRO;
     if (value == ")")
-        return token_type::PRC;
+        return type::PRC;
     if (value == "SIN")
-        return token_type::FNSIN;
+        return type::FNSIN;
     if (value == "COS")
-        return token_type::FNCOS;
+        return type::FNCOS;
     if (value == "TAN")
-        return token_type::FNTAN;
+        return type::FNTAN;
     if (value == "ATN")
-        return token_type::FNATN;
+        return type::FNATN;
     if (value == "EXP")
-        return token_type::FNEXP;
+        return type::FNEXP;
     if (value == "ABS")
-        return token_type::FNABS;
+        return type::FNABS;
     if (value == "LOG")
-        return token_type::FNLOG;
+        return type::FNLOG;
     if (value == "SQR")
-        return token_type::FNSQR;
+        return type::FNSQR;
     if (value == "INT")
-        return token_type::FNINT;
+        return type::FNINT;
     if (value == "RND")
-        return token_type::FNRND;
+        return type::FNRND;
     if (value.c_str()[0] == '"')
-        return token_type::STR;
+        return type::STR;
     if (value == "E" && analyser_state == state::NUMBER)
-        return token_type::EXD;
+        return type::EXD;
     if (value.c_str()[0] >= '0' && value.c_str()[0] <= '9')
-        return token_type::INT;
+        return type::INT;
     if (value != "")
-        return token_type::IDN;
-    return token_type::EoF;
+        return type::IDN;
+    return type::EoF;
 }

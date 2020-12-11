@@ -29,12 +29,12 @@ enum class type {
 
 } // namespace syntax
 
-std::string type_name(lexical::token_type t);
-bool FSM_program(lexical::LexicalAnalyser& lex);
-bool FSM_exp(lexical::LexicalAnalyser& lex);
-bool FSM_num(lexical::LexicalAnalyser& lex);
-bool FSM_var(lexical::LexicalAnalyser& lex);
-bool FSM_eb(lexical::LexicalAnalyser& lex);
+std::string type_name(lexic::type t);
+bool FSM_program(lexic::LexicalAnalyser& lex);
+bool FSM_exp(lexic::LexicalAnalyser& lex);
+bool FSM_num(lexic::LexicalAnalyser& lex);
+bool FSM_var(lexic::LexicalAnalyser& lex);
+bool FSM_eb(lexic::LexicalAnalyser& lex);
 int syntax_read(std::ifstream& file);
 
 #endif // SYNTACTICAL_ANALYSER_HPP
