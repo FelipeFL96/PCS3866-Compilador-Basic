@@ -11,6 +11,9 @@ namespace syntax {
 struct state {
     int id;
     bool accepting;
+    bool operator==(const struct state& st) {
+        return (id == st.id) && (accepting == st.accepting);
+    }
 };
 
 struct transition {
