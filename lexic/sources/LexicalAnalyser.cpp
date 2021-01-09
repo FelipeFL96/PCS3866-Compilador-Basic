@@ -1,7 +1,7 @@
 #include <fstream>
 #include <string>
 
-#include "lexical.hpp"
+#include "lexic.hpp"
 #include "ASCIIClassifier.hpp"
 
 #include "LexicalAnalyser.hpp"

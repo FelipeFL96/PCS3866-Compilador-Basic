@@ -5,7 +5,7 @@
 #include <string>
 #include <exception>
 
-#include "lexical.hpp"
+#include "lexic.hpp"
 
 #include "ASCIIClassifier.hpp"
 
