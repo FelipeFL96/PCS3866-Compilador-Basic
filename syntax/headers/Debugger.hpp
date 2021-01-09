@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-#include "lexical.hpp"
+#include "lexic.hpp"
 #include "LexicalAnalyser.hpp"
 #include "SyntacticalAnalyser.hpp"
 

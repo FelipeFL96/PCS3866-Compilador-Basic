@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
 
-#include "lexical.hpp"
+#include "syntax.hpp"
+#include "lexic.hpp"
 #include "LexicalAnalyser.hpp"
 #include "SyntacticalAnalyser.hpp"
 

@@ -2,15 +2,22 @@
 #include <string>
 #include <string.h>
 
-#include "lexical.hpp"
+#include "lexic.hpp"
+#include "syntax.hpp"
 #include "ASCIIClassifier.hpp"
 #include "LexicalAnalyser.hpp"
 #include "SyntacticalAnalyser.hpp"
+#include "CodeGenerator.hpp"
 
 using namespace std;
 
 string type2name(lexic::type t);
+string ascii2name(lexic::ascii_type t);
+
 void lex_test(ifstream& file, const char* filename);
+void ascii_test(ifstream& file);
+void synt_test(ifstream& file);
+void gen_test(ifstream& input, ofstream& output);
 
 int main(int argc, char* argv[]) {
     std::cout << "Bem-Vindo ao compilador basicc!" << std::endl;
@@ -25,24 +32,42 @@ int main(int argc, char* argv[]) {
 
     if (argc > 2 && 0 == strcmp(argv[2], "L")) {
         try {
-        lex_test(file, filename);
+            lex_test(file, filename);
         }
         catch (lexic::lexical_exception& e) {
             cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
         }
     }
+    else if (argc > 2 && 0 == strcmp(argv[2], "A")) {
+        ascii_test(file);
+    }
     else {
+        ofstream out("out.s");
+        gen_test(file, out);
+        //synt_test(file);
+    }
+    /*else {
         try {
         syntax_read(file);
         }
         catch (lexic::lexical_exception& e) {
             cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
         }
-    }
+    }*/
 
     file.close();
 
     return 0;
+}
+
+void ascii_test(ifstream& file) {
+    using namespace lexic;
+    
+    ASCIIClassifier ac(file);
+    while (!file.eof()) {
+        ascii_character c = ac.get_next();
+        cout << c.pos.position_str() << " " << c.character << "\t[" << ascii2name(c.type) << "]" << endl;
+    }
 }
 
 void lex_test(ifstream& file, const char* filename) {
@@ -58,6 +83,60 @@ void lex_test(ifstream& file, const char* filename) {
     }
     catch (lexical_exception& e) {
         cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+    }
+}
+
+void synt_test(ifstream& file) {
+    using namespace std;
+    using namespace syntax;
+
+    SyntacticalAnalyser synt(file);
+
+
+    //syntax::BStatement a = synt.get_next();
+
+    //cout << "Na linha " << a.get_index() << " li a atribuição de " << a.get_value() << " à variável " << a.get_identifier() << endl;
+
+    //generate_code(a);
+}
+
+void gen_test(ifstream& input, ofstream& output) {
+    using namespace std;
+    using namespace syntax;
+
+    SyntacticalAnalyser stx(input);
+    CodeGenerator gen(output);
+
+    gen.generate_header();
+
+    syntax::Syntaxeme* sx;
+    for (int i = 0; i < 2; i++) {
+        sx = stx.get_next();
+        sx->accept(gen);
+        delete sx;
+    }
+
+    gen.generate_variables();
+
+    /*try {
+        while (true) {
+            token s = lex.get_next();
+            if (s.value == "") break;
+            cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
+        }
+    }
+    catch (lexical_exception& e) {
+        cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+    }*/
+}
+
+string ascii2name(lexic::ascii_type t) {
+    switch (t) {
+        case lexic::ascii_type::UNKNOWN: return "UNKNOWN";
+        case lexic::ascii_type::DIGIT: return "DIGIT";
+        case lexic::ascii_type::LETTER: return "LETTER";
+        case lexic::ascii_type::SPECIAL: return "SPECIAL";
+        case lexic::ascii_type::DELIMITER: return "DELIMITER";
     }
 }
 

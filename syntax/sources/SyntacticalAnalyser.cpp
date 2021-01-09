@@ -1,19 +1,86 @@
 #include <iostream>
 #include <string>
 
-#include "lexical.hpp"
+#include "lexic.hpp"
 #include "LexicalAnalyser.hpp"
 #include "Debugger.hpp"
 #include "syntax.hpp"
 
 #include "SyntacticalAnalyser.hpp"
 
+using namespace std;
 using namespace syntax;
+
+SyntacticalAnalyser::SyntacticalAnalyser(ifstream& file):
+    file(file), lex(file) {}
+
+Syntaxeme* SyntacticalAnalyser::get_next() {
+    int index;
+
+    lexic::token tk = lex.get_next();
+
+    if (tk.type == lexic::type::INT) {
+        int index = std::stoi(tk.value);
+
+        tk = lex.get_next();
+
+        switch (tk.type) {
+            case lexic::type::LET:
+                return get_assign(index);
+            case lexic::type::GO:
+            case lexic::type::GOTO:
+                Goto* go = get_goto(index);
+                printf("Objeto GO(%p)\n", go);
+                return go;
+        }
+    }
+}
+
+
+Assign* SyntacticalAnalyser::get_assign(int index) {
+    string identifier;
+    int value;
+    lexic::token tk = lex.get_next();
+
+    if (tk.type == lexic::type::IDN)
+        identifier = tk.value;
+
+    if (lex.get_next().type == lexic::type::EQL);
+
+    tk = lex.get_next();
+    if (tk.type == lexic::type::INT);
+        value = std::stoi(tk.value);
+
+    return new Assign(index, identifier, value);
+}
+
+Goto* SyntacticalAnalyser::get_goto(int index) {
+    int destination;
+    lexic::token tk = lex.get_next();
+
+    cout << tk.value << endl;
+
+    if (tk.type == lexic::type::TO) {
+        tk = lex.get_next();
+        if (tk.type == lexic::type::INT)
+            destination = std::stoi(tk.value);
+    }
+    else if (tk.type == lexic::type::INT)
+        destination = std::stoi(tk.value);
+
+    cout << destination << endl;
+
+    Goto* go = new Goto(index, destination);
+    printf("Objeto GO(%p)\n", go);
+    return go;
+}
+
+/*using namespace syntax;
 
 lexic::token tk;
 
 const struct syntax::state PROGRAM    = { 0, false};
-const struct syntax::state STATEMENT0 = { 1, false};
+const struct syntax::state STATEMENT = { 1, false};
 const struct syntax::state ASSIGN0    = { 2, false};
 const struct syntax::state ASSIGN1    = { 3, false};
 const struct syntax::state ASSIGN2    = { 4, false};
@@ -69,43 +136,43 @@ const struct syntax::state END        = {53, true};
 
 #define PROGRAM_FSM_SIZE 81
 const struct transition program[PROGRAM_FSM_SIZE] = {
-    {PROGRAM,    true,  (int) lexic::type::INT, STATEMENT0},
+    {PROGRAM,    true,  (int) lexic::type::INT, STATEMENT},
     // Bloco ASSIGN
-    {STATEMENT0, true,  (int) lexic::type::LET,  ASSIGN0},
+    {STATEMENT,  true,  (int) lexic::type::LET,  ASSIGN0},
     {ASSIGN0,    true,  (int) lexic::type::IDN,  ASSIGN1},
     {ASSIGN1,    true,  (int) lexic::type::EQL,  ASSIGN2},
     {ASSIGN2,    false, (int) syntax::type::EXP, ASSIGN3},
-    {ASSIGN3,    true,  (int) lexic::type::INT,  STATEMENT0},
+    {ASSIGN3,    true,  (int) lexic::type::INT,  STATEMENT},
     // Bloco READ
-    {STATEMENT0, true,  (int) lexic::type::READ, READ0},
+    {STATEMENT,  true,  (int) lexic::type::READ, READ0},
     {READ0,      false, (int) syntax::type::VAR, READ1},
     {READ1,      true,  (int) lexic::type::COM,  READ2},
-    {READ1,      true,  (int) lexic::type::INT,  STATEMENT0},
+    {READ1,      true,  (int) lexic::type::INT,  STATEMENT},
     {READ2,      false, (int) syntax::type::VAR, READ1},
     // Bloco DATA
-    {STATEMENT0, true,  (int) lexic::type::DATA, DATA0},
+    {STATEMENT,  true,  (int) lexic::type::DATA, DATA0},
     {DATA0,      false, (int) syntax::type::NUM, DATA1},
     {DATA1,      true,  (int) lexic::type::COM,  DATA2},
-    {DATA1,      true,  (int) lexic::type::INT,  STATEMENT0},
+    {DATA1,      true,  (int) lexic::type::INT,  STATEMENT},
     {DATA2,      false, (int) syntax::type::NUM, DATA1},
     // Bloco PRINT
-    {STATEMENT0, true,  (int) lexic::type::PRINT, PRINT0},
+    {STATEMENT,  true,  (int) lexic::type::PRINT, PRINT0},
     {PRINT0,     false, (int) syntax::type::EXP,  PRINT1},
     {PRINT0,     true,  (int) lexic::type::STR,   PRINT2},
-    {PRINT0,     true,  (int) lexic::type::INT,   STATEMENT0},
+    {PRINT0,     true,  (int) lexic::type::INT,   STATEMENT},
     {PRINT1,     true,  (int) lexic::type::COM,   PRINT0},
-    {PRINT1,     true,  (int) lexic::type::INT,   STATEMENT0},
+    {PRINT1,     true,  (int) lexic::type::INT,   STATEMENT},
     {PRINT2,     true,  (int) lexic::type::COM,   PRINT0},
-    {PRINT2,     true,  (int) lexic::type::INT,   STATEMENT0},
+    {PRINT2,     true,  (int) lexic::type::INT,   STATEMENT},
     {PRINT2,     false, (int) syntax::type::EXP,  PRINT1},
     // Bloco GOTO
-    {STATEMENT0, true,  (int) lexic::type::GO,   GOTO0},
-    {STATEMENT0, true,  (int) lexic::type::GOTO, GOTO1},
+    {STATEMENT,  true,  (int) lexic::type::GO,   GOTO0},
+    {STATEMENT,  true,  (int) lexic::type::GOTO, GOTO1},
     {GOTO0,      true,  (int) lexic::type::TO,   GOTO1},
     {GOTO1,      true,  (int) lexic::type::INT,  GOTO2},
-    {GOTO2,      true,  (int) lexic::type::INT,  STATEMENT0},
+    {GOTO2,      true,  (int) lexic::type::INT,  STATEMENT},
     // Bloco IF
-    {STATEMENT0, true,  (int) lexic::type::IF,   IF0},
+    {STATEMENT,  true,  (int) lexic::type::IF,   IF0},
     {IF0,        false, (int) syntax::type::EXP, IF1},
     {IF1,        true,  (int) lexic::type::GEQ,  IF2},
     {IF1,        true,  (int) lexic::type::GTN,  IF2},
@@ -116,33 +183,33 @@ const struct transition program[PROGRAM_FSM_SIZE] = {
     {IF2,        false, (int) syntax::type::EXP, IF3},
     {IF3,        true,  (int) lexic::type::THEN, IF4},
     {IF4,        true,  (int) lexic::type::INT,  IF5},
-    {IF5,        true,  (int) lexic::type::INT,  STATEMENT0},
+    {IF5,        true,  (int) lexic::type::INT,  STATEMENT},
     // Bloco FOR
-    {STATEMENT0, true,  (int) lexic::type::FOR,  FOR0},
+    {STATEMENT,  true,  (int) lexic::type::FOR,  FOR0},
     {FOR0,       true,  (int) lexic::type::IDN,  FOR1},
     {FOR1,       true,  (int) lexic::type::EQL,  FOR2},
     {FOR2,       false, (int) syntax::type::EXP, FOR3},
     {FOR3,       true,  (int) lexic::type::TO,   FOR4},
     {FOR4,       false, (int) syntax::type::EXP, FOR5},
     {FOR5,       true,  (int) lexic::type::STEP, FOR6},
-    {FOR5,       true,  (int) lexic::type::INT,  STATEMENT0},
+    {FOR5,       true,  (int) lexic::type::INT,  STATEMENT},
     {FOR6,       false, (int) syntax::type::EXP, FOR7},
-    {FOR7,       true,  (int) lexic::type::INT,  STATEMENT0},
+    {FOR7,       true,  (int) lexic::type::INT,  STATEMENT},
     // Bloco NEXT
-    {STATEMENT0, true,  (int) lexic::type::NEXT, NEXT0},
+    {STATEMENT, true,  (int) lexic::type::NEXT, NEXT0},
     {NEXT0,      true,  (int) lexic::type::IDN,  NEXT1},
-    {NEXT1,      true,  (int) lexic::type::INT,  STATEMENT0},
+    {NEXT1,      true,  (int) lexic::type::INT,  STATEMENT},
     // Bloco DIM
-    {STATEMENT0, true,  (int) lexic::type::DIM, DIM0},
+    {STATEMENT,  true,  (int) lexic::type::DIM, DIM0},
     {DIM0,       true,  (int) lexic::type::IDN, DIM1},
     {DIM1,       true,  (int) lexic::type::PRO, DIM2},
     {DIM2,       true,  (int) lexic::type::INT, DIM3},
     {DIM3,       true,  (int) lexic::type::PRC, DIM4},
     {DIM4,       true,  (int) lexic::type::COM, DIM5},
-    {DIM4,       true,  (int) lexic::type::INT, STATEMENT0},
+    {DIM4,       true,  (int) lexic::type::INT, STATEMENT},
     {DIM5,       true,  (int) lexic::type::IDN, DIM1},
     // Bloco DEF
-    {STATEMENT0, true,  (int) lexic::type::DEF,  DEF0},
+    {STATEMENT,  true,  (int) lexic::type::DEF,  DEF0},
     {DEF0,       true,  (int) lexic::type::FN,   DEF1},
     {DEF1,       true,  (int) lexic::type::IDN,  DEF2},
     {DEF2,       true,  (int) lexic::type::PRO,  DEF3},
@@ -150,20 +217,20 @@ const struct transition program[PROGRAM_FSM_SIZE] = {
     {DEF4,       true,  (int) lexic::type::PRC,  DEF5},
     {DEF5,       true,  (int) lexic::type::EQL,  DEF6},
     {DEF6,       false, (int) syntax::type::EXP, DEF7},
-    {DEF7,       true,  (int) lexic::type::INT,  STATEMENT0},
+    {DEF7,       true,  (int) lexic::type::INT,  STATEMENT},
     // Bloco GOSUB
-    {STATEMENT0, true,  (int) lexic::type::GOSUB, GOSUB0},
+    {STATEMENT,  true,  (int) lexic::type::GOSUB, GOSUB0},
     {GOSUB0,     true,  (int) lexic::type::INT,   GOSUB1},
-    {GOSUB1,     true,  (int) lexic::type::INT,   STATEMENT0},
+    {GOSUB1,     true,  (int) lexic::type::INT,   STATEMENT},
     // Bloco RETURN
-    {STATEMENT0, true,  (int) lexic::type::RETURN, RETURN},
-    {RETURN,     true,  (int) lexic::type::INT,    STATEMENT0},
+    {STATEMENT,  true,  (int) lexic::type::RETURN, RETURN},
+    {RETURN,     true,  (int) lexic::type::INT,    STATEMENT},
     // Bloco REM
-    {STATEMENT0, true,  (int) lexic::type::REM, REMARK0},
+    {STATEMENT,  true,  (int) lexic::type::REM, REMARK0},
     {REMARK0,    true,  (int) lexic::type::CMT, REMARK1},
-    {REMARK1,    true,  (int) lexic::type::INT, STATEMENT0},
+    {REMARK1,    true,  (int) lexic::type::INT, STATEMENT},
     // Bloco END
-    {STATEMENT0, true,  (int) lexic::type::END, END},
+    {STATEMENT,  true,  (int) lexic::type::END, END},
 };
 
 bool FSM_program(lexic::LexicalAnalyser& lex) {
@@ -178,7 +245,7 @@ bool FSM_program(lexic::LexicalAnalyser& lex) {
                     if ((lexic::type) program[i].input == tk.type ) {
                         t = &program[i];
                         tk = lex.get_next();
-                        std::cout << "\tPRG NEXT: " << type_name(tk.type) << ": " << tk.value << std::endl;
+                        //std::cout << "\tPRG NEXT: " << type_name(tk.type) << ": " << tk.value << std::endl;
                         break;
                     }
                 }
@@ -221,20 +288,21 @@ const struct syntax::state EXP2 = {2, true};
 const struct transition exp[EXP_FSM_SIZE] = {
     {EXP0, true,  (int) lexic::type::ADD, EXP0},
     {EXP0, true,  (int) lexic::type::SUB, EXP0},
-    {EXP0, false, (int) type::EB,  EXP1},
+    {EXP0, false, (int) syntax::type::EB, EXP1},
     {EXP1, true,  (int) lexic::type::ADD, EXP2},
     {EXP1, true,  (int) lexic::type::SUB, EXP2},
     {EXP1, true,  (int) lexic::type::MUL, EXP2},
     {EXP1, true,  (int) lexic::type::DIV, EXP2},
     {EXP1, true,  (int) lexic::type::POW, EXP2},
-    {EXP2, false, (int) type::EB,  EXP1},
+    {EXP2, false, (int) syntax::type::EB, EXP1},
 };
 
 bool FSM_exp(lexic::LexicalAnalyser& lex) {
     struct syntax::state s = EXP0;
     while (true) {
         const struct transition *t = nullptr;
-
+        Debugger::print_exp(s);
+        std::cout << "\tTOKEN " << type_name(tk.type) << std::endl;
         for (int i = 0; i < EXP_FSM_SIZE; i++) {
             if (exp[i].current.id == s.id) {
                 if (exp[i].input_is_terminal) {
@@ -283,9 +351,9 @@ struct transition eb[EB_FSM_SIZE] = {
     {EB0, true,  (int) lexic::type::FNINT, EB3},
     {EB0, true,  (int) lexic::type::FNRND, EB3},
     {EB0, true,  (int) lexic::type::FN,    EB4},
-    {EB0, false, (int) type::VAR,                  EB5},
-    {EB0, false, (int) type::NUM,                  EB5},
-    {EB1, true,  (int) type::EXP,                  EB2},
+    {EB0, false, (int) syntax::type::VAR,  EB5},
+    {EB0, false, (int) syntax::type::NUM,  EB5},
+    {EB1, true,  (int) syntax::type::EXP,  EB2},
     {EB2, true,  (int) lexic::type::PRC,   EB5},
     {EB3, true,  (int) lexic::type::PRO,   EB1},
     {EB4, true,  (int) lexic::type::IDN,   EB3}    
@@ -295,7 +363,8 @@ bool FSM_eb(lexic::LexicalAnalyser& lex) {
     struct syntax::state s = EB0;
     while (true) {
         const struct transition *t = nullptr;
-
+        Debugger::print_eb(s);
+        std::cout << "\tTOKEN " << type_name(tk.type) << std::endl;
         for (int i = 0; i < EB_FSM_SIZE; i++) {
             if (eb[i].current.id == s.id) {
                 if (eb[i].input_is_terminal) {
@@ -344,18 +413,19 @@ const struct syntax::state VAR3 = {3, false};
 const struct syntax::state VAR4 = {4, true};
 
 const struct transition var[5] = {
-    {VAR0, true,  (int) lexic::type::IDN, VAR1},
-    {VAR1, true,  (int) lexic::type::PRO, VAR2},
-    {VAR2, false, (int) type::EXP,                VAR3},
-    {VAR3, true,  (int) lexic::type::COM, VAR2},
-    {VAR3, true,  (int) lexic::type::PRC, VAR4},
+    {VAR0, true,  (int) lexic::type::IDN,  VAR1},
+    {VAR1, true,  (int) lexic::type::PRO,  VAR2},
+    {VAR2, false, (int) syntax::type::EXP, VAR3},
+    {VAR3, true,  (int) lexic::type::COM,  VAR2},
+    {VAR3, true,  (int) lexic::type::PRC,  VAR4},
 };
 
 bool FSM_var(lexic::LexicalAnalyser& lex) {
     struct syntax::state s = VAR0;
     while (true) {
         const struct transition *t = nullptr;
-
+        Debugger::print_var(s);
+        std::cout << "\tTOKEN " << type_name(tk.type) << std::endl;
         for (int i = 0; i < VAR_FSM_SIZE; i++) {
             if (var[i].current.id == s.id) {
                 if ((lexic::type)var[i].input == tk.type) {
@@ -429,7 +499,8 @@ bool FSM_num(lexic::LexicalAnalyser& lex) {
 
     while (true) {
         const struct transition *t = nullptr;
-
+        Debugger::print_num(s);
+        std::cout << "\tTOKEN " << type_name(tk.type) << std::endl;
         for (int i = 0; i < NUM_FSM_SIZE; i++) {
             if (s == num[i].current) {
                 if ((lexic::type)num[i].input == tk.type) {
@@ -447,7 +518,7 @@ bool FSM_num(lexic::LexicalAnalyser& lex) {
         }
 
         if (s.accepting) {
-            std::cout << "\t\t\tNUMERO: " << number.generate() << std::endl;
+            //std::cout << "\t\t\tNUMERO: " << number.generate() << std::endl;
             return true;
         }
         return false;
@@ -464,4 +535,4 @@ int syntax_read(std::ifstream& file) {
     else {
         std::cout << "\033[1;31mREPROVADO\033[0m" << std::endl;
     }
-}
+}*/
