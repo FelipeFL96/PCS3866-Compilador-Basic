@@ -30,8 +30,17 @@ void CodeGenerator::generate(syntax::Assign& assign) {
     file << endl;
 }
 
+void CodeGenerator::generate(syntax::Read& read) {
+    file << "L" << read.get_index() << ":" << endl;
+    file << endl;
+}
+
+void CodeGenerator::generate(syntax::Data& data) {
+    file << "L" << data.get_index() << ":" << endl;
+    file << endl;
+}
+
 void CodeGenerator::generate(syntax::Goto& go) {
-    cout << go.get_destination() << endl;
     file << "L" << go.get_index() << ":" << endl;
     file << "\tB L" << go.get_destination() << endl;
     file << endl;

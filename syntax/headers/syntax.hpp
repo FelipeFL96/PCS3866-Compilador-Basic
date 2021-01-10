@@ -60,7 +60,7 @@ public:
 
 class Eb;
 
-class Expression {};
+class Exp {};
 
 class Variable {
     std::string code;
@@ -107,7 +107,7 @@ class Assign : public BStatement {
     private:
         std::string identifier_;
         int value_;
-    //Expression expr;
+    //Exp expr;
 };
 
 class Read : public BStatement {
@@ -179,10 +179,26 @@ class Goto : public BStatement {
 
 
 class If {
-    Expression left;
-    Expression right;
+    Exp left;
+    Exp right;
     lexic::type op;
     int destination;
+};
+
+class syntax_exception: public std::exception {
+    public:
+        syntax_exception(lexic::position& loc, const char* error_message)
+            : loc(loc), error_message(error_message) {
+            exception();
+        }
+
+        std::string message() {
+            return loc.position_str() + ": " + error_message;
+        }
+
+    private:
+        lexic::position& loc;
+        const char* error_message;
 };
 
 } // namespace syntax

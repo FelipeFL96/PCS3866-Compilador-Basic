@@ -41,9 +41,15 @@ class SyntacticalAnalyser {
     private:
         std::ifstream& file;
         lexic::LexicalAnalyser lex;
+        lexic::token tk;
+        bool token_consumed;
 
         syntax::Assign* get_assign(int index);
         syntax::Goto* get_goto(int index);
+
+        syntax::Exp* get_exp();
+
+        bool consume(lexic::type type, bool force = false);
 };
 
 } // namespace syntax

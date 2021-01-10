@@ -30,30 +30,33 @@ int main(int argc, char* argv[]) {
     char* filename = argv[1];
     std::ifstream file(filename);
 
-    if (argc > 2 && 0 == strcmp(argv[2], "L")) {
-        try {
+    try {
+        if (argc > 2 && 0 == strcmp(argv[2], "L")) {
             lex_test(file, filename);
         }
-        catch (lexic::lexical_exception& e) {
-            cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+        else if (argc > 2 && 0 == strcmp(argv[2], "A")) {
+            ascii_test(file);
         }
-    }
-    else if (argc > 2 && 0 == strcmp(argv[2], "A")) {
-        ascii_test(file);
-    }
-    else {
-        ofstream out("out.s");
-        gen_test(file, out);
-        //synt_test(file);
-    }
-    /*else {
-        try {
-        syntax_read(file);
+        else {
+            ofstream out("out.s");
+            gen_test(file, out);
+            //synt_test(file);
         }
-        catch (lexic::lexical_exception& e) {
-            cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
-        }
-    }*/
+        /*else {
+            try {
+            syntax_read(file);
+            }
+            catch (lexic::lexical_exception& e) {
+                cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+            }
+        }*/
+    }
+    catch (lexic::lexical_exception& e) {
+        cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+    }
+    catch (syntax::syntax_exception& e) {
+        cerr << "\033[1;31mErro sintático: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+    }
 
     file.close();
 

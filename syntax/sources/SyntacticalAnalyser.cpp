@@ -17,10 +17,10 @@ SyntacticalAnalyser::SyntacticalAnalyser(ifstream& file):
 Syntaxeme* SyntacticalAnalyser::get_next() {
     int index;
 
-    lexic::token tk = lex.get_next();
+    //lexic::token tk = lex.get_next();
 
-    if (tk.type == lexic::type::INT) {
-        int index = std::stoi(tk.value);
+    if (consume(lexic::type::INT, true)) {
+        int index = stoi(tk.value);
 
         tk = lex.get_next();
 
@@ -29,9 +29,9 @@ Syntaxeme* SyntacticalAnalyser::get_next() {
                 return get_assign(index);
             case lexic::type::GO:
             case lexic::type::GOTO:
-                Goto* go = get_goto(index);
-                printf("Objeto GO(%p)\n", go);
-                return go;
+                return get_goto(index);
+            case lexic::type::READ:
+                return get_read(index);
         }
     }
 }
@@ -40,39 +40,43 @@ Syntaxeme* SyntacticalAnalyser::get_next() {
 Assign* SyntacticalAnalyser::get_assign(int index) {
     string identifier;
     int value;
-    lexic::token tk = lex.get_next();
 
-    if (tk.type == lexic::type::IDN)
-        identifier = tk.value;
+    consume(lexic::type::IDN, true);
+    identifier = tk.value;
 
-    if (lex.get_next().type == lexic::type::EQL);
+    consume(lexic::type::EQL, true);
 
-    tk = lex.get_next();
-    if (tk.type == lexic::type::INT);
-        value = std::stoi(tk.value);
+    consume(lexic::type::INT, true);
+    value = stoi(tk.value);
 
     return new Assign(index, identifier, value);
 }
 
 Goto* SyntacticalAnalyser::get_goto(int index) {
     int destination;
-    lexic::token tk = lex.get_next();
 
-    cout << tk.value << endl;
-
-    if (tk.type == lexic::type::TO) {
-        tk = lex.get_next();
-        if (tk.type == lexic::type::INT)
-            destination = std::stoi(tk.value);
+    if (consume(lexic::type::TO)) {
+        consume(lexic::type::INT, true);
+        destination = stoi(tk.value);
     }
-    else if (tk.type == lexic::type::INT)
-        destination = std::stoi(tk.value);
+    else {
+        consume(lexic::type::INT, true);
+        destination = stoi(tk.value);
+    }
 
-    cout << destination << endl;
+    return new Goto(index, destination);
+}
 
-    Goto* go = new Goto(index, destination);
-    printf("Objeto GO(%p)\n", go);
-    return go;
+bool SyntacticalAnalyser::consume(lexic::type type, bool force) {
+    if (token_consumed)
+        tk = lex.get_next();
+
+    token_consumed = (tk.type == type) ? true : false;
+
+    if (force && !token_consumed)
+        throw syntax_exception(tk.pos, "Token inesperado");
+
+    return token_consumed;
 }
 
 /*using namespace syntax;
