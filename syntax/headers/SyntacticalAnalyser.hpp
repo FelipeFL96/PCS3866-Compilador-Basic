@@ -48,9 +48,18 @@ class SyntacticalAnalyser {
         syntax::Goto* get_goto(int index);
 
         syntax::Exp* get_exp();
+        syntax::Eb* get_eb();
+        syntax::Operator* get_operator();
+        /*bool get_exp(vector<Elem*>& exp);
+        bool get_op(vector<Elem*>& exp);
+        bool get_eb(vector<Elem*>& exp);*/
+        syntax::Num* get_num();
+        syntax::Var* get_var();
 
-        bool consume(lexic::type type, bool force = false);
+        bool consume(lexic::type type, bool lookahead, bool force = false);
 };
+        //syntax::Data* get_data(int index);
+        //syntax::Read* get_read(int index);
 
 } // namespace syntax
 

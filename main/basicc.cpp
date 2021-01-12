@@ -113,11 +113,12 @@ void gen_test(ifstream& input, ofstream& output) {
     gen.generate_header();
 
     syntax::Syntaxeme* sx;
-    for (int i = 0; i < 2; i++) {
+    /*for (int i = 0; i < 1; i++) {
         sx = stx.get_next();
         sx->accept(gen);
         delete sx;
-    }
+    }*/
+    stx.get_next();
 
     gen.generate_variables();
 

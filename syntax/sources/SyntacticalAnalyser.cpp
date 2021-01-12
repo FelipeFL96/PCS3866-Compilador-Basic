@@ -17,9 +17,24 @@ SyntacticalAnalyser::SyntacticalAnalyser(ifstream& file):
 Syntaxeme* SyntacticalAnalyser::get_next() {
     int index;
 
-    //lexic::token tk = lex.get_next();
+    /*Num* n = dynamic_cast<Num*>(get_eb());
+    cout << "NUM: " << n->get_value() << endl;*/
 
-    if (consume(lexic::type::INT, true)) {
+    Exp* e = get_exp();
+
+    cout << (e->is_positive()? "( " : "- ( ");
+    if (e->get_operands().at(0)->get_eb_type() == Eb::NUM)
+        cout << dynamic_cast<Num*>(e->get_operands().at(0))->get_value() << " ";
+
+    for (int i = 0; i < e->get_operators().size(); i++) {
+        cout << e->get_operators().at(i)->get_symbol() << " ";
+
+        if (e->get_operands().at(i + 1)->get_eb_type() == Eb::NUM)
+            cout << dynamic_cast<Num*>(e->get_operands().at(i + 1))->get_value() << " ";
+    }
+    cout << ")" << endl;
+
+    /*if (consume(lexic::type::INT, false, true)) {
         int index = stoi(tk.value);
 
         tk = lex.get_next();
@@ -30,10 +45,10 @@ Syntaxeme* SyntacticalAnalyser::get_next() {
             case lexic::type::GO:
             case lexic::type::GOTO:
                 return get_goto(index);
-            case lexic::type::READ:
-                return get_read(index);
+            //case lexic::type::READ:
+                //return get_read(index);
         }
-    }
+    }*/
 }
 
 
@@ -41,42 +56,228 @@ Assign* SyntacticalAnalyser::get_assign(int index) {
     string identifier;
     int value;
 
-    consume(lexic::type::IDN, true);
+    consume(lexic::type::IDN, false, true);
     identifier = tk.value;
 
-    consume(lexic::type::EQL, true);
+    consume(lexic::type::EQL, false, true);
 
-    consume(lexic::type::INT, true);
+    consume(lexic::type::INT, false, true);
     value = stoi(tk.value);
 
     return new Assign(index, identifier, value);
 }
 
+/*Read* SyntacticalAnalyser::get_read(int index) {
+    vector<string> identifiers;
+    lexic::token tk = lex.get_next();
+
+    cout << tk.value << endl;
+    if (tk.type == lexic::type::IDN)
+        identifiers.push_back(tk.value);
+
+    return new Read(index, identifiers);
+}
+
+Data* SyntacticalAnalyser::get_data(int index) {
+    vector<int> values;
+    lexic::token tk = lex.get_next();
+
+    cout << tk.value << endl;
+    if (tk.type == lexic::type::INT)
+        values.push_back(stoi(tk.value));
+
+    return new Data(index, values);
+}*/
+
 Goto* SyntacticalAnalyser::get_goto(int index) {
     int destination;
 
-    if (consume(lexic::type::TO)) {
-        consume(lexic::type::INT, true);
+    if (consume(lexic::type::TO, false)) {
+        consume(lexic::type::INT, false, true);
         destination = stoi(tk.value);
     }
     else {
-        consume(lexic::type::INT, true);
+        consume(lexic::type::INT, false, true);
         destination = stoi(tk.value);
     }
 
     return new Goto(index, destination);
 }
 
-bool SyntacticalAnalyser::consume(lexic::type type, bool force) {
+Exp* SyntacticalAnalyser::get_exp() {
+    bool positive = true;
+    std::vector<Eb*> operands;
+    std::vector<Operator*> operators;
+
+    if (consume(lexic::type::ADD, false))
+        positive = true;
+    else if (consume(lexic::type::SUB, false))
+        positive = false;
+
+    operands.push_back(get_eb());
+
+    while (true) {
+        Operator* op = get_operator();
+
+        if(op == nullptr)
+            break;
+
+        operators.push_back(op);
+        operands.push_back(get_eb());
+    }
+
+    return new Exp(positive, operands, operators);
+}
+
+Operator* SyntacticalAnalyser::get_operator() {
+    if (consume(lexic::type::ADD, true)) {
+        consume(lexic::type::ADD, false, true);
+        return new Operator(Operator::ADD, tk.value);
+    }
+    else if (consume(lexic::type::SUB, true)) {
+        consume(lexic::type::SUB, false, true);
+        return new Operator(Operator::SUB, tk.value);
+    }
+    else if (consume(lexic::type::MUL, true)) {
+        consume(lexic::type::MUL, false, true);
+        return new Operator(Operator::MUL, tk.value);
+    }
+    else if (consume(lexic::type::DIV, true)) {
+        consume(lexic::type::DIV, false, true);
+        return new Operator(Operator::DIV, tk.value);
+    }
+    else if (consume(lexic::type::POW, true)) {
+        consume(lexic::type::POW, false, true);
+        return new Operator(Operator::POW, tk.value);
+    }
+    else {
+        return nullptr;
+    }
+}
+
+Eb* SyntacticalAnalyser::get_eb() {
+    if (consume(lexic::type::INT, true))
+        return get_num();
+    else {
+        throw syntax_exception(tk.pos, "Encontrado '" + tk.value + "' em posição inesperada");
+    }
+}
+
+/*bool SyntacticalAnalyser::get_exp(vector<Elem*>& exp) {
+    vector<Elem*> exp;
+
+    if (consume(lexic::type::ADD, false))
+        exp.push_back(tk);
+    else if (consume(lexic::type::SUB, false))
+        exp.push_back(tk);
+
+    if (!get_eb(exp)) throw exception();
+    while(get_op(exp)) {
+        if (!get_eb(exp)) throw exception();
+    }
+
+}
+
+bool SyntacticalAnalyser::get_op(vector<Elem*>& exp) {
+    if (consume(lexic::type::ADD, true)) {
+        consume(lexic::type::ADD, false);
+        exp.push_back(new Operator(tk));
+        return true;
+    }
+    else if (consume(lexic::type::SUB, true)) {
+        consume(lexic::type::SUB, false);
+        exp.push_back(new Operator(tk));
+        return true;
+    }
+    else if (consume(lexic::type::MUL, true)) {
+        consume(lexic::type::MUL, false);
+        exp.push_back(new Operator(tk));
+        return true;
+    }
+    else if (consume(lexic::type::DIV, true)) {
+        consume(lexic::type::DIV, false);
+        exp.push_back(new Operator(tk));
+        return true;
+    }
+    else if (consume(lexic::type::POW, true)) {
+        consume(lexic::type::POW, false);
+        exp.push_back(new Elem(Elem::type::POW));
+        return true;
+    }
+    return false;
+}
+
+bool SyntacticalAnalyser::get_eb(vector<Elem*>& exp) {
+
+    if (consume(lexic::type::INT, true)) {
+        consume(lexic::type::INT, false);
+        exp.push_back(get_num());
+        return true;
+    }
+    else if (consume(lexic::type::IDN, true)) {
+        consume(lexic::type::IDN, false);
+        exp.push_back(get_var());
+        return true;
+    }
+    else if (consume(lexic::type::PRO, true)) {
+        consume(lexic::type::PRO, false, true);
+        exp.push_back(new Elem(Elem::type::PRO));
+
+        bool ok = get_exp(exp);
+
+        if (ok) {
+            consume(lexic::type::PRC, false, true);
+            exp.push_back(new Elem(Elem::type::PRC));
+        }
+
+        return ok;
+    }
+    else if (consume(lexic::type::FN)) {}
+    else if (consume(lexic::type::FN)) {}
+    false;
+}*/
+
+Num* SyntacticalAnalyser::get_num() {
+    int integer, exponent = 0;
+    bool neg_exp = false;
+
+    consume(lexic::type::INT, false, true);
+    integer = stoi(tk.value);
+
+    if (consume(lexic::type::EXD, false)) {
+        if (consume(lexic::type::ADD, false))
+            neg_exp = false;
+
+        else if (consume(lexic::type::SUB, false))
+            neg_exp = true;
+
+        consume(lexic::type::INT, false, true);
+        exponent = stoi(tk.value);
+    }
+
+    return new Num(integer, neg_exp, exponent);
+}
+
+Var* SyntacticalAnalyser::get_var() {
+    string identifier;
+
+    if (consume(lexic::type::IDN, false, true))
+        identifier = tk.value;
+
+    return new Var(identifier);
+}
+
+bool SyntacticalAnalyser::consume(lexic::type type, bool lookahead, bool force) {
     if (token_consumed)
         tk = lex.get_next();
 
-    token_consumed = (tk.type == type) ? true : false;
+    bool match = (tk.type == type) ? true : false;
+    token_consumed = (!lookahead && match);
 
     if (force && !token_consumed)
-        throw syntax_exception(tk.pos, "Token inesperado");
+        throw syntax_exception(tk.pos, string("Token inesperado: ") + tk.value);
 
-    return token_consumed;
+    return match;
 }
 
 /*using namespace syntax;

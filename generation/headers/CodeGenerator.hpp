@@ -10,6 +10,8 @@ class CodeGenerator : public syntax::Generator {
         CodeGenerator(std::ofstream& file);
 
         void generate(syntax::Assign& assign);
+        void generate(syntax::Read& read);
+        void generate(syntax::Data& data);
         void generate(syntax::Goto& go);
 
         void generate_header();

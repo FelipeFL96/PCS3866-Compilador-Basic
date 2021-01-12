@@ -19,53 +19,146 @@ enum class type {
 class Generator {
     public:
         virtual void generate(class Assign& assign) = 0;
+        virtual void generate(class Read& go) = 0;
+        virtual void generate(class Data& go) = 0;
         virtual void generate(class Goto& go) = 0;
 };
 
-class Number {
-public:
-    bool negative = 0;
-    int integer = 0;
-    int fraction = 0;
-    bool exponent_negative = 0;
-    int exponent = 0;
+class Elem {
+    public:
+        enum type {
+            NUM,
+            VAR,
+            ADD,
+            SUB,
+            MUL,
+            DIV,
+            PRO,
+            PRC
+        };
 
-    double generate() {
-        double num = 0.0;
-        num = integer;
+        Elem(Elem::type type):
+            type_(type)
+        {}
 
-        double frac = fraction;
-        while (frac > 1) {
-            frac /= 10;
+    private:
+        Elem::type type_;
+
+};
+
+class Operator {
+    public:
+        enum type {
+            ADD,
+            SUB,
+            MUL,
+            DIV,
+            POW
+        };
+
+        Operator(Operator::type type, std::string symbol):
+            type_(type), symbol_(symbol)
+        {}
+
+        Operator::type get_op_type() {
+            return type_;
         }
-        num = frac + num;
 
-        if (negative)
-            num *= -1;
+        std::string get_symbol() {
+            return symbol_;
+        }
 
-        if (exponent_negative) {
-            for (int i = 0; i < exponent; i++) {
-                num /= 10;
+    private:
+        Operator::type type_;
+        std::string symbol_;
+};
+
+class Eb {
+    public:
+        enum type {
+            NUM,
+            VAR,
+            CALL,
+            EXP
+        };
+
+        virtual Eb::type get_eb_type() = 0;
+};
+
+class Num : public Eb {
+    public:
+        Num(int integer, bool neg_exp, int exponent):
+            integer_(integer), neg_exp_(neg_exp), exponent_(exponent)
+        {}
+
+        int get_value() {
+            int num = integer_;
+
+            if (neg_exp_) {
+                for (int i = 0; i < exponent_; i++) {
+                    num /= 10;
+                }
             }
-        }
-        else {
-            for (int i = 0; i < exponent; i++) {
-                num *= 10;
+            else {
+                for (int i = 0; i < exponent_; i++) {
+                    num *= 10;
+                }
             }
+            return num;
         }
-        return num;
+
+        Eb::type get_eb_type() {
+            return Eb::NUM;
+        }
+
+    private:
+        int integer_ = 0;
+        bool neg_exp_ = false;
+        int exponent_ = 0;
+};
+
+class Var : public Eb {
+    public:
+        Var(std::string identifier):
+            identifier_(identifier)
+        {}
+
+        Eb::type get_eb_type() {
+            return Eb::VAR;
+        }
+
+    private:
+        std::string identifier_;
+        bool indexed;
+        int dimension;
+
+        int index, size;
+};
+
+class Exp {
+    public:
+        Exp(bool positive, std::vector<Eb*> operands, std::vector<Operator*> operators):
+            positive_(positive), operands_(operands), operators_(operators)
+        {}
+
+    bool is_positive() {
+        return positive_;
     }
+
+    std::vector<Eb*> get_operands() {
+        return operands_;
+    }
+
+    std::vector<Operator*> get_operators() {
+        return operators_;
+    }
+
+    private:
+        bool positive_;
+        std::vector<Eb*> operands_;
+        std::vector<Operator*> operators_;
 };
 
-
-class Eb;
-
-class Exp {};
-
-class Variable {
-    std::string code;
-    std::string identifier;
-};
 
 class Syntaxeme {
     public:
@@ -120,9 +213,13 @@ class Read : public BStatement {
             return identifiers_;
         }
 
+        void accept(Generator& gen) {
+            gen.generate(*this);
+        }
+
     private:
         std::vector<std::string> identifiers_;
-        //std::vector<Variable> variables;
+        //std::vector<Var> variables;
 };
 
 class Data : public BStatement {
@@ -135,9 +232,13 @@ class Data : public BStatement {
             return values_;
         }
 
+        void accept(Generator& gen) {
+            gen.generate(*this);
+        }
+
     private:
         std::vector<int> values_;
-        //std::vector<Number> values;
+        //std::vector<Num> values;
 };
 
 class Pitem {
@@ -149,8 +250,8 @@ class Pitem {
 
     Pitem::type type;
 
-    Number num;
-    Variable var;
+    Num num;
+    Var var;
     std::string str;
 };
 
@@ -187,7 +288,7 @@ class If {
 
 class syntax_exception: public std::exception {
     public:
-        syntax_exception(lexic::position& loc, const char* error_message)
+        syntax_exception(lexic::position& loc, const std::string error_message)
             : loc(loc), error_message(error_message) {
             exception();
         }
@@ -198,7 +299,7 @@ class syntax_exception: public std::exception {
 
     private:
         lexic::position& loc;
-        const char* error_message;
+        const std::string error_message;
 };
 
 } // namespace syntax
