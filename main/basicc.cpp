@@ -7,6 +7,7 @@
 #include "ASCIIClassifier.hpp"
 #include "LexicalAnalyser.hpp"
 #include "SyntacticalAnalyser.hpp"
+#include "SemanticAnalyser.hpp"
 #include "CodeGenerator.hpp"
 
 using namespace std;
@@ -17,6 +18,7 @@ string ascii2name(lexic::ascii_type t);
 void lex_test(ifstream& file, const char* filename);
 void ascii_test(ifstream& file);
 void synt_test(ifstream& file);
+void sem_test(ifstream& file);
 void gen_test(ifstream& input, ofstream& output);
 
 int main(int argc, char* argv[]) {
@@ -37,10 +39,13 @@ int main(int argc, char* argv[]) {
         else if (argc > 2 && 0 == strcmp(argv[2], "A")) {
             ascii_test(file);
         }
-        else {
+        else if (argc > 2 && 0 == strcmp(argv[2], "S")) {
             ofstream out("out.s");
             gen_test(file, out);
             //synt_test(file);
+        }
+        else {
+            sem_test(file);
         }
         /*else {
             try {
@@ -101,6 +106,11 @@ void synt_test(ifstream& file) {
     //cout << "Na linha " << a.get_index() << " li a atribuição de " << a.get_value() << " à variável " << a.get_identifier() << endl;
 
     //generate_code(a);
+}
+
+void sem_test(ifstream& file) {
+    SemanticAnalyser smt(file);
+    smt.parse_expression();
 }
 
 void gen_test(ifstream& input, ofstream& output) {

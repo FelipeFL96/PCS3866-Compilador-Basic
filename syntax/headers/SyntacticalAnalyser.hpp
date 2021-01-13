@@ -38,6 +38,8 @@ class SyntacticalAnalyser {
 
         syntax::Syntaxeme* get_next(void);
 
+        /**/syntax::Exp* get_exp();
+
     private:
         std::ifstream& file;
         lexic::LexicalAnalyser lex;
@@ -47,7 +49,7 @@ class SyntacticalAnalyser {
         syntax::Assign* get_assign(int index);
         syntax::Goto* get_goto(int index);
 
-        syntax::Exp* get_exp();
+        //syntax::Exp* get_exp();
         syntax::Eb* get_eb();
         syntax::Operator* get_operator();
         /*bool get_exp(vector<Elem*>& exp);

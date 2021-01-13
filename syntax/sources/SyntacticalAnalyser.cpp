@@ -132,23 +132,23 @@ Exp* SyntacticalAnalyser::get_exp() {
 Operator* SyntacticalAnalyser::get_operator() {
     if (consume(lexic::type::ADD, true)) {
         consume(lexic::type::ADD, false, true);
-        return new Operator(Operator::ADD, tk.value);
+        return new Operator(Elem::ADD, Operator::ADD, tk.value);
     }
     else if (consume(lexic::type::SUB, true)) {
         consume(lexic::type::SUB, false, true);
-        return new Operator(Operator::SUB, tk.value);
+        return new Operator(Elem::SUB, Operator::SUB, tk.value);
     }
     else if (consume(lexic::type::MUL, true)) {
         consume(lexic::type::MUL, false, true);
-        return new Operator(Operator::MUL, tk.value);
+        return new Operator(Elem::MUL, Operator::MUL, tk.value);
     }
     else if (consume(lexic::type::DIV, true)) {
         consume(lexic::type::DIV, false, true);
-        return new Operator(Operator::DIV, tk.value);
+        return new Operator(Elem::DIV, Operator::DIV, tk.value);
     }
     else if (consume(lexic::type::POW, true)) {
         consume(lexic::type::POW, false, true);
-        return new Operator(Operator::POW, tk.value);
+        return new Operator(Elem::POW, Operator::POW, tk.value);
     }
     else {
         return nullptr;
@@ -158,9 +158,10 @@ Operator* SyntacticalAnalyser::get_operator() {
 Eb* SyntacticalAnalyser::get_eb() {
     if (consume(lexic::type::INT, true))
         return get_num();
-    else {
+    else if (consume(lexic::type::IDN, true))
+        return get_var();
+    else
         throw syntax_exception(tk.pos, "Encontrado '" + tk.value + "' em posição inesperada");
-    }
 }
 
 /*bool SyntacticalAnalyser::get_exp(vector<Elem*>& exp) {
@@ -255,7 +256,7 @@ Num* SyntacticalAnalyser::get_num() {
         exponent = stoi(tk.value);
     }
 
-    return new Num(integer, neg_exp, exponent);
+    return new Num(Elem::NUM, integer, neg_exp, exponent);
 }
 
 Var* SyntacticalAnalyser::get_var() {
@@ -264,7 +265,7 @@ Var* SyntacticalAnalyser::get_var() {
     if (consume(lexic::type::IDN, false, true))
         identifier = tk.value;
 
-    return new Var(identifier);
+    return new Var(Elem::VAR, identifier);
 }
 
 bool SyntacticalAnalyser::consume(lexic::type type, bool lookahead, bool force) {

@@ -11,6 +11,10 @@ STXHDR = syntax/headers
 STXSRC = syntax/sources
 STXOBJ = $(OBJPATH)/syntax
 
+SMTHDR = semantic/headers
+SMTSRC = semantic/sources
+SMTOBJ = $(OBJPATH)/semantic
+
 GENHDR = generation/headers
 GENSRC = generation/sources
 GENOBJ = $(OBJPATH)/generation
@@ -21,20 +25,23 @@ MAINOBJ = $(OBJPATH)/main
 
 SOURCES = \
 	$(wildcard $(GENSRC)/*.cpp)\
+	$(wildcard $(SMTSRC)/*.cpp)\
 	$(wildcard $(STXSRC)/*.cpp)\
 	$(wildcard $(LEXSRC)/*.cpp)\
 	$(wildcard $(MAINSRC)/*.cpp)
 HEADERS = \
 	$(wildcard $(LEXHDR)/*.hpp)\
 	$(wildcard $(STXHDR)/*.hpp)\
+	$(wildcard $(SMTHDR)/*.hpp)\
 	$(wildcard $(GENHDR)/*.hpp)
 OBJECTS = \
 	$(subst .cpp,.o,\
 	$(subst $(LEXSRC),$(LEXOBJ),\
 	$(subst $(STXSRC),$(STXOBJ),\
+	$(subst $(SMTSRC),$(SMTOBJ),\
 	$(subst $(GENSRC),$(GENOBJ),\
 	$(subst $(MAINSRC),$(MAINOBJ),\
-	$(SOURCES))))))
+	$(SOURCES)))))))
 
 
 all: basicc
@@ -45,7 +52,7 @@ basicc: $(OBJECTS)
 
 ./$(MAINOBJ)/%.o: ./$(MAINSRC)/%.cpp
 	mkdir -p $(MAINOBJ)
-	$(COMPILER) $(FLAGS) -I $(LEXHDR) -I $(STXHDR) -I $(GENHDR) -o $@ $^
+	$(COMPILER) $(FLAGS) -I $(LEXHDR) -I $(STXHDR) -I $(SMTHDR) -I $(GENHDR) -o $@ $^
 
 ./$(LEXOBJ)/%.o: ./$(LEXSRC)/%.cpp ./$(LEXHDR)/%.hpp
 	mkdir -p $(LEXOBJ)
@@ -55,9 +62,13 @@ basicc: $(OBJECTS)
 	mkdir -p $(STXOBJ)
 	$(COMPILER) $(FLAGS) -I $(LEXHDR) -I $(STXHDR) -o $@ $<
 
+./$(SMTOBJ)/%.o: ./$(SMTSRC)/%.cpp ./$(SMTHDR)/%.hpp
+	mkdir -p $(SMTOBJ)
+	$(COMPILER) $(FLAGS) -I $(LEXHDR) -I $(STXHDR) -I $(SMTHDR) -o $@ $<
+
 ./$(GENOBJ)/%.o: ./$(GENSRC)/%.cpp ./$(GENHDR)/%.hpp
 	mkdir -p $(GENOBJ)
-	$(COMPILER) $(FLAGS) -I $(LEXHDR) -I $(STXHDR) -I $(GENHDR) -o $@ $<
+	$(COMPILER) $(FLAGS) -I $(LEXHDR) -I $(STXHDR) -I $(SMTHDR) -I $(GENHDR) -o $@ $<
 
 clean:
 	rm -rf bin/*

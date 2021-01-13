@@ -2,6 +2,7 @@
 #define SEMANTIC_ANALYSER_HPP
 
 #include <fstream>
+#include <vector>
 
 #include "SyntacticalAnalyser.hpp"
 
@@ -12,6 +13,9 @@ class SemanticAnalyser {
     void parse_expression();
 
     private:
+    std::vector<syntax::Elem*> gen_exp_vector(const std::vector<syntax::Eb*>& operands, const std::vector<syntax::Operator*>& operators);
+    void convert_to_postfix(std::vector<syntax::Elem*>& exp);
+
     //std::ifstream& file;
     syntax::SyntacticalAnalyser stx;
 };

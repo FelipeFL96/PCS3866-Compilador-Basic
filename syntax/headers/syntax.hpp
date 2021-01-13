@@ -33,6 +33,7 @@ class Elem {
             SUB,
             MUL,
             DIV,
+            POW,
             PRO,
             PRC
         };
@@ -41,12 +42,25 @@ class Elem {
             type_(type)
         {}
 
+        virtual Elem::type get_elem_type() const {
+            return type_;
+        }
+
+        bool is_operator() {
+            return (type_ == Elem::ADD) 
+                || (type_ == Elem::SUB)
+                || (type_ == Elem::MUL)
+                || (type_ == Elem::DIV)
+                || (type_ == Elem::POW)
+                || (type_ == Elem::PRO);
+        }
+
     private:
         Elem::type type_;
 
 };
 
-class Operator {
+class Operator : public Elem {
     public:
         enum type {
             ADD,
@@ -56,8 +70,8 @@ class Operator {
             POW
         };
 
-        Operator(Operator::type type, std::string symbol):
-            type_(type), symbol_(symbol)
+        Operator(Elem::type elem, Operator::type type, std::string symbol):
+            Elem(elem), type_(type), symbol_(symbol)
         {}
 
         Operator::type get_op_type() {
@@ -73,7 +87,7 @@ class Operator {
         std::string symbol_;
 };
 
-class Eb {
+class Eb : public Elem {
     public:
         enum type {
             NUM,
@@ -82,13 +96,17 @@ class Eb {
             EXP
         };
 
+        Eb(Elem::type elem):
+            Elem(elem)
+        {}
+
         virtual Eb::type get_eb_type() = 0;
 };
 
 class Num : public Eb {
     public:
-        Num(int integer, bool neg_exp, int exponent):
-            integer_(integer), neg_exp_(neg_exp), exponent_(exponent)
+        Num(Elem::type elem, int integer, bool neg_exp, int exponent):
+            Eb(elem), integer_(integer), neg_exp_(neg_exp), exponent_(exponent)
         {}
 
         int get_value() {
@@ -119,9 +137,13 @@ class Num : public Eb {
 
 class Var : public Eb {
     public:
-        Var(std::string identifier):
-            identifier_(identifier)
+        Var(Elem::type elem, std::string identifier):
+            Eb(elem), identifier_(identifier)
         {}
+
+        std::string get_identifier() {
+            return identifier_;
+        }
 
         Eb::type get_eb_type() {
             return Eb::VAR;
