@@ -14,14 +14,8 @@ using namespace syntax;
 SyntacticalAnalyser::SyntacticalAnalyser(ifstream& file):
     file(file), lex(file) {}
 
-Syntaxeme* SyntacticalAnalyser::get_next() {
-    int index;
 
-    /*Num* n = dynamic_cast<Num*>(get_eb());
-    cout << "NUM: " << n->get_value() << endl;*/
-
-    Exp* e = get_exp();
-
+void print_exp(Exp* e) {
     cout << (e->is_positive()? "( " : "- ( ");
     if (e->get_operands().at(0)->get_eb_type() == Eb::NUM)
         cout << dynamic_cast<Num*>(e->get_operands().at(0))->get_value() << " ";
@@ -31,8 +25,24 @@ Syntaxeme* SyntacticalAnalyser::get_next() {
 
         if (e->get_operands().at(i + 1)->get_eb_type() == Eb::NUM)
             cout << dynamic_cast<Num*>(e->get_operands().at(i + 1))->get_value() << " ";
+        else if (e->get_operands().at(i + 1)->get_eb_type() == Eb::VAR)
+            cout << dynamic_cast<Var*>(e->get_operands().at(i + 1))->get_identifier() << " ";
+        else if (e->get_operands().at(i + 1)->get_eb_type() == Eb::EXP)
+            print_exp(dynamic_cast<Exp*>(e->get_operands().at(i + 1)));
+
     }
-    cout << ")" << endl;
+    cout << ") ";
+}
+
+Syntaxeme* SyntacticalAnalyser::get_next() {
+    int index;
+
+    /*Num* n = dynamic_cast<Num*>(get_eb());
+    cout << "NUM: " << n->get_value() << endl;*/
+
+    Exp* e = get_exp();
+    print_exp(e);
+    cout << endl; 
 
     /*if (consume(lexic::type::INT, false, true)) {
         int index = stoi(tk.value);
@@ -126,7 +136,7 @@ Exp* SyntacticalAnalyser::get_exp() {
         operands.push_back(get_eb());
     }
 
-    return new Exp(positive, operands, operators);
+    return new Exp(Elem::EXP, positive, operands, operators);
 }
 
 Operator* SyntacticalAnalyser::get_operator() {
@@ -156,12 +166,20 @@ Operator* SyntacticalAnalyser::get_operator() {
 }
 
 Eb* SyntacticalAnalyser::get_eb() {
-    if (consume(lexic::type::INT, true))
+    if (consume(lexic::type::INT, true)) {
         return get_num();
-    else if (consume(lexic::type::IDN, true))
+    }
+    else if (consume(lexic::type::IDN, true)) {
         return get_var();
-    else
+    }
+    else if (consume(lexic::type::PRO, false)) {
+        Exp* exp = get_exp();
+        consume(lexic::type::PRC, false, true);
+        return exp;
+    }
+    else {
         throw syntax_exception(tk.pos, "Encontrado '" + tk.value + "' em posição inesperada");
+    }
 }
 
 /*bool SyntacticalAnalyser::get_exp(vector<Elem*>& exp) {

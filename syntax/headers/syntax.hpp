@@ -35,7 +35,8 @@ class Elem {
             DIV,
             POW,
             PRO,
-            PRC
+            PRC,
+            EXP
         };
 
         Elem(Elem::type type):
@@ -51,8 +52,7 @@ class Elem {
                 || (type_ == Elem::SUB)
                 || (type_ == Elem::MUL)
                 || (type_ == Elem::DIV)
-                || (type_ == Elem::POW)
-                || (type_ == Elem::PRO);
+                || (type_ == Elem::POW);
         }
 
     private:
@@ -157,10 +157,10 @@ class Var : public Eb {
         int index, size;
 };
 
-class Exp {
+class Exp : public Eb {
     public:
-        Exp(bool positive, std::vector<Eb*> operands, std::vector<Operator*> operators):
-            positive_(positive), operands_(operands), operators_(operators)
+        Exp(Elem::type elem, bool positive, std::vector<Eb*> operands, std::vector<Operator*> operators):
+            Eb(elem), positive_(positive), operands_(operands), operators_(operators)
         {}
 
     bool is_positive() {
@@ -173,6 +173,10 @@ class Exp {
 
     std::vector<Operator*> get_operators() {
         return operators_;
+    }
+
+    Eb::type get_eb_type() {
+        return Eb::EXP;
     }
 
     private:
@@ -302,8 +306,8 @@ class Goto : public BStatement {
 
 
 class If {
-    Exp left;
-    Exp right;
+    //Exp left;
+    //Exp right;
     lexic::type op;
     int destination;
 };

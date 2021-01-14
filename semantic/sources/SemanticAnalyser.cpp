@@ -3,6 +3,7 @@
 #include "SemanticAnalyser.hpp"
 
 using namespace std;
+using namespace syntax;
 
 SemanticAnalyser::SemanticAnalyser(ifstream& file):
     stx(file)
@@ -34,26 +35,44 @@ void print_exp(const vector<syntax::Elem*>& exp) {
 void SemanticAnalyser::parse_expression() {
     syntax::Exp* e = stx.get_exp();
 
-    vector<syntax::Elem*> exp = gen_exp_vector(e->get_operands(), e->get_operators());
+    vector<syntax::Elem*> exp;
+    gen_exp_vector(e, exp);
 
     print_exp(exp);
 
     convert_to_postfix(exp);
 }
 
-vector<syntax::Elem*> SemanticAnalyser::gen_exp_vector(const vector<syntax::Eb*>& operands, const vector<syntax::Operator*>& operators) {
-    vector<syntax::Elem*> exp;
+void SemanticAnalyser::gen_exp_vector(syntax::Exp* e, vector<syntax::Elem*>& exp) {
+
+    vector<Eb*> operands = e->get_operands();
+    vector<Operator*> operators = e->get_operators();
 
     //TODO: Retornar erro se não houver operandos
-    exp.push_back(operands.front());
+    Eb* operand = operands.front();
+    if (operand->get_eb_type() == Eb::EXP) {
+        exp.push_back(new Elem(Elem::PRO));
+        gen_exp_vector(dynamic_cast<Exp*>(operand), exp);
+        exp.push_back(new Elem(Elem::PRC));
+    }
+    else {
+        exp.push_back(operand);
+    }
 
     int size = operators.size();
     for (int i = 0; i < size; i++) {
         exp.push_back(operators.at(i));
-        exp.push_back(operands.at(i + 1));
-    }
 
-    return exp;
+        Eb* operand = operands.at(i + 1);
+        if (operand->get_eb_type() == Eb::EXP) {
+            exp.push_back(new Elem(Elem::PRO));
+            gen_exp_vector(dynamic_cast<Exp*>(operand), exp);
+            exp.push_back(new Elem(Elem::PRC));
+        }
+        else {
+            exp.push_back(operand);
+        }
+    }
 }
 
 int precedence(syntax::Elem* e) {
