@@ -14,6 +14,7 @@ class SemanticAnalyser {
 
     private:
     void gen_exp_vector(syntax::Exp* e, std::vector<syntax::Elem*>& exp);
+    void gen_negative_exp_vector(syntax::Exp* e, std::vector<syntax::Elem*>& exp);
     void convert_to_postfix(std::vector<syntax::Elem*>& exp);
 
     //std::ifstream& file;

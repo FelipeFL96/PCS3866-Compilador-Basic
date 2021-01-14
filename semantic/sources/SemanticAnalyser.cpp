@@ -45,6 +45,11 @@ void SemanticAnalyser::parse_expression() {
 
 void SemanticAnalyser::gen_exp_vector(syntax::Exp* e, vector<syntax::Elem*>& exp) {
 
+    if (e->is_negative()) {
+        gen_negative_exp_vector(e, exp);
+        return;
+    }
+
     vector<Eb*> operands = e->get_operands();
     vector<Operator*> operators = e->get_operators();
 
@@ -73,6 +78,22 @@ void SemanticAnalyser::gen_exp_vector(syntax::Exp* e, vector<syntax::Elem*>& exp
             exp.push_back(operand);
         }
     }
+}
+
+void SemanticAnalyser::gen_negative_exp_vector(syntax::Exp* e, std::vector<syntax::Elem*>& exp) {
+    vector<Operator*> operators;
+    Operator* sub = new Operator(Elem::SUB, Operator::SUB, "-");
+    operators.push_back(sub);
+
+    vector<Eb*> operands;
+    Eb* zero = new Num(Elem::NUM, 0, false, 0);
+    operands.push_back(zero);
+    e->make_positive();
+    operands.push_back(e);
+
+    Exp* neg_exp = new Exp(Elem::EXP, false, operands, operators);
+
+    gen_exp_vector(neg_exp, exp);
 }
 
 int precedence(syntax::Elem* e) {

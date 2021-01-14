@@ -159,12 +159,16 @@ class Var : public Eb {
 
 class Exp : public Eb {
     public:
-        Exp(Elem::type elem, bool positive, std::vector<Eb*> operands, std::vector<Operator*> operators):
-            Eb(elem), positive_(positive), operands_(operands), operators_(operators)
+        Exp(Elem::type elem, bool negative, std::vector<Eb*> operands, std::vector<Operator*> operators):
+            Eb(elem), negative_(negative), operands_(operands), operators_(operators)
         {}
 
-    bool is_positive() {
-        return positive_;
+    void make_positive() {
+        negative_ = false;
+    }
+
+    bool is_negative() {
+        return negative_;
     }
 
     std::vector<Eb*> get_operands() {
@@ -180,7 +184,7 @@ class Exp : public Eb {
     }
 
     private:
-        bool positive_;
+        bool negative_;
         std::vector<Eb*> operands_;
         std::vector<Operator*> operators_;
 };

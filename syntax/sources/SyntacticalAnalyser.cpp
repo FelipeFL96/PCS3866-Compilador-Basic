@@ -16,7 +16,7 @@ SyntacticalAnalyser::SyntacticalAnalyser(ifstream& file):
 
 
 void print_exp(Exp* e) {
-    cout << (e->is_positive()? "( " : "- ( ");
+    cout << (e->is_negative()? "- ( " : "( ");
     if (e->get_operands().at(0)->get_eb_type() == Eb::NUM)
         cout << dynamic_cast<Num*>(e->get_operands().at(0))->get_value() << " ";
 
@@ -115,14 +115,14 @@ Goto* SyntacticalAnalyser::get_goto(int index) {
 }
 
 Exp* SyntacticalAnalyser::get_exp() {
-    bool positive = true;
+    bool negative = false;
     std::vector<Eb*> operands;
     std::vector<Operator*> operators;
 
     if (consume(lexic::type::ADD, false))
-        positive = true;
+        negative = false;
     else if (consume(lexic::type::SUB, false))
-        positive = false;
+        negative = true;
 
     operands.push_back(get_eb());
 
@@ -136,7 +136,7 @@ Exp* SyntacticalAnalyser::get_exp() {
         operands.push_back(get_eb());
     }
 
-    return new Exp(Elem::EXP, positive, operands, operators);
+    return new Exp(Elem::EXP, negative, operands, operators);
 }
 
 Operator* SyntacticalAnalyser::get_operator() {
