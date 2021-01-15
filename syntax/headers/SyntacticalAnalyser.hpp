@@ -10,7 +10,38 @@
 
 namespace syntax {
 
-struct state {
+class SyntacticalAnalyser {
+    public:
+        SyntacticalAnalyser(std::ifstream& file);
+
+        syntax::Syntaxeme* get_next(void);
+
+        syntax::Exp* parse_exp();
+
+    private:
+        std::ifstream& file;
+        lexic::LexicalAnalyser lex;
+        lexic::token tk;
+        bool token_consumed;
+
+        syntax::Assign* parse_assign(int index);
+        syntax::Goto* parse_goto(int index);
+
+        syntax::Eb* parse_eb();
+        syntax::Operator* parse_operator();
+        syntax::Num* parse_num();
+        syntax::Var* parse_var();
+
+        bool consume(lexic::type type, bool lookahead, bool force = false);
+};
+        //syntax::Data* parse_data(int index);
+        //syntax::Read* parse_read(int index);
+
+} // namespace syntax
+
+#endif // SYNTACTICAL_ANALYSER_HPP
+
+/*struct state {
     int id;
     bool accepting;
     bool operator==(const struct state& st) {
@@ -23,47 +54,7 @@ struct transition {
     bool input_is_terminal;
     int input;
     struct state next;
-};
-
-/*enum class type {
-    NUM,
-    VAR,
-    EB,
-    EXP
 };*/
-
-class SyntacticalAnalyser {
-    public:
-        SyntacticalAnalyser(std::ifstream& file);
-
-        syntax::Syntaxeme* get_next(void);
-
-        /**/syntax::Exp* get_exp();
-
-    private:
-        std::ifstream& file;
-        lexic::LexicalAnalyser lex;
-        lexic::token tk;
-        bool token_consumed;
-
-        syntax::Assign* get_assign(int index);
-        syntax::Goto* get_goto(int index);
-
-        //syntax::Exp* get_exp();
-        syntax::Eb* get_eb();
-        syntax::Operator* get_operator();
-        /*bool get_exp(vector<Elem*>& exp);
-        bool get_op(vector<Elem*>& exp);
-        bool get_eb(vector<Elem*>& exp);*/
-        syntax::Num* get_num();
-        syntax::Var* get_var();
-
-        bool consume(lexic::type type, bool lookahead, bool force = false);
-};
-        //syntax::Data* get_data(int index);
-        //syntax::Read* get_read(int index);
-
-} // namespace syntax
 
 /*std::string type_name(lexic::type t);
 bool FSM_program(lexic::LexicalAnalyser& lex);
@@ -73,7 +64,7 @@ bool FSM_var(lexic::LexicalAnalyser& lex);
 bool FSM_eb(lexic::LexicalAnalyser& lex);
 int syntax_read(std::ifstream& file);*/
 
-#endif // SYNTACTICAL_ANALYSER_HPP
+
 
             // Para cada transição no reconhecedor utilizado
                 // Filtra o estado da transição

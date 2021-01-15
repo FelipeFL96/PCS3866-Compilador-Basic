@@ -37,32 +37,32 @@ void print_exp(Exp* e) {
 Syntaxeme* SyntacticalAnalyser::get_next() {
     int index;
 
-    /*Num* n = dynamic_cast<Num*>(get_eb());
+    /*Num* n = dynamic_cast<Num*>(parse_eb());
     cout << "NUM: " << n->get_value() << endl;*/
 
-    Exp* e = get_exp();
+    Exp* e = parse_exp();
     print_exp(e);
     cout << endl; 
 
     /*if (consume(lexic::type::INT, false, true)) {
         int index = stoi(tk.value);
 
-        tk = lex.get_next();
+        tk = lex.parse_next();
 
         switch (tk.type) {
             case lexic::type::LET:
-                return get_assign(index);
+                return parse_assign(index);
             case lexic::type::GO:
             case lexic::type::GOTO:
-                return get_goto(index);
+                return parse_goto(index);
             //case lexic::type::READ:
-                //return get_read(index);
+                //return parse_read(index);
         }
     }*/
 }
 
 
-Assign* SyntacticalAnalyser::get_assign(int index) {
+Assign* SyntacticalAnalyser::parse_assign(int index) {
     string identifier;
     int value;
 
@@ -77,9 +77,9 @@ Assign* SyntacticalAnalyser::get_assign(int index) {
     return new Assign(index, identifier, value);
 }
 
-/*Read* SyntacticalAnalyser::get_read(int index) {
+/*Read* SyntacticalAnalyser::parse_read(int index) {
     vector<string> identifiers;
-    lexic::token tk = lex.get_next();
+    lexic::token tk = lex.parse_next();
 
     cout << tk.value << endl;
     if (tk.type == lexic::type::IDN)
@@ -88,9 +88,9 @@ Assign* SyntacticalAnalyser::get_assign(int index) {
     return new Read(index, identifiers);
 }
 
-Data* SyntacticalAnalyser::get_data(int index) {
+Data* SyntacticalAnalyser::parse_data(int index) {
     vector<int> values;
-    lexic::token tk = lex.get_next();
+    lexic::token tk = lex.parse_next();
 
     cout << tk.value << endl;
     if (tk.type == lexic::type::INT)
@@ -99,7 +99,7 @@ Data* SyntacticalAnalyser::get_data(int index) {
     return new Data(index, values);
 }*/
 
-Goto* SyntacticalAnalyser::get_goto(int index) {
+Goto* SyntacticalAnalyser::parse_goto(int index) {
     int destination;
 
     if (consume(lexic::type::TO, false)) {
@@ -114,7 +114,7 @@ Goto* SyntacticalAnalyser::get_goto(int index) {
     return new Goto(index, destination);
 }
 
-Exp* SyntacticalAnalyser::get_exp() {
+Exp* SyntacticalAnalyser::parse_exp() {
     bool negative = false;
     std::vector<Eb*> operands;
     std::vector<Operator*> operators;
@@ -124,22 +124,22 @@ Exp* SyntacticalAnalyser::get_exp() {
     else if (consume(lexic::type::SUB, false))
         negative = true;
 
-    operands.push_back(get_eb());
+    operands.push_back(parse_eb());
 
     while (true) {
-        Operator* op = get_operator();
+        Operator* op = parse_operator();
 
         if(op == nullptr)
             break;
 
         operators.push_back(op);
-        operands.push_back(get_eb());
+        operands.push_back(parse_eb());
     }
 
     return new Exp(Elem::EXP, negative, operands, operators);
 }
 
-Operator* SyntacticalAnalyser::get_operator() {
+Operator* SyntacticalAnalyser::parse_operator() {
     if (consume(lexic::type::ADD, true)) {
         consume(lexic::type::ADD, false, true);
         return new Operator(Elem::ADD, Operator::ADD, tk.value);
@@ -165,15 +165,15 @@ Operator* SyntacticalAnalyser::get_operator() {
     }
 }
 
-Eb* SyntacticalAnalyser::get_eb() {
+Eb* SyntacticalAnalyser::parse_eb() {
     if (consume(lexic::type::INT, true)) {
-        return get_num();
+        return parse_num();
     }
     else if (consume(lexic::type::IDN, true)) {
-        return get_var();
+        return parse_var();
     }
     else if (consume(lexic::type::PRO, false)) {
-        Exp* exp = get_exp();
+        Exp* exp = parse_exp();
         consume(lexic::type::PRC, false, true);
         return exp;
     }
@@ -182,81 +182,7 @@ Eb* SyntacticalAnalyser::get_eb() {
     }
 }
 
-/*bool SyntacticalAnalyser::get_exp(vector<Elem*>& exp) {
-    vector<Elem*> exp;
-
-    if (consume(lexic::type::ADD, false))
-        exp.push_back(tk);
-    else if (consume(lexic::type::SUB, false))
-        exp.push_back(tk);
-
-    if (!get_eb(exp)) throw exception();
-    while(get_op(exp)) {
-        if (!get_eb(exp)) throw exception();
-    }
-
-}
-
-bool SyntacticalAnalyser::get_op(vector<Elem*>& exp) {
-    if (consume(lexic::type::ADD, true)) {
-        consume(lexic::type::ADD, false);
-        exp.push_back(new Operator(tk));
-        return true;
-    }
-    else if (consume(lexic::type::SUB, true)) {
-        consume(lexic::type::SUB, false);
-        exp.push_back(new Operator(tk));
-        return true;
-    }
-    else if (consume(lexic::type::MUL, true)) {
-        consume(lexic::type::MUL, false);
-        exp.push_back(new Operator(tk));
-        return true;
-    }
-    else if (consume(lexic::type::DIV, true)) {
-        consume(lexic::type::DIV, false);
-        exp.push_back(new Operator(tk));
-        return true;
-    }
-    else if (consume(lexic::type::POW, true)) {
-        consume(lexic::type::POW, false);
-        exp.push_back(new Elem(Elem::type::POW));
-        return true;
-    }
-    return false;
-}
-
-bool SyntacticalAnalyser::get_eb(vector<Elem*>& exp) {
-
-    if (consume(lexic::type::INT, true)) {
-        consume(lexic::type::INT, false);
-        exp.push_back(get_num());
-        return true;
-    }
-    else if (consume(lexic::type::IDN, true)) {
-        consume(lexic::type::IDN, false);
-        exp.push_back(get_var());
-        return true;
-    }
-    else if (consume(lexic::type::PRO, true)) {
-        consume(lexic::type::PRO, false, true);
-        exp.push_back(new Elem(Elem::type::PRO));
-
-        bool ok = get_exp(exp);
-
-        if (ok) {
-            consume(lexic::type::PRC, false, true);
-            exp.push_back(new Elem(Elem::type::PRC));
-        }
-
-        return ok;
-    }
-    else if (consume(lexic::type::FN)) {}
-    else if (consume(lexic::type::FN)) {}
-    false;
-}*/
-
-Num* SyntacticalAnalyser::get_num() {
+Num* SyntacticalAnalyser::parse_num() {
     int integer, exponent = 0;
     bool neg_exp = false;
 
@@ -277,7 +203,7 @@ Num* SyntacticalAnalyser::get_num() {
     return new Num(Elem::NUM, integer, neg_exp, exponent);
 }
 
-Var* SyntacticalAnalyser::get_var() {
+Var* SyntacticalAnalyser::parse_var() {
     string identifier;
 
     if (consume(lexic::type::IDN, false, true))
@@ -468,7 +394,7 @@ bool FSM_program(lexic::LexicalAnalyser& lex) {
                 if (program[i].input_is_terminal) {
                     if ((lexic::type) program[i].input == tk.type ) {
                         t = &program[i];
-                        tk = lex.get_next();
+                        tk = lex.parse_next();
                         //std::cout << "\tPRG NEXT: " << type_name(tk.type) << ": " << tk.value << std::endl;
                         break;
                     }
@@ -532,7 +458,7 @@ bool FSM_exp(lexic::LexicalAnalyser& lex) {
                 if (exp[i].input_is_terminal) {
                     if ((lexic::type)exp[i].input == tk.type) {
                         t = &exp[i];
-                        tk = lex.get_next();
+                        tk = lex.parse_next();
                         break;
                     }
                 }
@@ -594,7 +520,7 @@ bool FSM_eb(lexic::LexicalAnalyser& lex) {
                 if (eb[i].input_is_terminal) {
                     if ((lexic::type)eb[i].input == tk.type) {
                         t = &eb[i];
-                        tk = lex.get_next();
+                        tk = lex.parse_next();
                         break;
                     }
                 }
@@ -654,7 +580,7 @@ bool FSM_var(lexic::LexicalAnalyser& lex) {
             if (var[i].current.id == s.id) {
                 if ((lexic::type)var[i].input == tk.type) {
                     t = &var[i];
-                    tk = lex.get_next();
+                    tk = lex.parse_next();
                     break;
                 }
                 else if ((type)var[i].input == type::EXP && FSM_exp(lex)) {
@@ -730,7 +656,7 @@ bool FSM_num(lexic::LexicalAnalyser& lex) {
                 if ((lexic::type)num[i].input == tk.type) {
                     t = &num[i];
                     update_number(number, tk, s);
-                    tk = lex.get_next();
+                    tk = lex.parse_next();
                     break;
                 }
             }
@@ -751,7 +677,7 @@ bool FSM_num(lexic::LexicalAnalyser& lex) {
 
 int syntax_read(std::ifstream& file) {
     lexic::LexicalAnalyser lex(file);
-    tk = lex.get_next();
+    tk = lex.parse_next();
 
     if (FSM_program(lex)) {
         std::cout << "\033[1;32mAPROVADO\033[0m" << std::endl;
