@@ -32,7 +32,7 @@ void print_exp(const vector<syntax::Elem*>& exp) {
     cout << "]" << endl;
 }
 
-void SemanticAnalyser::parse_expression() {
+vector<syntax::Elem*> SemanticAnalyser::parse_expression() {
     syntax::Exp* e = stx.get_exp();
 
     vector<syntax::Elem*> exp;
@@ -40,7 +40,7 @@ void SemanticAnalyser::parse_expression() {
 
     print_exp(exp);
 
-    convert_to_postfix(exp);
+    return convert_to_postfix(exp);
 }
 
 void SemanticAnalyser::gen_exp_vector(syntax::Exp* e, vector<syntax::Elem*>& exp) {
@@ -136,18 +136,18 @@ int associativity(syntax::Elem* e) {
 }
 
 
-void SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>& infix) {
+vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>& infix) {
     // Based on shunting yard algorithm by Edsger Dijkstra
 
     vector<syntax::Elem*> postfix, stack;
 
-    cout << "infix: ";
+    /*cout << "infix: ";
     print_exp(infix);
     cout << "postfix: ";
     print_exp(postfix);
     cout << "stack: ";
     print_exp(stack);
-    cout << endl;
+    cout << endl;*/
 
     while (!infix.empty()) {
         syntax::Elem* e = infix.front();
@@ -182,26 +182,28 @@ void SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>& infix) {
             }
         }
 
-        cout << "infix: ";
+        /*cout << "infix: ";
         print_exp(infix);
         cout << "postfix: ";
         print_exp(postfix);
         cout << "stack: ";
         print_exp(stack);
-        cout << endl;
+        cout << endl;*/
     }
     while (!stack.empty()) {
         postfix.push_back(stack.back());
         stack.pop_back();
 
-        cout << "infix: ";
+        /*cout << "infix: ";
         print_exp(infix);
         cout << "postfix: ";
         print_exp(postfix);
         cout << "stack: ";
         print_exp(stack);
-        cout << endl;
+        cout << endl;*/
     }
+    print_exp(postfix);
+    return postfix;
     /*
     while there are tokens to be read:
         read a token.

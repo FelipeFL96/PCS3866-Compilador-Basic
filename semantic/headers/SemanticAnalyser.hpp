@@ -10,12 +10,12 @@ class SemanticAnalyser {
     public:
     SemanticAnalyser(std::ifstream& file);
     
-    void parse_expression();
+    std::vector<syntax::Elem*> parse_expression();
 
     private:
     void gen_exp_vector(syntax::Exp* e, std::vector<syntax::Elem*>& exp);
     void gen_negative_exp_vector(syntax::Exp* e, std::vector<syntax::Elem*>& exp);
-    void convert_to_postfix(std::vector<syntax::Elem*>& exp);
+    std::vector<syntax::Elem*> convert_to_postfix(std::vector<syntax::Elem*>& exp);
 
     //std::ifstream& file;
     syntax::SyntacticalAnalyser stx;

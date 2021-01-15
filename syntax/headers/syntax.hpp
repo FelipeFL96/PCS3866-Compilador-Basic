@@ -154,7 +154,7 @@ class Var : public Eb {
         bool indexed;
         int dimension;
 
-        int index, size;
+        int index_, size;
 };
 
 class Exp : public Eb {

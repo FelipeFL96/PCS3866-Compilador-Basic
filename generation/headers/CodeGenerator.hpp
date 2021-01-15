@@ -14,8 +14,13 @@ class CodeGenerator : public syntax::Generator {
         void generate(syntax::Data& data);
         void generate(syntax::Goto& go);
 
+        void generate_expression(std::vector<syntax::Elem*>& exp);
         void generate_header();
         void generate_variables();
+
+        void install_predef();
+        void install_sdiv();
+        void install_pow();
 
     private:
         std::ofstream& file;

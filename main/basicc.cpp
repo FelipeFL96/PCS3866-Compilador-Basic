@@ -119,16 +119,21 @@ void gen_test(ifstream& input, ofstream& output) {
 
     SyntacticalAnalyser stx(input);
     CodeGenerator gen(output);
+    SemanticAnalyser smt(input);
+
+    vector<syntax::Elem*> exp = smt.parse_expression();
 
     gen.generate_header();
+    gen.generate_expression(exp);
 
-    syntax::Syntaxeme* sx;
+
+    //syntax::Syntaxeme* sx;
     /*for (int i = 0; i < 1; i++) {
         sx = stx.get_next();
         sx->accept(gen);
         delete sx;
     }*/
-    stx.get_next();
+    //stx.get_next();
 
     gen.generate_variables();
 
