@@ -29,6 +29,7 @@ class Elem {
         enum type {
             NUM,
             VAR,
+            FUN,
             ADD,
             SUB,
             MUL,
@@ -197,6 +198,28 @@ class Exp : public Eb {
         std::vector<Operator*> operators_;
 };
 
+class Call : public Eb {
+    public:
+        Call(Elem::type elem, std::string identifier, Exp* arg):
+            Eb(elem), identifier_(identifier), arg_(arg)
+        {}
+
+        std::string get_identifier() {
+            return identifier_;
+        }
+
+        Exp* get_arg() {
+            return arg_;
+        }
+
+        Eb::type get_eb_type() {
+            return Eb::CALL;
+        }
+
+    private:
+        std::string identifier_;
+        Exp* arg_;
+};
 
 class Syntaxeme {
     public:

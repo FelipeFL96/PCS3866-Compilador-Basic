@@ -31,6 +31,7 @@ class SyntacticalAnalyser {
         syntax::Operator* parse_operator();
         syntax::Num* parse_num();
         syntax::Var* parse_var();
+        syntax::Call* parse_call();
 
         bool consume(lexic::type type, bool lookahead, bool force = false);
 };

@@ -14,6 +14,7 @@ string read_elem_type(syntax::Elem* e) {
     switch (e->get_elem_type()) {
         case syntax::Elem::NUM: return to_string(dynamic_cast<syntax::Num*>(e)->get_value());
         case syntax::Elem::VAR: return dynamic_cast<syntax::Var*>(e)->get_identifier();
+        case syntax::Elem::FUN: return dynamic_cast<syntax::Call*>(e)->get_identifier();
         case syntax::Elem::ADD: return "+";
         case syntax::Elem::SUB: return "-";
         case syntax::Elem::MUL: return "*";
@@ -60,6 +61,12 @@ void SemanticAnalyser::gen_exp_vector(syntax::Exp* e, vector<syntax::Elem*>& exp
         gen_exp_vector(dynamic_cast<Exp*>(operand), exp);
         exp.push_back(new Elem(Elem::PRC));
     }
+    else if (operand->get_eb_type() == Eb::CALL) {
+        exp.push_back(operand);
+        exp.push_back(new Elem(Elem::PRO));
+        gen_exp_vector(dynamic_cast<Call*>(operand)->get_arg(), exp);
+        exp.push_back(new Elem(Elem::PRC));
+    }
     else {
         exp.push_back(operand);
     }
@@ -72,6 +79,12 @@ void SemanticAnalyser::gen_exp_vector(syntax::Exp* e, vector<syntax::Elem*>& exp
         if (operand->get_eb_type() == Eb::EXP) {
             exp.push_back(new Elem(Elem::PRO));
             gen_exp_vector(dynamic_cast<Exp*>(operand), exp);
+            exp.push_back(new Elem(Elem::PRC));
+        }
+        else if (operand->get_eb_type() == Eb::CALL) {
+            exp.push_back(operand);
+            exp.push_back(new Elem(Elem::PRO));
+            gen_exp_vector(dynamic_cast<Call*>(operand)->get_arg(), exp);
             exp.push_back(new Elem(Elem::PRC));
         }
         else {
@@ -158,6 +171,9 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
         if (e->get_elem_type() == syntax::Elem::NUM || e->get_elem_type() == syntax::Elem::VAR) {
             postfix.push_back(e);
         }
+        else if (e->get_elem_type() == Elem::FUN) {
+            stack.push_back(e);
+        }
         else if (e->is_operator()) {
             while ( !stack.empty()
                 && (stack.back()->is_operator())
@@ -180,27 +196,31 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
             if (stack.back()->get_elem_type() == syntax::Elem::PRO) {
                 stack.pop_back();
             }
+            if (stack.back()->get_elem_type() == syntax::Elem::FUN) {
+                postfix.push_back(stack.back());
+                stack.pop_back();
+            }
         }
 
-        /*cout << "infix: ";
+        cout << "infix: ";
         print_exp(infix);
         cout << "postfix: ";
         print_exp(postfix);
         cout << "stack: ";
         print_exp(stack);
-        cout << endl;*/
+        cout << endl;
     }
     while (!stack.empty()) {
         postfix.push_back(stack.back());
         stack.pop_back();
 
-        /*cout << "infix: ";
+        cout << "infix: ";
         print_exp(infix);
         cout << "postfix: ";
         print_exp(postfix);
         cout << "stack: ";
         print_exp(stack);
-        cout << endl;*/
+        cout << endl;
     }
     print_exp(postfix);
     return postfix;

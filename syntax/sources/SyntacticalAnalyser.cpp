@@ -177,6 +177,20 @@ Eb* SyntacticalAnalyser::parse_eb() {
         consume(lexic::type::PRC, false, true);
         return exp;
     }
+    else if (consume(lexic::type::FN, true)
+            || consume(lexic::type::FNSIN, true)
+            || consume(lexic::type::FNCOS, true)
+            || consume(lexic::type::FNTAN, true)
+            || consume(lexic::type::FNATN, true)
+            || consume(lexic::type::FNEXP, true)
+            || consume(lexic::type::FNABS, true)
+            || consume(lexic::type::FNLOG, true)
+            || consume(lexic::type::FNSQR, true)
+            || consume(lexic::type::FNINT, true)
+            || consume(lexic::type::FNRND, true)
+        ) {
+        return parse_call();
+    }
     else {
         throw syntax_exception(tk.pos, "Encontrado '" + tk.value + "' em posição inesperada");
     }
@@ -213,6 +227,52 @@ Var* SyntacticalAnalyser::parse_var() {
     Var* v = new Var(Elem::VAR, identifier);
     v->set_index(ind++);
     return v;
+}
+
+Call* SyntacticalAnalyser::parse_call() {
+    Exp* arg;
+    string identifier;
+
+    if (consume(lexic::type::FN, false)) {
+        consume(lexic::type::IDN , false, true);
+        identifier = tk.value;
+    }
+    else if (consume(lexic::type::FNSIN, false)) {
+        identifier = "SIN";
+    }
+    else if (consume(lexic::type::FNCOS, false)) {
+        identifier = "COS";
+    }
+    else if (consume(lexic::type::FNTAN, false)) {
+        identifier = "TAN";
+    }
+    else if (consume(lexic::type::FNATN, false)) {
+        identifier = "ATN";
+    }
+    else if (consume(lexic::type::FNEXP, false)) {
+        identifier = "EXP";
+    }
+    else if (consume(lexic::type::FNABS, false)) {
+        identifier = "ABS";
+    }
+    else if (consume(lexic::type::FNLOG, false)) {
+        identifier = "LOG";
+    }
+    else if (consume(lexic::type::FNSQR, false)) {
+        identifier = "SQR";
+    }
+    else if (consume(lexic::type::FNINT, false)) {
+        identifier = "INT";
+    }
+    else if (consume(lexic::type::FNRND, false)) {
+        identifier = "RND";
+    }
+
+    consume(lexic::type::PRO, false, true);
+    arg = parse_exp();
+    consume(lexic::type::PRC, false, true);
+
+    return new Call(Elem::FUN, identifier, arg);
 }
 
 bool SyntacticalAnalyser::consume(lexic::type type, bool lookahead, bool force) {
