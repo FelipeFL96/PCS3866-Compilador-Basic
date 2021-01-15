@@ -203,13 +203,16 @@ Num* SyntacticalAnalyser::parse_num() {
     return new Num(Elem::NUM, integer, neg_exp, exponent);
 }
 
+int ind = 0;
 Var* SyntacticalAnalyser::parse_var() {
     string identifier;
 
     if (consume(lexic::type::IDN, false, true))
         identifier = tk.value;
 
-    return new Var(Elem::VAR, identifier);
+    Var* v = new Var(Elem::VAR, identifier);
+    v->set_index(ind++);
+    return v;
 }
 
 bool SyntacticalAnalyser::consume(lexic::type type, bool lookahead, bool force) {

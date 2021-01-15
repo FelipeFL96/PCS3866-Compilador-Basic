@@ -8,7 +8,7 @@
 
 #include "Debugger.hpp"
 
-#define debug(X) std::cout<<X<< std::endl
+/*#define debug(X) std::cout<<X<< std::endl
 
 void Debugger::print_program(struct syntax::state& s) {
     switch (s.id) {
@@ -167,4 +167,4 @@ std::string type_name(lexic::type t) {
         case lexic::type::CMT: return "CMT";
         case lexic::type::EoF: return "EOF";
     }
-}
+}*/

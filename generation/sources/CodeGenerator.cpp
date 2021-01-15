@@ -14,6 +14,13 @@ void CodeGenerator::generate_header() {
     file << ".global main" << endl;
     file << endl;
     file << "main: " << endl;
+    /**/
+    file << "LDR r12, =variables" << endl;
+    file << "MOV r0, #2" << endl;
+    file << "STR r0, [r12, #0]" << endl;
+    file << "MOV r0, #5" << endl;
+    file << "STR r0, [r12, #4]" << endl;
+    /**/
     file << endl;
 }
 
@@ -55,7 +62,11 @@ void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
             file << "\tMOV      r1, #" << dynamic_cast<syntax::Num*>(e)->get_value() << endl;
             file << "\tSTMFD    sp!, {r1}" << endl;
         }
-        if (e->is_operator()) {
+        else if (e->get_elem_type() == syntax::Elem::VAR) {
+            file << "\tLDR      r1, [r12, #" << 4*dynamic_cast<syntax::Var*>(e)->get_index() << "]" << endl;
+            file << "\tSTMFD    sp!, {r1}" << endl;
+        }
+        else if (e->is_operator()) {
                 file << "\tLDMFD    sp!, {r2}" << endl;
                 file << "\tLDMFD    sp!, {r1}" << endl;
             if (e->get_elem_type() == syntax::Elem::ADD)
@@ -106,16 +117,16 @@ void CodeGenerator::install_sdiv() {
     file << endl;
     file << "sdiv.start:" << endl;
     file << "\tCMP      r2, r1" << endl;
-    file << "\tMOVLS    r2, r2, LSL#1" << endl;
-    file << "\tMOVLS    r3, r3, LSL#1" << endl;
+    file << "\tMOVLS    r2, r2, LSL #1" << endl;
+    file << "\tMOVLS    r3, r3, LSL #1" << endl;
     file << "\tBLS      sdiv.start" << endl;
     file << endl;
     file << "sdiv.next:" << endl;
     file << "\tCMP       r1, r2" << endl;
     file << "\tSUBCS     r1, r1, r2" << endl;
     file << "\tADDCS     r0, r0, r3" << endl;
-    file << "\tMOVS      r3, r3, LSR#1" << endl;
-    file << "\tMOVCC     r2, r2, LSR#1" << endl;
+    file << "\tMOVS      r3, r3, LSR #1" << endl;
+    file << "\tMOVCC     r2, r2, LSR #1" << endl;
     file << "\tBCC       sdiv.next" << endl;
     file << endl;
     file << "sdiv.end:" << endl;

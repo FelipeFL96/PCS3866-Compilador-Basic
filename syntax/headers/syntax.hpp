@@ -145,6 +145,14 @@ class Var : public Eb {
             return identifier_;
         }
 
+        int get_index() {
+            return index_;
+        }
+
+        void set_index(int index) {
+            index_ = index;
+        }
+
         Eb::type get_eb_type() {
             return Eb::VAR;
         }

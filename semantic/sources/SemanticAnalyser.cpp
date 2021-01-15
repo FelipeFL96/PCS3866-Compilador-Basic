@@ -33,7 +33,7 @@ void print_exp(const vector<syntax::Elem*>& exp) {
 }
 
 vector<syntax::Elem*> SemanticAnalyser::parse_expression() {
-    syntax::Exp* e = stx.get_exp();
+    syntax::Exp* e = stx.parse_exp();
 
     vector<syntax::Elem*> exp;
     gen_exp_vector(e, exp);
