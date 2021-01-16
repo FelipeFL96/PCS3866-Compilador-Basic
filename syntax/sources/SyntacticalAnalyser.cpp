@@ -67,18 +67,17 @@ Syntaxeme* SyntacticalAnalyser::get_next() {
 
 
 Assign* SyntacticalAnalyser::parse_assign(int index) {
-    string identifier;
-    int value;
+    Var* variable;
+    Exp* expression;
 
     consume(lexic::type::IDN, false, true);
-    identifier = tk.value;
+    variable = new Var(Elem::VAR, tk.value);
 
     consume(lexic::type::EQL, false, true);
 
-    consume(lexic::type::INT, false, true);
-    value = stoi(tk.value);
+    expression = parse_exp();
 
-    return new Assign(index, identifier, value);
+    return new Assign(index, variable, expression);
 }
 
 /*Read* SyntacticalAnalyser::parse_read(int index) {
@@ -221,16 +220,13 @@ Num* SyntacticalAnalyser::parse_num() {
     return new Num(Elem::NUM, integer, neg_exp, exponent);
 }
 
-int ind = 0;
 Var* SyntacticalAnalyser::parse_var() {
     string identifier;
 
     if (consume(lexic::type::IDN, false, true))
         identifier = tk.value;
 
-    Var* v = new Var(Elem::VAR, identifier);
-    v->set_index(ind++);
-    return v;
+    return new Var(Elem::VAR, identifier);;
 }
 
 Call* SyntacticalAnalyser::parse_call() {

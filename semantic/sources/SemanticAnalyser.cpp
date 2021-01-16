@@ -4,6 +4,7 @@
 
 using namespace std;
 using namespace syntax;
+using namespace semantic;
 
 SemanticAnalyser::SemanticAnalyser(ifstream& input, ofstream& output):
     stx(input), gen(output)
@@ -22,7 +23,10 @@ void SemanticAnalyser::get_next() {
     Assign* assign = dynamic_cast<Assign*>(sx);
     if (assign) {
         cout << "É um assign" << endl;
-        gen.generate(assign);
+
+        treat_variable(assign->get_variable());
+        vector<Elem*> exp = parse_expression(assign->get_expression());
+        gen.generate(assign, exp);
     }
     else {
         cout << "É outra coisa" << endl;
@@ -53,8 +57,8 @@ void print_exp(const vector<syntax::Elem*>& exp) {
     cout << "]" << endl;
 }
 
-vector<syntax::Elem*> SemanticAnalyser::parse_expression() {
-    syntax::Exp* e = stx.parse_exp();
+vector<Elem*> SemanticAnalyser::parse_expression(Exp* e) {
+    //syntax::Exp* e = stx.parse_exp();
 
     vector<syntax::Elem*> exp;
     gen_exp_vector(e, exp);
@@ -62,6 +66,11 @@ vector<syntax::Elem*> SemanticAnalyser::parse_expression() {
     print_exp(exp);
 
     return convert_to_postfix(exp);
+}
+
+void SemanticAnalyser::treat_variable(Var* v) {
+    int index = symb_table.add_variable(v);
+    v->set_index(index);
 }
 
 void SemanticAnalyser::gen_exp_vector(syntax::Exp* e, vector<syntax::Elem*>& exp) {

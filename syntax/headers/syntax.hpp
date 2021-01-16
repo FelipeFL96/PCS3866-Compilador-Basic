@@ -249,16 +249,16 @@ class BStatement : public Syntaxeme {
 
 class Assign : public BStatement {
     public:
-        Assign(int index, std::string identifier, int value):
-            BStatement(index), identifier_(identifier), value_(value)
+        Assign(int index, Var* variable, Exp* expression):
+            BStatement(index), variable_(variable), expression_(expression)
         {}
 
-        std::string get_identifier() {
-            return identifier_;
+        Var* get_variable() {
+            return variable_;
         }
 
-        int get_value() {
-            return value_;
+        Exp* get_expression() {
+            return expression_;
         }
 
         void accept(Generator& gen) {
@@ -266,9 +266,8 @@ class Assign : public BStatement {
         }
 
     private:
-        std::string identifier_;
-        int value_;
-    //Exp expr;
+        Var* variable_;
+        Exp* expression_;
 };
 
 class Read : public BStatement {

@@ -5,11 +5,11 @@
 
 #include "syntax.hpp"
 
-class CodeGenerator : public syntax::Generator {
+class CodeGenerator/* : public syntax::Generator*/ {
     public:
         CodeGenerator(std::ofstream& file);
 
-        void generate(syntax::Assign* assign);
+        void generate(syntax::Assign* assign, std::vector<syntax::Elem*> exp);
         void generate(syntax::Read* read);
         void generate(syntax::Data* data);
         void generate(syntax::Goto* go);

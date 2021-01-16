@@ -102,7 +102,7 @@ void synt_test(ifstream& file) {
 }
 
 void sem_test(ifstream& input, ofstream& output) {
-    SemanticAnalyser smt(input, output);
+    semantic::SemanticAnalyser smt(input, output);
     smt.get_next();
 }
 
@@ -112,12 +112,12 @@ void gen_test(ifstream& input, ofstream& output) {
 
     SyntacticalAnalyser stx(input);
     CodeGenerator gen(output);
-    SemanticAnalyser smt(input, output);
+    semantic::SemanticAnalyser smt(input, output);
 
-    vector<syntax::Elem*> exp = smt.parse_expression();
+    /*vector<syntax::Elem*> exp = smt.parse_expression();
 
     gen.generate_header();
-    gen.generate_expression(exp);
+    gen.generate_expression(exp);*/
 
 
     //syntax::Syntaxeme* sx;

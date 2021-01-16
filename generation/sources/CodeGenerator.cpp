@@ -42,11 +42,11 @@ void CodeGenerator::generate_variables() {
     file << endl;
 }
 
-void CodeGenerator::generate(syntax::Assign* assign) {
+void CodeGenerator::generate(syntax::Assign* assign, vector<syntax::Elem*> exp) {
     file << "L" << assign->get_index() << ":" << endl;
-    file << "\tLDR r0, =variables" << endl;
-    file << "\tMOV r1, #" << assign->get_value() << endl;
-    file << "\tSTR r1, [r0, #0]" << endl;
+    file << "\tLDR      r12, =variables" << endl;
+    generate_expression(exp);
+    file << "\tSTR      r0, [r12, #0]" << endl;
     file << endl;
 }
 
@@ -67,7 +67,7 @@ void CodeGenerator::generate(syntax::Goto* go) {
 }
 
 void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
-    file << "\tLDR sp,    =stack" << endl;
+    file << "\tLDR      sp, =stack" << endl;
     for (auto e : exp) {
         if (e->get_elem_type() == syntax::Elem::NUM) {
             file << "\tMOV      r1, #" << dynamic_cast<syntax::Num*>(e)->get_value() << endl;
@@ -98,7 +98,6 @@ void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
         }
     }
     file << "\tLDMFD    sp!, {r0}" << endl;
-    file << endl;
 }
 
 void CodeGenerator::install_predef() {
