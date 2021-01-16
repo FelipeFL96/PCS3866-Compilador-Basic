@@ -230,7 +230,7 @@ Var* SyntacticalAnalyser::parse_var() {
 }
 
 Call* SyntacticalAnalyser::parse_call() {
-    Exp* arg;
+    vector<Exp*> args;
     string identifier;
 
     if (consume(lexic::type::FN, false)) {
@@ -269,10 +269,19 @@ Call* SyntacticalAnalyser::parse_call() {
     }
 
     consume(lexic::type::PRO, false, true);
-    arg = parse_exp();
+
+    // Função sem argumentos
+    if (consume(lexic::type::PRC, false))
+        return new Call(Elem::FUN, identifier, args);
+
+    args.push_back(parse_exp());
+    while (consume(lexic::type::COM, false)) {
+        args.push_back(parse_exp());
+    }
+
     consume(lexic::type::PRC, false, true);
 
-    return new Call(Elem::FUN, identifier, arg);
+    return new Call(Elem::FUN, identifier, args);
 }
 
 bool SyntacticalAnalyser::consume(lexic::type type, bool lookahead, bool force) {

@@ -37,7 +37,8 @@ class Elem {
             POW,
             PRO,
             PRC,
-            EXP
+            EXP,
+            COM
         };
 
         Elem(Elem::type type):
@@ -200,16 +201,22 @@ class Exp : public Eb {
 
 class Call : public Eb {
     public:
-        Call(Elem::type elem, std::string identifier, Exp* arg):
-            Eb(elem), identifier_(identifier), arg_(arg)
+        Call(Elem::type elem, std::string identifier, std::vector<Exp*>& args):
+            Eb(elem), identifier_(identifier), args_(args)
         {}
 
         std::string get_identifier() {
             return identifier_;
         }
 
-        Exp* get_arg() {
-            return arg_;
+        std::vector<Exp*> get_args() {
+            return args_;
+        }
+
+        // Provisório: o objeto chamada precisa ser ligado à declaração correspondente
+        // A declaração de função é quem deve dizer a quantidade de argumentos esperada
+        int param_count() {
+            return args_.size();
         }
 
         Eb::type get_eb_type() {
@@ -218,7 +225,7 @@ class Call : public Eb {
 
     private:
         std::string identifier_;
-        Exp* arg_;
+        std::vector<Exp*> args_;
 };
 
 class Syntaxeme {

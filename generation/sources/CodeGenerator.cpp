@@ -15,6 +15,7 @@ void CodeGenerator::generate_header() {
     file << endl;
     /**/
     file << "func:" << endl;
+    file << "LDMFD sp!, {r1}" << endl;
     file << "MUL r2, r1, r1" << endl;
     file << "MOV r3, #2" << endl;
     file << "MUL r0, r1, r3" << endl;
@@ -77,13 +78,12 @@ void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
             file << "\tSTMFD    sp!, {r1}" << endl;
         }
         else if (e->get_elem_type() == syntax::Elem::FUN) {
-            file << "\tLDMFD    sp!, {r1}" << endl;
             file << "\tBL       " << dynamic_cast<syntax::Call*>(e)->get_identifier() << endl;
             file << "\tSTMFD    sp!, {r0}" << endl;
         }
         else if (e->is_operator()) {
-                file << "\tLDMFD    sp!, {r2}" << endl;
-                file << "\tLDMFD    sp!, {r1}" << endl;
+            file << "\tLDMFD    sp!, {r2}" << endl;
+            file << "\tLDMFD    sp!, {r1}" << endl;
             if (e->get_elem_type() == syntax::Elem::ADD)
                 file << "\tADD      r0, r1, r2" << endl;
             else if (e->get_elem_type() == syntax::Elem::SUB)

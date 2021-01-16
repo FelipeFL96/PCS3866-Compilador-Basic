@@ -22,6 +22,7 @@ string read_elem_type(syntax::Elem* e) {
         case syntax::Elem::POW: return "^";
         case syntax::Elem::PRO: return "(";
         case syntax::Elem::PRC: return ")";
+        case syntax::Elem::COM: return ",";
     }
 }
 
@@ -56,6 +57,18 @@ void SemanticAnalyser::gen_exp_vector(syntax::Exp* e, vector<syntax::Elem*>& exp
 
     //TODO: Retornar erro se não houver operandos
     Eb* operand = operands.front();
+    gen_exp_vector_operand(operand, exp);
+
+    int size = operators.size();
+    for (int i = 0; i < size; i++) {
+        exp.push_back(operators.at(i));
+
+        Eb* operand = operands.at(i + 1);
+        gen_exp_vector_operand(operand, exp);
+    }
+}
+
+void SemanticAnalyser::gen_exp_vector_operand(syntax::Eb* operand, vector<syntax::Elem*>& exp) {
     if (operand->get_eb_type() == Eb::EXP) {
         exp.push_back(new Elem(Elem::PRO));
         gen_exp_vector(dynamic_cast<Exp*>(operand), exp);
@@ -64,32 +77,18 @@ void SemanticAnalyser::gen_exp_vector(syntax::Exp* e, vector<syntax::Elem*>& exp
     else if (operand->get_eb_type() == Eb::CALL) {
         exp.push_back(operand);
         exp.push_back(new Elem(Elem::PRO));
-        gen_exp_vector(dynamic_cast<Call*>(operand)->get_arg(), exp);
+        vector<Exp*> args = dynamic_cast<Call*>(operand)->get_args();
+        if (!args.empty()) {
+            gen_exp_vector(args.at(0), exp);
+            for (int i = 1; i < args.size(); i++) {
+                exp.push_back(new Elem(Elem::COM));
+                gen_exp_vector(args.at(i), exp);
+            }
+        }
         exp.push_back(new Elem(Elem::PRC));
     }
     else {
         exp.push_back(operand);
-    }
-
-    int size = operators.size();
-    for (int i = 0; i < size; i++) {
-        exp.push_back(operators.at(i));
-
-        Eb* operand = operands.at(i + 1);
-        if (operand->get_eb_type() == Eb::EXP) {
-            exp.push_back(new Elem(Elem::PRO));
-            gen_exp_vector(dynamic_cast<Exp*>(operand), exp);
-            exp.push_back(new Elem(Elem::PRC));
-        }
-        else if (operand->get_eb_type() == Eb::CALL) {
-            exp.push_back(operand);
-            exp.push_back(new Elem(Elem::PRO));
-            gen_exp_vector(dynamic_cast<Call*>(operand)->get_arg(), exp);
-            exp.push_back(new Elem(Elem::PRC));
-        }
-        else {
-            exp.push_back(operand);
-        }
     }
 }
 
@@ -187,6 +186,12 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
         }
         else if (e->get_elem_type() == syntax::Elem::PRO) {
             stack.push_back(e);
+        }
+        else if (e->get_elem_type() == syntax::Elem::COM) {
+            while (stack.back()->get_elem_type() != syntax::Elem::PRO) {
+                postfix.push_back(stack.back());
+                stack.pop_back();
+            }
         }
         else if (e->get_elem_type() == syntax::Elem::PRC) {
             while (stack.back()->get_elem_type() != syntax::Elem::PRO) {
