@@ -18,10 +18,10 @@ enum class type {
 
 class Generator {
     public:
-        virtual void generate(class Assign& assign) = 0;
-        virtual void generate(class Read& go) = 0;
-        virtual void generate(class Data& go) = 0;
-        virtual void generate(class Goto& go) = 0;
+        virtual void generate(class Assign* assign) = 0;
+        virtual void generate(class Read* go) = 0;
+        virtual void generate(class Data* go) = 0;
+        virtual void generate(class Goto* go) = 0;
 };
 
 class Elem {
@@ -262,7 +262,7 @@ class Assign : public BStatement {
         }
 
         void accept(Generator& gen) {
-            gen.generate(*this);
+            gen.generate(this);
         }
 
     private:
@@ -282,7 +282,7 @@ class Read : public BStatement {
         }
 
         void accept(Generator& gen) {
-            gen.generate(*this);
+            gen.generate(this);
         }
 
     private:
@@ -301,7 +301,7 @@ class Data : public BStatement {
         }
 
         void accept(Generator& gen) {
-            gen.generate(*this);
+            gen.generate(this);
         }
 
     private:
@@ -338,7 +338,7 @@ class Goto : public BStatement {
         }
 
         void accept(Generator& gen) {
-            gen.generate(*this);
+            gen.generate(this);
         }
 
     private:

@@ -64,7 +64,7 @@ basicc: $(OBJECTS)
 
 ./$(SMTOBJ)/%.o: ./$(SMTSRC)/%.cpp ./$(SMTHDR)/%.hpp
 	mkdir -p $(SMTOBJ)
-	$(COMPILER) $(FLAGS) -I $(LEXHDR) -I $(STXHDR) -I $(SMTHDR) -o $@ $<
+	$(COMPILER) $(FLAGS) -I $(LEXHDR) -I $(STXHDR) -I $(SMTHDR) -I $(GENHDR) -o $@ $<
 
 ./$(GENOBJ)/%.o: ./$(GENSRC)/%.cpp ./$(GENHDR)/%.hpp
 	mkdir -p $(GENOBJ)

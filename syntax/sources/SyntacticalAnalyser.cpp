@@ -40,14 +40,14 @@ Syntaxeme* SyntacticalAnalyser::get_next() {
     /*Num* n = dynamic_cast<Num*>(parse_eb());
     cout << "NUM: " << n->get_value() << endl;*/
 
-    Exp* e = parse_exp();
+    /*Exp* e = parse_exp();
     print_exp(e);
-    cout << endl; 
+    cout << endl;*/
 
-    /*if (consume(lexic::type::INT, false, true)) {
+    if (consume(lexic::type::INT, false, true)) {
         int index = stoi(tk.value);
 
-        tk = lex.parse_next();
+        tk = lex.get_next();
 
         switch (tk.type) {
             case lexic::type::LET:
@@ -57,8 +57,12 @@ Syntaxeme* SyntacticalAnalyser::get_next() {
                 return parse_goto(index);
             //case lexic::type::READ:
                 //return parse_read(index);
+            default:
+                return nullptr;
         }
-    }*/
+    }
+
+    return nullptr;
 }
 
 

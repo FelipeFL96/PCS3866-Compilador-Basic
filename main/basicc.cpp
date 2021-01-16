@@ -18,7 +18,7 @@ string ascii2name(lexic::ascii_type t);
 void lex_test(ifstream& file, const char* filename);
 void ascii_test(ifstream& file);
 void synt_test(ifstream& file);
-void sem_test(ifstream& file);
+void sem_test(ifstream& input, ofstream& output);
 void gen_test(ifstream& input, ofstream& output);
 
 int main(int argc, char* argv[]) {
@@ -30,31 +30,23 @@ int main(int argc, char* argv[]) {
     }
 
     char* filename = argv[1];
-    std::ifstream file(filename);
+    ifstream input(filename);
+    ofstream output("out.s");
 
     try {
-        if (argc > 2 && 0 == strcmp(argv[2], "L")) {
-            lex_test(file, filename);
+        if (argc > 2 && 0 == strcmp(argv[2], "-A")) {
+            ascii_test(input);
         }
-        else if (argc > 2 && 0 == strcmp(argv[2], "A")) {
-            ascii_test(file);
+        else if (argc > 2 && 0 == strcmp(argv[2], "-L")) {
+            lex_test(input, filename);
         }
-        else if (argc > 2 && 0 == strcmp(argv[2], "S")) {
-            ofstream out("out.s");
-            gen_test(file, out);
+        else if (argc > 2 && 0 == strcmp(argv[2], "-S")) {
+            gen_test(input, output);
             //synt_test(file);
         }
         else {
-            sem_test(file);
+            sem_test(input, output);
         }
-        /*else {
-            try {
-            syntax_read(file);
-            }
-            catch (lexic::lexical_exception& e) {
-                cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
-            }
-        }*/
     }
     catch (lexic::lexical_exception& e) {
         cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
@@ -63,7 +55,8 @@ int main(int argc, char* argv[]) {
         cerr << "\033[1;31mErro sintático: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
     }
 
-    file.close();
+    input.close();
+    output.close();
 
     return 0;
 }
@@ -108,9 +101,9 @@ void synt_test(ifstream& file) {
     //generate_code(a);
 }
 
-void sem_test(ifstream& file) {
-    SemanticAnalyser smt(file);
-    smt.parse_expression();
+void sem_test(ifstream& input, ofstream& output) {
+    SemanticAnalyser smt(input, output);
+    smt.get_next();
 }
 
 void gen_test(ifstream& input, ofstream& output) {
@@ -119,7 +112,7 @@ void gen_test(ifstream& input, ofstream& output) {
 
     SyntacticalAnalyser stx(input);
     CodeGenerator gen(output);
-    SemanticAnalyser smt(input);
+    SemanticAnalyser smt(input, output);
 
     vector<syntax::Elem*> exp = smt.parse_expression();
 

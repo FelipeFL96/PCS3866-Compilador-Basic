@@ -5,11 +5,13 @@
 #include <vector>
 
 #include "SyntacticalAnalyser.hpp"
+#include "CodeGenerator.hpp"
 
 class SemanticAnalyser {
     public:
-    SemanticAnalyser(std::ifstream& file);
+    SemanticAnalyser(std::ifstream& input, std::ofstream& output);
     
+    void get_next(void);
     std::vector<syntax::Elem*> parse_expression();
 
     private:
@@ -20,6 +22,7 @@ class SemanticAnalyser {
 
     //std::ifstream& file;
     syntax::SyntacticalAnalyser stx;
+    CodeGenerator gen;
 };
 
 #endif // SEMANTIC_ANALYSER_HPP

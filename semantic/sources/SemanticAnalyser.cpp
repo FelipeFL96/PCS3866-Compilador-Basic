@@ -5,10 +5,29 @@
 using namespace std;
 using namespace syntax;
 
-SemanticAnalyser::SemanticAnalyser(ifstream& file):
-    stx(file)
+SemanticAnalyser::SemanticAnalyser(ifstream& input, ofstream& output):
+    stx(input), gen(output)
 {}
 
+void SemanticAnalyser::get_next() {
+    Syntaxeme* sx = stx.get_next();
+    
+    if (sx) {
+        cout << "Retornou alguma coisa" << endl;
+    }
+    else {
+        cout << "Não retornou nada" << endl;
+    }
+
+    Assign* assign = dynamic_cast<Assign*>(sx);
+    if (assign) {
+        cout << "É um assign" << endl;
+        gen.generate(assign);
+    }
+    else {
+        cout << "É outra coisa" << endl;
+    }
+}
 
 string read_elem_type(syntax::Elem* e) {
     switch (e->get_elem_type()) {

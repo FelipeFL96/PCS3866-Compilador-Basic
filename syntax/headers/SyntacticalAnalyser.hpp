@@ -16,7 +16,7 @@ class SyntacticalAnalyser {
 
         syntax::Syntaxeme* get_next(void);
 
-        syntax::Exp* parse_exp();
+        syntax::Exp* parse_exp(void);
 
     private:
         std::ifstream& file;
@@ -27,11 +27,11 @@ class SyntacticalAnalyser {
         syntax::Assign* parse_assign(int index);
         syntax::Goto* parse_goto(int index);
 
-        syntax::Eb* parse_eb();
-        syntax::Operator* parse_operator();
-        syntax::Num* parse_num();
-        syntax::Var* parse_var();
-        syntax::Call* parse_call();
+        syntax::Eb* parse_eb(void);
+        syntax::Operator* parse_operator(void);
+        syntax::Num* parse_num(void);
+        syntax::Var* parse_var(void);
+        syntax::Call* parse_call(void);
 
         bool consume(lexic::type type, bool lookahead, bool force = false);
 };
