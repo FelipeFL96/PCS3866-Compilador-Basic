@@ -4,10 +4,11 @@
 #include <fstream>
 
 #include "syntax.hpp"
+#include "semantic.hpp"
 
 class CodeGenerator/* : public syntax::Generator*/ {
     public:
-        CodeGenerator(std::ofstream& file);
+        CodeGenerator(std::ofstream& file, semantic::SymbolTable& symb_table);
 
         void generate(syntax::Assign* assign, std::vector<syntax::Elem*> exp);
         void generate(syntax::Read* read);
@@ -24,6 +25,8 @@ class CodeGenerator/* : public syntax::Generator*/ {
 
     private:
         std::ofstream& file;
+        semantic::SymbolTable& symb_table;
+
 };
 
 #endif // CODE_GENERATOR_HPP

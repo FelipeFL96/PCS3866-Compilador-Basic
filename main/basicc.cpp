@@ -111,7 +111,7 @@ void gen_test(ifstream& input, ofstream& output) {
     using namespace syntax;
 
     SyntacticalAnalyser stx(input);
-    CodeGenerator gen(output);
+    //CodeGenerator gen(output);
     semantic::SemanticAnalyser smt(input, output);
 
     /*vector<syntax::Elem*> exp = smt.parse_expression();
@@ -128,7 +128,7 @@ void gen_test(ifstream& input, ofstream& output) {
     }*/
     //stx.get_next();
 
-    gen.generate_variables();
+    //gen.generate_variables();
 
     /*try {
         while (true) {

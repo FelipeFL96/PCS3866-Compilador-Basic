@@ -5,8 +5,8 @@
 
 using namespace std;
 
-CodeGenerator::CodeGenerator(std::ofstream& file):
-    file(file)
+CodeGenerator::CodeGenerator(std::ofstream& file, semantic::SymbolTable& symb_table):
+    file(file), symb_table(symb_table)
 {}
 
 void CodeGenerator::generate_header() {
@@ -46,7 +46,7 @@ void CodeGenerator::generate(syntax::Assign* assign, vector<syntax::Elem*> exp) 
     file << "L" << assign->get_index() << ":" << endl;
     file << "\tLDR      r12, =variables" << endl;
     generate_expression(exp);
-    file << "\tSTR      r0, [r12, #0]" << endl;
+    file << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(assign->get_variable()) << "]" << endl;
     file << endl;
 }
 
@@ -74,7 +74,7 @@ void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
             file << "\tSTMFD    sp!, {r1}" << endl;
         }
         else if (e->get_elem_type() == syntax::Elem::VAR) {
-            file << "\tLDR      r1, [r12, #" << 4*dynamic_cast<syntax::Var*>(e)->get_index() << "]" << endl;
+            file << "\tLDR      r1, [r12, #" << 4 * symb_table.select_variable(dynamic_cast<syntax::Var*>(e)) << "]" << endl;
             file << "\tSTMFD    sp!, {r1}" << endl;
         }
         else if (e->get_elem_type() == syntax::Elem::FUN) {

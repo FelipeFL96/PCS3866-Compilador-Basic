@@ -25,6 +25,7 @@ class SyntacticalAnalyser {
         bool token_consumed;
 
         syntax::Assign* parse_assign(int index);
+        syntax::Read* parse_read(int index);
         syntax::Goto* parse_goto(int index);
 
         syntax::Eb* parse_eb(void);
@@ -36,7 +37,6 @@ class SyntacticalAnalyser {
         bool consume(lexic::type type, bool lookahead, bool force = false);
 };
         //syntax::Data* parse_data(int index);
-        //syntax::Read* parse_read(int index);
 
 } // namespace syntax
 

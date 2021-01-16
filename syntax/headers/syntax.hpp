@@ -272,12 +272,12 @@ class Assign : public BStatement {
 
 class Read : public BStatement {
     public:
-        Read(int index, std::vector<std::string>& identifiers):
-            BStatement(index), identifiers_(identifiers)
+        Read(int index, std::vector<Var*> variables):
+            BStatement(index), variables_(variables)
         {}
 
-        std::vector<std::string> get_identifiers() {
-            return identifiers_;
+        std::vector<Var*> get_variables() {
+            return variables_;
         }
 
         void accept(Generator& gen) {
@@ -285,8 +285,7 @@ class Read : public BStatement {
         }
 
     private:
-        std::vector<std::string> identifiers_;
-        //std::vector<Var> variables;
+        std::vector<Var*> variables_;
 };
 
 class Data : public BStatement {

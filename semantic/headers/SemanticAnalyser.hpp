@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <vector>
+#include <queue>
 
 #include "syntax.hpp"
 #include "semantic.hpp"
@@ -28,6 +29,7 @@ class SemanticAnalyser {
     syntax::SyntacticalAnalyser stx;
     CodeGenerator gen;
     semantic::SymbolTable symb_table;
+    std::queue<syntax::Var*> read_variables;
 };
 
 } // namespace semantic

@@ -52,11 +52,11 @@ Syntaxeme* SyntacticalAnalyser::get_next() {
         switch (tk.type) {
             case lexic::type::LET:
                 return parse_assign(index);
+            case lexic::type::READ:
+                return parse_read(index);
             case lexic::type::GO:
             case lexic::type::GOTO:
                 return parse_goto(index);
-            //case lexic::type::READ:
-                //return parse_read(index);
             default:
                 return nullptr;
         }
@@ -80,18 +80,24 @@ Assign* SyntacticalAnalyser::parse_assign(int index) {
     return new Assign(index, variable, expression);
 }
 
-/*Read* SyntacticalAnalyser::parse_read(int index) {
-    vector<string> identifiers;
-    lexic::token tk = lex.parse_next();
+Read* SyntacticalAnalyser::parse_read(int index) {
+    vector<Var*> variables;
 
     cout << tk.value << endl;
-    if (tk.type == lexic::type::IDN)
-        identifiers.push_back(tk.value);
+    consume(lexic::type::IDN, false, true);
+    variables.push_back(new Var(Elem::VAR, tk.value));
+    cout << tk.value << endl;
 
-    return new Read(index, identifiers);
+    while(consume(lexic::type::COM, false)) {
+        consume(lexic::type::IDN, false, true);
+        cout << tk.value << endl;
+        variables.push_back(new Var(Elem::VAR, tk.value));
+    }
+
+    return new Read(index, variables);
 }
 
-Data* SyntacticalAnalyser::parse_data(int index) {
+/*Data* SyntacticalAnalyser::parse_data(int index) {
     vector<int> values;
     lexic::token tk = lex.parse_next();
 

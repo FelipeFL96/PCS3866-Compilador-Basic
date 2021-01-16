@@ -7,7 +7,7 @@ using namespace syntax;
 using namespace semantic;
 
 SemanticAnalyser::SemanticAnalyser(ifstream& input, ofstream& output):
-    stx(input), gen(output)
+    stx(input), gen(output, symb_table)
 {}
 
 void SemanticAnalyser::get_next() {
@@ -20,13 +20,16 @@ void SemanticAnalyser::get_next() {
         cout << "Não retornou nada" << endl;
     }
 
-    Assign* assign = dynamic_cast<Assign*>(sx);
-    if (assign) {
-        cout << "É um assign" << endl;
+    if (Assign* assign = dynamic_cast<Assign*>(sx)) {
+        cout << "ASSIGN" << endl;
 
         treat_variable(assign->get_variable());
         vector<Elem*> exp = parse_expression(assign->get_expression());
         gen.generate(assign, exp);
+    }
+    else if (Read* read = dynamic_cast<Read*>(sx)) {
+        for (auto var: read->get_variables())
+            read_variables.push(var);
     }
     else {
         cout << "É outra coisa" << endl;
@@ -69,7 +72,8 @@ vector<Elem*> SemanticAnalyser::parse_expression(Exp* e) {
 }
 
 void SemanticAnalyser::treat_variable(Var* v) {
-    int index = symb_table.add_variable(v);
+    int index = symb_table.insert_variable(v);
+    cout << "Variável gravada com índice: " << index << endl;
     v->set_index(index);
 }
 
