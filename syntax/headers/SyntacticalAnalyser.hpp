@@ -31,6 +31,7 @@ class SyntacticalAnalyser {
         syntax::If* parse_if(int index, lexic::position pos);
         syntax::For* parse_for(int index, lexic::position pos);
         syntax::Next* parse_next(int index, lexic::position pos);
+        syntax::Dim* parse_dim(int index, lexic::position pos);
 
         syntax::Eb* parse_eb(void);
         syntax::Operator* parse_operator(void);
@@ -38,6 +39,7 @@ class SyntacticalAnalyser {
         syntax::Num* parse_num(void);
         syntax::Var* parse_var(void);
         syntax::Call* parse_call(void);
+        syntax::Array* parse_array(void);
 
         bool consume(lexic::type type, bool lookahead, bool force = false);
 };

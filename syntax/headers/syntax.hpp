@@ -456,6 +456,39 @@ class Next : public BStatement {
         For* loop_;
 };
 
+class Array {
+    public:
+        Array(std::string identifier, std::vector<int> dimensions):
+            identifier_(identifier), dimensions_(dimensions)
+        {}
+
+        std::string get_identifier() {
+            return identifier_;
+        }
+
+        std::vector<int> get_dimensions() {
+            return dimensions_;
+        }
+
+    private:
+        std::string identifier_;
+        std::vector<int> dimensions_;
+};
+
+class Dim : public BStatement {
+    public:
+        Dim(int index, lexic::position pos, std::vector<Array*>& arrays):
+            BStatement(index, pos), arrays_(arrays)
+        {}
+
+        std::vector<Array*> get_arrays() {
+            return arrays_;
+        }
+
+    private:
+    std::vector<Array*> arrays_;
+};
+
 class syntax_exception: public std::exception {
     public:
         syntax_exception(lexic::position& loc, const std::string error_message)

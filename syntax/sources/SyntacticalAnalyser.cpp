@@ -57,6 +57,8 @@ BStatement* SyntacticalAnalyser::get_next() {
                 return parse_for(index, tk.pos);
             case lexic::type::NEXT:
                 return parse_next(index, tk.pos);
+            case lexic::type::DIM:
+                return parse_dim(index, tk.pos);
             default:
                 return nullptr;
         }
@@ -191,6 +193,36 @@ Next* SyntacticalAnalyser::parse_next(int index, lexic::position pos) {
     iterator = parse_var();
 
     return new Next(index, pos, iterator);
+}
+
+Array* SyntacticalAnalyser::parse_array() {
+    string identifier;
+    vector<int> dimensions;
+
+    consume(lexic::type::IDN, false, true);
+    identifier = tk.value;
+    consume(lexic::type::PRO, false, true);
+    consume(lexic::type::INT, false, true);
+    dimensions.push_back(stoi(tk.value));
+    while (consume(lexic::type::COM, false)) {
+        consume(lexic::type::INT, false, true);
+        dimensions.push_back(stoi(tk.value));
+    }
+    consume(lexic::type::PRC, false, true);
+
+    return new Array(identifier, dimensions);
+}
+
+Dim* SyntacticalAnalyser::parse_dim(int index, lexic::position pos) {
+    vector<Array*> arrays;
+
+    arrays.push_back(parse_array());
+
+    while (consume(lexic::type::COM, false)) {
+        arrays.push_back(parse_array());
+    }
+
+    return new Dim(index, pos, arrays);
 }
 
 Exp* SyntacticalAnalyser::parse_exp() {

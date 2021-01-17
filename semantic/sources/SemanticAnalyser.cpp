@@ -70,6 +70,9 @@ void SemanticAnalyser::get_next() {
         else if (Next* next = dynamic_cast<Next*>(command)) {
             process_next(next);
         }
+        else if (Dim* dim = dynamic_cast<Dim*>(command)) {
+            process_dim(dim);
+        }
         else {
             cout << "É outra coisa" << endl;
         }
@@ -178,7 +181,7 @@ void SemanticAnalyser::process_for(For* loop) {
     for_stack.push_back(loop);
 }
 
-void SemanticAnalyser::process_next(syntax::Next* next) {
+void SemanticAnalyser::process_next(Next* next) {
     cout << "NEXT ";
     For* loop = for_stack.back();
 
@@ -203,6 +206,21 @@ void SemanticAnalyser::process_next(syntax::Next* next) {
     gen.generate(next);
 
     for_stack.pop_back();
+}
+
+void SemanticAnalyser::process_dim(Dim* dim) {
+    cout << "DIM" << endl;
+
+    for (auto array : dim->get_arrays()) {
+        cout << "\t" << array->get_identifier() << "[";
+        for (auto dimension : array->get_dimensions()) {
+            if (dimension == array->get_dimensions().at(0))
+                cout << dimension;
+            else
+                cout << "," << dimension ;
+        }
+        cout << "]" << endl;
+    }
 }
 
 string read_elem_type(syntax::Elem* e) {
