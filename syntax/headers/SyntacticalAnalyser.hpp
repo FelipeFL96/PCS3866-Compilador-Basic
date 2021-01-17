@@ -14,7 +14,7 @@ class SyntacticalAnalyser {
     public:
         SyntacticalAnalyser(std::ifstream& file);
 
-        syntax::Syntaxeme* get_next(void);
+        syntax::BStatement* get_next(void);
 
         syntax::Exp* parse_exp(void);
 

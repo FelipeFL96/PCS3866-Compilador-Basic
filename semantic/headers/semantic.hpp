@@ -22,7 +22,7 @@ class SymbolTable {
     }
 
     int select_variable(syntax::Var* v) {
-        using namespace std;
+        //using namespace std;
         if (variables.empty())
             return 0;
 
@@ -41,25 +41,6 @@ class SymbolTable {
     
     private:
     std::vector<syntax::Var*> variables;
-};
-
-class  DataAssign {
-    public:
-        DataAssign(syntax::Var* variable, syntax::Num* value):
-            variable_(variable), value_(value)
-        {}
-
-        syntax::Var* get_variable() {
-            return variable_;
-        }
-
-        int get_value() {
-            return value_->get_value();
-        }
-
-    private:
-        syntax::Var* variable_;
-        syntax::Num* value_;
 };
 
 } // namespace semantic

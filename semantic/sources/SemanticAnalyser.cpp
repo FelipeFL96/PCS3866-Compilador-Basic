@@ -1,5 +1,7 @@
+#include <iostream>
 #include <utility>
 #include <vector>
+#include <set>
 
 #include "syntax.hpp"
 
@@ -14,59 +16,93 @@ SemanticAnalyser::SemanticAnalyser(ifstream& input, ofstream& output):
 {}
 
 void SemanticAnalyser::get_next() {
-    Syntaxeme* sx = stx.get_next();
-    
-    /*if (sx) {
-        cout << "Retornou alguma coisa" << endl;
-    }
-    else {
-        cout << "Não retornou nada" << endl;
-    }*/
+    BStatement* sx;
 
-    if (Assign* assign = dynamic_cast<Assign*>(sx)) {
-        cout << "ASSIGN" << endl;
+    auto cmp = [](BStatement* a, BStatement* b) {
+        return a->get_index() < b->get_index();
+    };
 
-        treat_variable(assign->get_variable());
-        vector<Elem*> exp = parse_expression(assign->get_expression());
-        gen.generate(assign, exp);
+    set<BStatement*, decltype(cmp)> statements(cmp);
+
+    while (true) {
+        sx = stx.get_next();
+        if (sx == nullptr)
+            break;
+        statements.insert(sx);
     }
-    else if (Read* read = dynamic_cast<Read*>(sx)) {
-        cout << "READ";
-        for (auto var: read->get_variables()) {
-            read_variables.push(var);
-            treat_variable(var);
-            cout << " " << var->get_identifier();
+
+    cout << "ACHEI " << statements.size() << " COMANDOS" << endl;
+
+    for (auto command : statements) {
+        if (command == nullptr)
+            cout << "sintaxema nulo?!" << endl;
+
+        if (Assign* assign = dynamic_cast<Assign*>(command)) {
+            process_assign(assign);
         }
-        cout << endl;
-    }
-    else if (Data* data = dynamic_cast<Data*>(sx)) {
-        cout << "DATA";
-        for (auto val: data->get_values()) {
-            data_values.push(val);
-            cout << " " << val->get_value();
+        else if (Read* read = dynamic_cast<Read*>(command)) {
+            process_read(read);
         }
-        cout << endl;
-
-        vector<pair<Var*,Num*>> read_data;
-        cout << "ATRIBUIÇÕES" << endl;
-        while (!read_variables.empty() && !data_values.empty()) {
-            Var* var = read_variables.front();
-            Num* val = data_values.front();
-
-            cout << "\tVAR[" << var->get_index() << "] " << var->get_identifier() << " = " << val->get_value() << endl;
-
-            read_data.push_back(make_pair(var, val));
-
-            read_variables.pop();
-            data_values.pop();
+        else if (Data* data = dynamic_cast<Data*>(command)) {
+            process_data(data);
         }
-        cout << endl;
+        else if (Goto* go = dynamic_cast<Goto*>(command)) {
+            process_goto(go);
+        }
+        else {
+            cout << "É outra coisa" << endl;
+        }
+    }
+}
 
-        gen.generate(data, read_data);
+void SemanticAnalyser::process_assign(syntax::Assign* assign) {
+    cout << "ASSIGN" << endl;
+    process_variable(assign->get_variable());
+    vector<Elem*> exp = process_expression(assign->get_expression());
+    gen.generate(assign, exp);
+}
+
+void SemanticAnalyser::process_read(syntax::Read* read) {
+    cout << "READ";
+    for (auto var: read->get_variables()) {
+        read_variables.push(var);
+        process_variable(var);
+        cout << " " << var->get_identifier();
     }
-    else {
-        cout << "É outra coisa" << endl;
+    cout << endl;
+}
+
+void SemanticAnalyser::process_data(syntax::Data* data) {
+    cout << "DATA";
+    for (auto val: data->get_values()) {
+        data_values.push(val);
+        cout << " " << val->get_value();
     }
+    cout << endl;
+
+    vector<pair<Var*,Num*>> read_data;
+    //cout << "ATRIBUIÇÕES" << endl;
+    while (!read_variables.empty() && !data_values.empty()) {
+        Var* var = read_variables.front();
+        Num* val = data_values.front();
+
+        //cout << "\tVAR[" << var->get_index() << "] " << var->get_identifier() << " = " << val->get_value() << endl;
+
+        read_data.push_back(make_pair(var, val));
+
+        read_variables.pop();
+        data_values.pop();
+    }
+    //cout << endl;
+
+    gen.generate(data, read_data);
+}
+
+
+void SemanticAnalyser::process_goto(Goto* go) {
+    cout << "GOTO";
+    cout << " " << go->get_destination() << endl;
+    gen.generate(go);
 }
 
 string read_elem_type(syntax::Elem* e) {
@@ -93,18 +129,18 @@ void print_exp(const vector<syntax::Elem*>& exp) {
     cout << "]" << endl;
 }
 
-vector<Elem*> SemanticAnalyser::parse_expression(Exp* e) {
+vector<Elem*> SemanticAnalyser::process_expression(Exp* e) {
     //syntax::Exp* e = stx.parse_exp();
 
     vector<syntax::Elem*> exp;
     gen_exp_vector(e, exp);
 
-    print_exp(exp);
+    //print_exp(exp);
 
     return convert_to_postfix(exp);
 }
 
-void SemanticAnalyser::treat_variable(Var* v) {
+void SemanticAnalyser::process_variable(Var* v) {
     int index = symb_table.insert_variable(v);
     //cout << "Variável gravada com índice: " << index << endl;
     v->set_index(index);
@@ -272,27 +308,27 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
             }
         }
 
-        cout << "infix: ";
+        /*cout << "infix: ";
         print_exp(infix);
         cout << "postfix: ";
         print_exp(postfix);
         cout << "stack: ";
         print_exp(stack);
-        cout << endl;
+        cout << endl;*/
     }
     while (!stack.empty()) {
         postfix.push_back(stack.back());
         stack.pop_back();
 
-        cout << "infix: ";
+        /*cout << "infix: ";
         print_exp(infix);
         cout << "postfix: ";
         print_exp(postfix);
         cout << "stack: ";
         print_exp(stack);
-        cout << endl;
+        cout << endl;*/
     }
-    print_exp(postfix);
+    //print_exp(postfix);
     return postfix;
     /*
     while there are tokens to be read:

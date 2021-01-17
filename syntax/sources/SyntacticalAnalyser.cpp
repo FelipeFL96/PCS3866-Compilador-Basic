@@ -34,7 +34,7 @@ void print_exp(Exp* e) {
     cout << ") ";
 }
 
-Syntaxeme* SyntacticalAnalyser::get_next() {
+BStatement* SyntacticalAnalyser::get_next() {
     int index;
 
     /*Num* n = dynamic_cast<Num*>(parse_eb());
@@ -44,7 +44,7 @@ Syntaxeme* SyntacticalAnalyser::get_next() {
     print_exp(e);
     cout << endl;*/
 
-    if (consume(lexic::type::INT, false, true)) {
+    if (consume(lexic::type::INT, false/*, true*/)) {
         int index = stoi(tk.value);
 
         tk = lex.get_next();

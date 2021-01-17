@@ -104,8 +104,6 @@ void synt_test(ifstream& file) {
 void sem_test(ifstream& input, ofstream& output) {
     semantic::SemanticAnalyser smt(input, output);
     smt.get_next();
-    smt.get_next();
-    smt.get_next();
 }
 
 void gen_test(ifstream& input, ofstream& output) {

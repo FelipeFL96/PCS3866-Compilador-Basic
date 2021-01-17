@@ -60,11 +60,11 @@ void CodeGenerator::generate(syntax::Data* data, std::vector<pair<syntax::Var*, 
     file << endl;
 }
 
-/*void CodeGenerator::generate(semantic::DataAssign* data_assign) {
-    file << "D" << data_assign
-    file << "L" << data->get_index() << ":" << endl;
+void CodeGenerator::generate(syntax::Goto* go) {
+    file << "L" << go->get_index() << ":" << endl;
+    file << "\tB        L" << go->get_destination() << endl;
     file << endl;
-}*/
+}
 
 void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
     file << "\tLDR      sp, =stack" << endl;

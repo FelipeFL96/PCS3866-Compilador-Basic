@@ -251,18 +251,13 @@ class Call : public Eb {
         std::vector<Exp*> args_;
 };
 
-class Syntaxeme {
-    public:
-    virtual void accept(Generator& gen) = 0;
-};
-
-class BStatement : public Syntaxeme {
+class BStatement {
     public:
         BStatement(int index):
             index_(index)
         {}
 
-        int get_index() {
+        virtual int get_index() {
             return index_;
         }
 
