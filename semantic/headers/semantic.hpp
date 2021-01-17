@@ -43,6 +43,22 @@ class SymbolTable {
     std::vector<syntax::Var*> variables;
 };
 
+class semantic_exception: public std::exception {
+    public:
+        semantic_exception(lexic::position& loc, const std::string error_message)
+            : loc(loc), error_message(error_message) {
+            exception();
+        }
+
+        std::string message() {
+            return loc.position_str() + ": " + error_message;
+        }
+
+    private:
+        lexic::position& loc;
+        const std::string error_message;
+};
+
 } // namespace semantic
 
 #endif // SEMANTIC_HPP

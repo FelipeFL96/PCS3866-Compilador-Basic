@@ -51,16 +51,16 @@ BStatement* SyntacticalAnalyser::get_next() {
 
         switch (tk.type) {
             case lexic::type::LET:
-                return parse_assign(index);
+                return parse_assign(index, tk.pos);
             case lexic::type::READ:
-                return parse_read(index);
+                return parse_read(index, tk.pos);
             case lexic::type::DATA:
-                return parse_data(index);
+                return parse_data(index, tk.pos);
             case lexic::type::GO:
             case lexic::type::GOTO:
-                return parse_goto(index);
+                return parse_goto(index, tk.pos);
             case lexic::type::IF:
-                return parse_if(index);
+                return parse_if(index, tk.pos);
             default:
                 return nullptr;
         }
@@ -70,7 +70,7 @@ BStatement* SyntacticalAnalyser::get_next() {
 }
 
 
-Assign* SyntacticalAnalyser::parse_assign(int index) {
+Assign* SyntacticalAnalyser::parse_assign(int index, lexic::position pos) {
     Var* variable;
     Exp* expression;
 
@@ -81,10 +81,10 @@ Assign* SyntacticalAnalyser::parse_assign(int index) {
 
     expression = parse_exp();
 
-    return new Assign(index, variable, expression);
+    return new Assign(index, pos, variable, expression);
 }
 
-Read* SyntacticalAnalyser::parse_read(int index) {
+Read* SyntacticalAnalyser::parse_read(int index, lexic::position pos) {
     vector<Var*> variables;
 
     consume(lexic::type::IDN, false, true);
@@ -95,10 +95,10 @@ Read* SyntacticalAnalyser::parse_read(int index) {
         variables.push_back(new Var(Elem::VAR, tk.value));
     }
 
-    return new Read(index, variables);
+    return new Read(index, pos, variables);
 }
 
-Data* SyntacticalAnalyser::parse_data(int index) {
+Data* SyntacticalAnalyser::parse_data(int index, lexic::position pos) {
     vector<Num*> values;
 
     Num* n = parse_snum();
@@ -109,10 +109,10 @@ Data* SyntacticalAnalyser::parse_data(int index) {
         values.push_back(n);
     }
 
-    return new Data(index, values);
+    return new Data(index, pos, values);
 }
 
-Goto* SyntacticalAnalyser::parse_goto(int index) {
+Goto* SyntacticalAnalyser::parse_goto(int index, lexic::position pos) {
     int destination;
 
     if (consume(lexic::type::TO, false)) {
@@ -124,10 +124,10 @@ Goto* SyntacticalAnalyser::parse_goto(int index) {
         destination = stoi(tk.value);
     }
 
-    return new Goto(index, destination);
+    return new Goto(index, pos, destination);
 }
 
-If* SyntacticalAnalyser::parse_if(int index) {
+If* SyntacticalAnalyser::parse_if(int index, lexic::position pos) {
     Exp *left, *right;
     If::cmp op;
     int destination;
@@ -160,7 +160,7 @@ If* SyntacticalAnalyser::parse_if(int index) {
     consume(lexic::type::INT, false, true);
     destination = stoi(tk.value);
 
-    return new If(index, left, op, right, destination);
+    return new If(index, pos, left, op, right, destination);
 }
 
 Exp* SyntacticalAnalyser::parse_exp() {

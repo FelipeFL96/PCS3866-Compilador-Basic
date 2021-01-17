@@ -24,11 +24,11 @@ class SyntacticalAnalyser {
         lexic::token tk;
         bool token_consumed;
 
-        syntax::Assign* parse_assign(int index);
-        syntax::Read* parse_read(int index);
-        syntax::Data* parse_data(int index);
-        syntax::Goto* parse_goto(int index);
-        syntax::If* parse_if(int index);
+        syntax::Assign* parse_assign(int index, lexic::position pos);
+        syntax::Read* parse_read(int index, lexic::position pos);
+        syntax::Data* parse_data(int index, lexic::position pos);
+        syntax::Goto* parse_goto(int index, lexic::position pos);
+        syntax::If* parse_if(int index, lexic::position pos);
 
         syntax::Eb* parse_eb(void);
         syntax::Operator* parse_operator(void);

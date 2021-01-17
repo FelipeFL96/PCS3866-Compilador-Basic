@@ -11,18 +11,18 @@ using namespace std;
 using namespace syntax;
 using namespace semantic;
 
+auto cmp = [](syntax::BStatement* a, syntax::BStatement* b) {
+    return a->get_index() < b->get_index();
+};
+set<syntax::BStatement*, decltype(cmp)> statements(cmp);
+
+
 SemanticAnalyser::SemanticAnalyser(ifstream& input, ofstream& output):
     stx(input), gen(input, output, symb_table)
 {}
 
 void SemanticAnalyser::get_next() {
     BStatement* sx;
-
-    auto cmp = [](BStatement* a, BStatement* b) {
-        return a->get_index() < b->get_index();
-    };
-
-    set<BStatement*, decltype(cmp)> statements(cmp);
 
     while (true) {
         sx = stx.get_next();
@@ -75,6 +75,24 @@ void SemanticAnalyser::process_read(syntax::Read* read) {
         cout << " " << var->get_identifier();
     }
     cout << endl;
+
+    vector<pair<Var*,Num*>> read_data;
+    //cout << "ATRIBUIÇÕES" << endl;
+    while (!read_variables.empty() && !data_values.empty()) {
+        Var* var = read_variables.front();
+        Num* val = data_values.front();
+
+        //cout << "\tVAR[" << var->get_index() << "] " << var->get_identifier() << " = " << val->get_value() << endl;
+
+        read_data.push_back(make_pair(var, val));
+
+        read_variables.pop();
+        data_values.pop();
+    }
+    //cout << endl;
+
+    if (!read_data.empty())
+        gen.generate(read, read_data);
 }
 
 void SemanticAnalyser::process_data(syntax::Data* data) {
@@ -100,21 +118,34 @@ void SemanticAnalyser::process_data(syntax::Data* data) {
     }
     //cout << endl;
 
-    gen.generate(data, read_data);
+    if (!read_data.empty())
+        gen.generate(data, read_data);
 }
 
 
 void SemanticAnalyser::process_goto(Goto* go) {
     cout << "GOTO";
     cout << " " << go->get_destination() << endl;
-    gen.generate(go);
+
+    for (auto statement : statements) {
+        if (go->get_destination() == statement->get_index())
+            gen.generate(go);
+    }
+
+    throw semantic_exception(go->get_position(), string("Linha de destino inexistente"));
 }
 
 void SemanticAnalyser::process_if(syntax::If* ift) {
-    cout << "IF";
+    cout << "IF" << endl;
     vector<Elem*> left = process_expression(ift->get_left());
     vector<Elem*> right = process_expression(ift->get_right());
-    gen.generate(ift, left, right);
+
+    for (auto statement : statements) {
+        if (ift->get_destination() == statement->get_index())
+            gen.generate(ift, left, right);
+    }
+
+    throw semantic_exception(ift->get_position(), string("Linha de destino inexistente"));
 }
 
 string read_elem_type(syntax::Elem* e) {

@@ -253,22 +253,27 @@ class Call : public Eb {
 
 class BStatement {
     public:
-        BStatement(int index):
-            index_(index)
+        BStatement(int index, lexic::position pos):
+            index_(index), pos_(pos)
         {}
 
         virtual int get_index() {
             return index_;
         }
 
+        virtual lexic::position& get_position() {
+            return pos_;
+        }
+
     private:
         int index_;
+        lexic::position pos_;
 };
 
 class Assign : public BStatement {
     public:
-        Assign(int index, Var* variable, Exp* expression):
-            BStatement(index), variable_(variable), expression_(expression)
+        Assign(int index, lexic::position pos, Var* variable, Exp* expression):
+            BStatement(index, pos), variable_(variable), expression_(expression)
         {}
 
         Var* get_variable() {
@@ -290,8 +295,8 @@ class Assign : public BStatement {
 
 class Read : public BStatement {
     public:
-        Read(int index, std::vector<Var*> variables):
-            BStatement(index), variables_(variables)
+        Read(int index, lexic::position pos, std::vector<Var*> variables):
+            BStatement(index, pos), variables_(variables)
         {}
 
         std::vector<Var*> get_variables() {
@@ -308,8 +313,8 @@ class Read : public BStatement {
 
 class Data : public BStatement {
     public:
-        Data(int index, std::vector<Num*> values):
-            BStatement(index), values_(values)
+        Data(int index, lexic::position pos, std::vector<Num*> values):
+            BStatement(index, pos), values_(values)
         {}
 
         std::vector<Num*> get_values() {
@@ -344,8 +349,8 @@ class Print {
 
 class Goto : public BStatement {
     public:
-        Goto(int index, int destination):
-            BStatement(index), destination_(destination)
+        Goto(int index, lexic::position pos, int destination):
+            BStatement(index, pos), destination_(destination)
         {}
 
         int get_destination() {
@@ -366,8 +371,8 @@ class If : public BStatement {
             EQL, NEQ, GTN, LTN, GEQ, LEQ
         };
 
-        If(int index, Exp* left, If::cmp op, Exp* right, int destination):
-            BStatement(index), left_(left), right_(right), op_(op), destination_(destination)
+        If(int index, lexic::position pos, Exp* left, If::cmp op, Exp* right, int destination):
+            BStatement(index, pos), left_(left), right_(right), op_(op), destination_(destination)
         {}
 
         Exp* get_left() {

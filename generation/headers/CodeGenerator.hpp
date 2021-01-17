@@ -13,6 +13,7 @@ class CodeGenerator/* : public syntax::Generator*/ {
         CodeGenerator(std::ifstream& input, std::ofstream& output, semantic::SymbolTable& symb_table);
 
         void generate(syntax::Assign* assign, std::vector<syntax::Elem*> exp);
+        void generate(syntax::Read* read, std::vector<std::pair<syntax::Var*, syntax::Num*>>& read_data);
         void generate(syntax::Data* data, std::vector<std::pair<syntax::Var*, syntax::Num*>>& read_data);
         void generate(syntax::Goto* go);
         void generate(syntax::If* ift, std::vector<syntax::Elem*> left, std::vector<syntax::Elem*> right);

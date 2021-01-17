@@ -4,6 +4,7 @@
 
 #include "lexic.hpp"
 #include "syntax.hpp"
+#include "semantic.hpp"
 #include "ASCIIClassifier.hpp"
 #include "LexicalAnalyser.hpp"
 #include "SyntacticalAnalyser.hpp"
@@ -54,6 +55,9 @@ int main(int argc, char* argv[]) {
     catch (syntax::syntax_exception& e) {
         cerr << "\033[1;31mErro sintático: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
     }
+    catch (semantic::semantic_exception& e) {
+        cerr << "\033[1;31mErro semântico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+    }
 
     input.close();
     output.close();
@@ -75,15 +79,10 @@ void lex_test(ifstream& file, const char* filename) {
     using namespace lexic;
 
     LexicalAnalyser lex(file);
-    try {
-        while (true) {
-            token s = lex.get_next();
-            if (s.value == "") break;
-            cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
-        }
-    }
-    catch (lexical_exception& e) {
-        cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+    while (true) {
+        token s = lex.get_next();
+        if (s.value == "") break;
+        cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
     }
 }
 

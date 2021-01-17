@@ -51,6 +51,15 @@ void CodeGenerator::generate(syntax::Assign* assign, vector<syntax::Elem*> exp) 
     output << endl;
 }
 
+void CodeGenerator::generate(syntax::Read* read, std::vector<pair<syntax::Var*, syntax::Num*>>& read_data) {
+    output << "L" << read->get_index() << ":" << endl;
+    for (auto pair : read_data) {
+        output << "\tMOV      r0, #" << get<1>(pair)->get_value() << endl;
+        output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(get<0>(pair)) << "]" << endl;
+    }
+    output << endl;
+}
+
 void CodeGenerator::generate(syntax::Data* data, std::vector<pair<syntax::Var*, syntax::Num*>>& read_data) {
     output << "L" << data->get_index() << ":" << endl;
     for (auto pair : read_data) {
