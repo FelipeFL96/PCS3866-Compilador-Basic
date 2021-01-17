@@ -12,6 +12,9 @@ using namespace syntax;
 using namespace semantic;
 
 auto cmp = [](syntax::BStatement* a, syntax::BStatement* b) {
+    if (a->get_index() == b->get_index()) {
+        throw semantic_exception(a->get_position(), "Índice de linha já existente");
+    }
     return a->get_index() < b->get_index();
 };
 set<syntax::BStatement*, decltype(cmp)> statements(cmp);
@@ -20,6 +23,14 @@ set<syntax::BStatement*, decltype(cmp)> statements(cmp);
 SemanticAnalyser::SemanticAnalyser(ifstream& input, ofstream& output):
     stx(input), gen(input, output, symb_table)
 {}
+
+
+int find_next_index(BStatement* current) {
+    for (auto statement : statements) {
+        if (statement->get_index() > current->get_index())
+            return statement->get_index();
+    }
+}
 
 void SemanticAnalyser::get_next() {
     BStatement* sx;
@@ -70,7 +81,8 @@ void SemanticAnalyser::process_assign(syntax::Assign* assign) {
     cout << "ASSIGN" << endl;
     process_variable(assign->get_variable());
     vector<Elem*> exp = process_expression(assign->get_expression());
-    gen.generate(assign, exp);
+    int next_index = find_next_index(assign);
+    gen.generate(assign, exp, next_index);
 }
 
 void SemanticAnalyser::process_read(syntax::Read* read) {
@@ -96,9 +108,9 @@ void SemanticAnalyser::process_read(syntax::Read* read) {
         data_values.pop();
     }
     //cout << endl;
-
+    int next_index = find_next_index(read);
     if (!read_data.empty())
-        gen.generate(read, read_data);
+        gen.generate(read, read_data, next_index);
 }
 
 void SemanticAnalyser::process_data(syntax::Data* data) {
@@ -123,9 +135,9 @@ void SemanticAnalyser::process_data(syntax::Data* data) {
         data_values.pop();
     }
     //cout << endl;
-
+    int next_index = find_next_index(data);
     if (!read_data.empty())
-        gen.generate(data, read_data);
+        gen.generate(data, read_data, next_index);
 }
 
 
@@ -148,9 +160,11 @@ void SemanticAnalyser::process_if(syntax::If* ift) {
     vector<Elem*> left = process_expression(ift->get_left());
     vector<Elem*> right = process_expression(ift->get_right());
 
+    int next_index = find_next_index(ift);
+
     for (auto statement : statements) {
         if (ift->get_destination() == statement->get_index()) {
-            gen.generate(ift, left, right);
+            gen.generate(ift, left, right, next_index);
             return;
         }
     }
@@ -161,14 +175,7 @@ void SemanticAnalyser::process_if(syntax::If* ift) {
 void SemanticAnalyser::process_for(For* loop) {
     cout << "FOR ";
 
-    process_variable(loop->get_iterator());
-    cout << loop->get_iterator()->get_identifier() << "[" << loop->get_iterator()->get_index() <<  "]" << endl;
-    vector<Elem*> init = process_expression(loop->get_init());
-    vector<Elem*> stop = process_expression(loop->get_stop());
-    vector<Elem*> step = process_expression(loop->get_step());
-
     for_stack.push_back(loop);
-    gen.generate(loop, init, stop, step);
 }
 
 void SemanticAnalyser::process_next(syntax::Next* next) {
@@ -181,9 +188,18 @@ void SemanticAnalyser::process_next(syntax::Next* next) {
 
     cout << loop->get_iterator()->get_identifier() << "[" << loop->get_iterator()->get_index() <<  "]" << endl;
 
-    loop->set_next_line(next->get_index());
+    // Geração do FOR correspondente
+    process_variable(loop->get_iterator());
+    cout << loop->get_iterator()->get_identifier() << "[" << loop->get_iterator()->get_index() <<  "]" << endl;
+    vector<Elem*> init = process_expression(loop->get_init());
+    vector<Elem*> stop = process_expression(loop->get_stop());
+    vector<Elem*> step = process_expression(loop->get_step());
+    int index_inside_loop = find_next_index(loop);
+    int index_outside_loop = find_next_index(next);
+    gen.generate(loop, init, stop, step, index_inside_loop, index_outside_loop);
+    
+    // Geração do NEXT
     next->set_loop(loop);
-
     gen.generate(next);
 
     for_stack.pop_back();

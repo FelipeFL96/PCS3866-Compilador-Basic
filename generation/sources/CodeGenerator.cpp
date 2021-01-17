@@ -44,28 +44,31 @@ void CodeGenerator::generate_variables() {
     output << endl;
 }
 
-void CodeGenerator::generate(syntax::Assign* assign, vector<syntax::Elem*> exp) {
+void CodeGenerator::generate(syntax::Assign* assign, vector<syntax::Elem*> exp, int next_index) {
     output << "L" << assign->get_index() << ":" << endl;
     generate_expression(exp);
     output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(assign->get_variable()) << "]" << endl;
+    output << "\tB        L" << next_index << endl;
     output << endl;
 }
 
-void CodeGenerator::generate(syntax::Read* read, std::vector<pair<syntax::Var*, syntax::Num*>>& read_data) {
+void CodeGenerator::generate(syntax::Read* read, std::vector<pair<syntax::Var*, syntax::Num*>>& read_data, int next_index) {
     output << "L" << read->get_index() << ":" << endl;
     for (auto pair : read_data) {
         output << "\tMOV      r0, #" << get<1>(pair)->get_value() << endl;
         output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(get<0>(pair)) << "]" << endl;
     }
+    output << "\tB        L" << next_index << endl;
     output << endl;
 }
 
-void CodeGenerator::generate(syntax::Data* data, std::vector<pair<syntax::Var*, syntax::Num*>>& read_data) {
+void CodeGenerator::generate(syntax::Data* data, std::vector<pair<syntax::Var*, syntax::Num*>>& read_data, int next_index) {
     output << "L" << data->get_index() << ":" << endl;
     for (auto pair : read_data) {
         output << "\tMOV      r0, #" << get<1>(pair)->get_value() << endl;
         output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(get<0>(pair)) << "]" << endl;
     }
+    output << "\tB        L" << next_index << endl;
     output << endl;
 }
 
@@ -75,7 +78,7 @@ void CodeGenerator::generate(syntax::Goto* go) {
     output << endl;
 }
 
-void CodeGenerator::generate(syntax::If* ift, std::vector<syntax::Elem*> left, std::vector<syntax::Elem*> right) {
+void CodeGenerator::generate(syntax::If* ift, std::vector<syntax::Elem*> left, std::vector<syntax::Elem*> right, int next_index) {
     output << "L" << ift->get_index() << ":" << endl;
     generate_expression(left);
     output << "\tSTMFD    sp!, {r0}" << endl;
@@ -102,10 +105,12 @@ void CodeGenerator::generate(syntax::If* ift, std::vector<syntax::Elem*> left, s
             output << "\tBLE      " << "L" << ift->get_destination() << endl;
             break;
     }
+    output << "\tB        L" << next_index << endl;
     output << endl;
 }
 
-void CodeGenerator::generate(syntax::For* loop, vector<syntax::Elem*> init, vector<syntax::Elem*> stop, vector<syntax::Elem*> step) {
+void CodeGenerator::generate(syntax::For* loop, vector<syntax::Elem*> init, vector<syntax::Elem*> stop,
+            vector<syntax::Elem*> step, int index_inside_loop, int index_outside_loop) {
     output << "L" << loop->get_index() << ":" << endl;
 
     // Inicialização do iterador
@@ -127,13 +132,14 @@ void CodeGenerator::generate(syntax::For* loop, vector<syntax::Elem*> init, vect
     generate_expression(stop);
     output << "\tLDR      r1, [r12, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
     output << "\tCMP      r1, r0" << endl;
-    output << "\tBGE      L0" << endl; // Calma
+    output << "\tBGE      L" << index_outside_loop << endl;
+    output << "\tB        L" << index_inside_loop << endl;
     output << endl;
 }
 
 void CodeGenerator::generate(syntax::Next* next) {
     output << "L" << next->get_index() << ":" << endl;
-    output << "\tB        L" << next->get_loop()->get_index() << ".COMP" << endl;
+    output << "\tB        L" << next->get_loop()->get_index() << ".STEP" << endl;
     output << endl;
 }
 
