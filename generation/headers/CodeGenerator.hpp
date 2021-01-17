@@ -2,6 +2,8 @@
 #define CODE_GENERATOR_HPP
 
 #include <fstream>
+#include <vector>
+#include <utility>
 
 #include "syntax.hpp"
 #include "semantic.hpp"
@@ -11,9 +13,8 @@ class CodeGenerator/* : public syntax::Generator*/ {
         CodeGenerator(std::ofstream& file, semantic::SymbolTable& symb_table);
 
         void generate(syntax::Assign* assign, std::vector<syntax::Elem*> exp);
-        void generate(syntax::Read* read);
-        void generate(syntax::Data* data);
         void generate(syntax::Goto* go);
+        void generate(syntax::Data* data, std::vector<std::pair<syntax::Var*, syntax::Num*>>& read_data);
 
         void generate_expression(std::vector<syntax::Elem*>& exp);
         void generate_header();

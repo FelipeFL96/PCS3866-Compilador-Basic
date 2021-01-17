@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "CodeGenerator.hpp"
 #include "syntax.hpp"
+#include "CodeGenerator.hpp"
 
 using namespace std;
 
@@ -50,21 +50,21 @@ void CodeGenerator::generate(syntax::Assign* assign, vector<syntax::Elem*> exp) 
     file << endl;
 }
 
-void CodeGenerator::generate(syntax::Read* read) {
-    file << "L" << read->get_index() << ":" << endl;
+void CodeGenerator::generate(syntax::Data* data, std::vector<pair<syntax::Var*, syntax::Num*>>& read_data) {
+    file << "L" << data->get_index() << ":" << endl;
+    file << "\tLDR      r12, =variables" << endl;
+    for (auto pair : read_data) {
+        file << "\tMOV      r0, #" << get<1>(pair)->get_value() << endl;
+        file << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(get<0>(pair)) << "]" << endl;
+    }
     file << endl;
 }
 
-void CodeGenerator::generate(syntax::Data* data) {
+/*void CodeGenerator::generate(semantic::DataAssign* data_assign) {
+    file << "D" << data_assign
     file << "L" << data->get_index() << ":" << endl;
     file << endl;
-}
-
-void CodeGenerator::generate(syntax::Goto* go) {
-    file << "L" << go->get_index() << ":" << endl;
-    file << "\tB L" << go->get_destination() << endl;
-    file << endl;
-}
+}*/
 
 void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
     file << "\tLDR      sp, =stack" << endl;

@@ -30,6 +30,7 @@ class SemanticAnalyser {
     CodeGenerator gen;
     semantic::SymbolTable symb_table;
     std::queue<syntax::Var*> read_variables;
+    std::queue<syntax::Num*> data_values;
 };
 
 } // namespace semantic

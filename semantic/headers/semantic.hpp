@@ -26,14 +26,14 @@ class SymbolTable {
         if (variables.empty())
             return 0;
 
-        cout << "Procurando por variável de nome: " << v->get_identifier() << endl;
+        //cout << "Procurando por variável de nome: " << v->get_identifier() << endl;
         for (auto var : variables) {
-            cout << "Testando [" << var->get_identifier() << ": ";
+            //cout << "Testando [" << var->get_identifier() << ": ";
             if (var->get_identifier() == v->get_identifier()) {
-                cout << "APROVADA" << endl;
+                //cout << "APROVADA" << endl;
                 return var->get_index();
             }
-            cout << "REPROVADA" << endl;
+            //cout << "REPROVADA" << endl;
         }
 
         return 0;
@@ -41,6 +41,25 @@ class SymbolTable {
     
     private:
     std::vector<syntax::Var*> variables;
+};
+
+class  DataAssign {
+    public:
+        DataAssign(syntax::Var* variable, syntax::Num* value):
+            variable_(variable), value_(value)
+        {}
+
+        syntax::Var* get_variable() {
+            return variable_;
+        }
+
+        int get_value() {
+            return value_->get_value();
+        }
+
+    private:
+        syntax::Var* variable_;
+        syntax::Num* value_;
 };
 
 } // namespace semantic

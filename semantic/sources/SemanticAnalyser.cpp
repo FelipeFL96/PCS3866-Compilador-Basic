@@ -1,3 +1,6 @@
+#include <utility>
+#include <vector>
+
 #include "syntax.hpp"
 
 #include "SemanticAnalyser.hpp"
@@ -13,12 +16,12 @@ SemanticAnalyser::SemanticAnalyser(ifstream& input, ofstream& output):
 void SemanticAnalyser::get_next() {
     Syntaxeme* sx = stx.get_next();
     
-    if (sx) {
+    /*if (sx) {
         cout << "Retornou alguma coisa" << endl;
     }
     else {
         cout << "Não retornou nada" << endl;
-    }
+    }*/
 
     if (Assign* assign = dynamic_cast<Assign*>(sx)) {
         cout << "ASSIGN" << endl;
@@ -28,8 +31,38 @@ void SemanticAnalyser::get_next() {
         gen.generate(assign, exp);
     }
     else if (Read* read = dynamic_cast<Read*>(sx)) {
-        for (auto var: read->get_variables())
+        cout << "READ";
+        for (auto var: read->get_variables()) {
             read_variables.push(var);
+            treat_variable(var);
+            cout << " " << var->get_identifier();
+        }
+        cout << endl;
+    }
+    else if (Data* data = dynamic_cast<Data*>(sx)) {
+        cout << "DATA";
+        for (auto val: data->get_values()) {
+            data_values.push(val);
+            cout << " " << val->get_value();
+        }
+        cout << endl;
+
+        vector<pair<Var*,Num*>> read_data;
+        cout << "ATRIBUIÇÕES" << endl;
+        while (!read_variables.empty() && !data_values.empty()) {
+            Var* var = read_variables.front();
+            Num* val = data_values.front();
+
+            cout << "\tVAR[" << var->get_index() << "] " << var->get_identifier() << " = " << val->get_value() << endl;
+
+            read_data.push_back(make_pair(var, val));
+
+            read_variables.pop();
+            data_values.pop();
+        }
+        cout << endl;
+
+        gen.generate(data, read_data);
     }
     else {
         cout << "É outra coisa" << endl;
@@ -73,7 +106,7 @@ vector<Elem*> SemanticAnalyser::parse_expression(Exp* e) {
 
 void SemanticAnalyser::treat_variable(Var* v) {
     int index = symb_table.insert_variable(v);
-    cout << "Variável gravada com índice: " << index << endl;
+    //cout << "Variável gravada com índice: " << index << endl;
     v->set_index(index);
 }
 

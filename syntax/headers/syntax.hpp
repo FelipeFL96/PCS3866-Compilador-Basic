@@ -111,6 +111,28 @@ class Num : public Eb {
             Eb(elem), integer_(integer), neg_exp_(neg_exp), exponent_(exponent)
         {}
 
+        Num(bool negative, Num* n):
+            Eb(Elem::NUM), negative_(negative), integer_(n->integer_), neg_exp_(n->neg_exp_), exponent_(n->exponent_)
+        {
+            delete n;
+        }
+
+        bool get_negative() {
+            return negative_;
+        }
+
+        int get_integer() {
+            return integer_;
+        }
+
+        bool get_neg_exp() {
+            return neg_exp_;
+        }
+
+        int get_exponent() {
+            return exponent_;
+        }
+
         int get_value() {
             int num = integer_;
 
@@ -124,7 +146,7 @@ class Num : public Eb {
                     num *= 10;
                 }
             }
-            return num;
+            return (negative_?  (-num) : num);
         }
 
         Eb::type get_eb_type() {
@@ -132,6 +154,7 @@ class Num : public Eb {
         }
 
     private:
+        bool negative_ = false;
         int integer_ = 0;
         bool neg_exp_ = false;
         int exponent_ = 0;
@@ -290,11 +313,11 @@ class Read : public BStatement {
 
 class Data : public BStatement {
     public:
-        Data(int index, std::vector<int>& values):
+        Data(int index, std::vector<Num*> values):
             BStatement(index), values_(values)
         {}
 
-        std::vector<int> get_values() {
+        std::vector<Num*> get_values() {
             return values_;
         }
 
@@ -303,8 +326,7 @@ class Data : public BStatement {
         }
 
     private:
-        std::vector<int> values_;
-        //std::vector<Num> values;
+        std::vector<Num*> values_;
 };
 
 class Pitem {

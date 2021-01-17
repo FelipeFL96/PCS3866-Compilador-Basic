@@ -26,17 +26,18 @@ class SyntacticalAnalyser {
 
         syntax::Assign* parse_assign(int index);
         syntax::Read* parse_read(int index);
+        syntax::Data* parse_data(int index);
         syntax::Goto* parse_goto(int index);
 
         syntax::Eb* parse_eb(void);
         syntax::Operator* parse_operator(void);
+        syntax::Num* parse_snum(void);
         syntax::Num* parse_num(void);
         syntax::Var* parse_var(void);
         syntax::Call* parse_call(void);
 
         bool consume(lexic::type type, bool lookahead, bool force = false);
 };
-        //syntax::Data* parse_data(int index);
 
 } // namespace syntax
 
