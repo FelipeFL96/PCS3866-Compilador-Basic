@@ -360,13 +360,36 @@ class Goto : public BStatement {
         int destination_;
 };
 
+class If : public BStatement {
+    public:
+        enum cmp {
+            EQL, NEQ, GTN, LTN, GEQ, LEQ
+        };
 
+        If(int index, Exp* left, If::cmp op, Exp* right, int destination):
+            BStatement(index), left_(left), right_(right), op_(op), destination_(destination)
+        {}
 
-class If {
-    //Exp left;
-    //Exp right;
-    lexic::type op;
-    int destination;
+        Exp* get_left() {
+            return left_;
+        }
+
+        Exp* get_right() {
+            return right_;
+        }
+
+        If::cmp get_op() {
+            return op_;
+        }
+
+        int get_destination() {
+            return destination_;
+        }
+
+    private:
+        Exp *left_, *right_;
+        If::cmp op_;
+        int destination_;
 };
 
 class syntax_exception: public std::exception {

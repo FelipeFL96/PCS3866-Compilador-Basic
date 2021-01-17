@@ -12,7 +12,7 @@ using namespace syntax;
 using namespace semantic;
 
 SemanticAnalyser::SemanticAnalyser(ifstream& input, ofstream& output):
-    stx(input), gen(output, symb_table)
+    stx(input), gen(input, output, symb_table)
 {}
 
 void SemanticAnalyser::get_next() {
@@ -32,6 +32,7 @@ void SemanticAnalyser::get_next() {
     }
 
     cout << "ACHEI " << statements.size() << " COMANDOS" << endl;
+    gen.generate_header();
 
     for (auto command : statements) {
         if (command == nullptr)
@@ -49,10 +50,14 @@ void SemanticAnalyser::get_next() {
         else if (Goto* go = dynamic_cast<Goto*>(command)) {
             process_goto(go);
         }
+        else if (If* ift = dynamic_cast<If*>(command)) {
+            process_if(ift);
+        }
         else {
             cout << "É outra coisa" << endl;
         }
     }
+    gen.generate_variables();
 }
 
 void SemanticAnalyser::process_assign(syntax::Assign* assign) {
@@ -103,6 +108,13 @@ void SemanticAnalyser::process_goto(Goto* go) {
     cout << "GOTO";
     cout << " " << go->get_destination() << endl;
     gen.generate(go);
+}
+
+void SemanticAnalyser::process_if(syntax::If* ift) {
+    cout << "IF";
+    vector<Elem*> left = process_expression(ift->get_left());
+    vector<Elem*> right = process_expression(ift->get_right());
+    gen.generate(ift, left, right);
 }
 
 string read_elem_type(syntax::Elem* e) {

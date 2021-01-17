@@ -23,6 +23,7 @@ class SemanticAnalyser {
     void process_read(syntax::Read* read);
     void process_data(syntax::Data* data);
     void process_goto(syntax::Goto* go);
+    void process_if(syntax::If* ift);
 
     std::vector<syntax::Elem*> process_expression(syntax::Exp* e);
     void process_variable(syntax::Var* v);

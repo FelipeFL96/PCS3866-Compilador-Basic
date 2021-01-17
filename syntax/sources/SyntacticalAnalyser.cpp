@@ -59,6 +59,8 @@ BStatement* SyntacticalAnalyser::get_next() {
             case lexic::type::GO:
             case lexic::type::GOTO:
                 return parse_goto(index);
+            case lexic::type::IF:
+                return parse_if(index);
             default:
                 return nullptr;
         }
@@ -123,6 +125,42 @@ Goto* SyntacticalAnalyser::parse_goto(int index) {
     }
 
     return new Goto(index, destination);
+}
+
+If* SyntacticalAnalyser::parse_if(int index) {
+    Exp *left, *right;
+    If::cmp op;
+    int destination;
+
+    left = parse_exp();
+
+    if (consume(lexic::type::EQL, false)) {
+        op = If::EQL;
+    }
+    else if (consume(lexic::type::NEQ, false)) {
+        op = If::NEQ;
+    }
+    else if (consume(lexic::type::LTN, false)) {
+        op = If::LTN;
+    }
+    else if (consume(lexic::type::GTN, false)) {
+        op = If::GTN;
+    }
+    else if (consume(lexic::type::LEQ, false)) {
+        op = If::LEQ;
+    }
+    else if (consume(lexic::type::GEQ, false)) {
+        op = If::GEQ;
+    }
+
+    right = parse_exp();
+
+    consume(lexic::type::THEN, false, true);
+
+    consume(lexic::type::INT, false, true);
+    destination = stoi(tk.value);
+
+    return new If(index, left, op, right, destination);
 }
 
 Exp* SyntacticalAnalyser::parse_exp() {
