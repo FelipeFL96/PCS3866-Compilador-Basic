@@ -131,6 +131,12 @@ void CodeGenerator::generate(syntax::For* loop, vector<syntax::Elem*> init, vect
     output << endl;
 }
 
+void CodeGenerator::generate(syntax::Next* next) {
+    output << "L" << next->get_index() << ":" << endl;
+    output << "\tB        L" << next->get_loop()->get_index() << ".COMP" << endl;
+    output << endl;
+}
+
 void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
     for (auto e : exp) {
         if (e->get_elem_type() == syntax::Elem::NUM) {

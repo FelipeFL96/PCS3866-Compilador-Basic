@@ -22,7 +22,7 @@ class SyntacticalAnalyser {
         std::ifstream& file;
         lexic::LexicalAnalyser lex;
         lexic::token tk;
-        bool token_consumed;
+        bool token_consumed = true;
 
         syntax::Assign* parse_assign(int index, lexic::position pos);
         syntax::Read* parse_read(int index, lexic::position pos);
@@ -30,6 +30,7 @@ class SyntacticalAnalyser {
         syntax::Goto* parse_goto(int index, lexic::position pos);
         syntax::If* parse_if(int index, lexic::position pos);
         syntax::For* parse_for(int index, lexic::position pos);
+        syntax::Next* parse_next(int index, lexic::position pos);
 
         syntax::Eb* parse_eb(void);
         syntax::Operator* parse_operator(void);

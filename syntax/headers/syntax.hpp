@@ -419,9 +419,41 @@ class For : public BStatement  {
             return step_;
         }
 
+        int get_next_line() {
+            return next_line_;
+        }
+
+        void set_next_line(int next_line) {
+            next_line_ = next_line;
+        }
+
     private:
         Var* iterator_;
         Exp *init_, *stop_, *step_;
+        int next_line_;
+};
+
+class Next : public BStatement {
+    public:
+        Next(int index, lexic::position pos, Var* iterator):
+            BStatement(index, pos), iterator_(iterator)
+        {}
+
+        Var* get_iterator() {
+            return iterator_;
+        }
+
+        For* get_loop() {
+            return loop_;
+        }
+
+        void set_loop(For* loop) {
+            loop_ = loop;
+        }
+
+    private:
+        Var* iterator_;
+        For* loop_;
 };
 
 class syntax_exception: public std::exception {

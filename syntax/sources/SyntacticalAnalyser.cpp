@@ -37,16 +37,8 @@ void print_exp(Exp* e) {
 BStatement* SyntacticalAnalyser::get_next() {
     int index;
 
-    /*Num* n = dynamic_cast<Num*>(parse_eb());
-    cout << "NUM: " << n->get_value() << endl;*/
-
-    /*Exp* e = parse_exp();
-    print_exp(e);
-    cout << endl;*/
-
-    if (consume(lexic::type::INT, false/*, true*/)) {
+    if (consume(lexic::type::INT, false)) {
         int index = stoi(tk.value);
-
         tk = lex.get_next();
 
         switch (tk.type) {
@@ -63,6 +55,8 @@ BStatement* SyntacticalAnalyser::get_next() {
                 return parse_if(index, tk.pos);
             case lexic::type::FOR:
                 return parse_for(index, tk.pos);
+            case lexic::type::NEXT:
+                return parse_next(index, tk.pos);
             default:
                 return nullptr;
         }
@@ -189,6 +183,14 @@ For* SyntacticalAnalyser::parse_for(int index, lexic::position pos) {
     }
 
     return new For(index, pos, iterator, init, stop, step);
+}
+
+Next* SyntacticalAnalyser::parse_next(int index, lexic::position pos) {
+    Var* iterator;
+
+    iterator = parse_var();
+
+    return new Next(index, pos, iterator);
 }
 
 Exp* SyntacticalAnalyser::parse_exp() {

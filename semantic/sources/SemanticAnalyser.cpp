@@ -56,6 +56,9 @@ void SemanticAnalyser::get_next() {
         else if (For* loop = dynamic_cast<For*>(command)) {
             process_for(loop);
         }
+        else if (Next* next = dynamic_cast<Next*>(command)) {
+            process_next(next);
+        }
         else {
             cout << "É outra coisa" << endl;
         }
@@ -164,7 +167,26 @@ void SemanticAnalyser::process_for(For* loop) {
     vector<Elem*> stop = process_expression(loop->get_stop());
     vector<Elem*> step = process_expression(loop->get_step());
 
+    for_stack.push_back(loop);
     gen.generate(loop, init, stop, step);
+}
+
+void SemanticAnalyser::process_next(syntax::Next* next) {
+    cout << "NEXT ";
+    For* loop = for_stack.back();
+
+    if (symb_table.select_variable(next->get_iterator())
+        != symb_table.select_variable(loop->get_iterator()))
+        throw semantic_exception(next->get_position(), "NEXT para laço não imediatamente anterior");
+
+    cout << loop->get_iterator()->get_identifier() << "[" << loop->get_iterator()->get_index() <<  "]" << endl;
+
+    loop->set_next_line(next->get_index());
+    next->set_loop(loop);
+
+    gen.generate(next);
+
+    for_stack.pop_back();
 }
 
 string read_elem_type(syntax::Elem* e) {

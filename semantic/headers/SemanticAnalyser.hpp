@@ -28,6 +28,7 @@ class SemanticAnalyser {
     void process_goto(syntax::Goto* go);
     void process_if(syntax::If* ift);
     void process_for(syntax::For* loop);
+    void process_next(syntax::Next* next);
 
     std::vector<syntax::Elem*> process_expression(syntax::Exp* e);
     void process_variable(syntax::Var* v);
@@ -42,6 +43,7 @@ class SemanticAnalyser {
     semantic::SymbolTable symb_table;
     std::queue<syntax::Var*> read_variables;
     std::queue<syntax::Num*> data_values;
+    std::vector<syntax::For*> for_stack;
 };
 
 } // namespace semantic
