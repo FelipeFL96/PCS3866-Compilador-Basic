@@ -128,8 +128,10 @@ void SemanticAnalyser::process_goto(Goto* go) {
     cout << " " << go->get_destination() << endl;
 
     for (auto statement : statements) {
-        if (go->get_destination() == statement->get_index())
+        if (go->get_destination() == statement->get_index()) {
             gen.generate(go);
+            return;
+        }
     }
 
     throw semantic_exception(go->get_position(), string("Linha de destino inexistente"));
@@ -141,8 +143,10 @@ void SemanticAnalyser::process_if(syntax::If* ift) {
     vector<Elem*> right = process_expression(ift->get_right());
 
     for (auto statement : statements) {
-        if (ift->get_destination() == statement->get_index())
+        if (ift->get_destination() == statement->get_index()) {
             gen.generate(ift, left, right);
+            return;
+        }
     }
 
     throw semantic_exception(ift->get_position(), string("Linha de destino inexistente"));
