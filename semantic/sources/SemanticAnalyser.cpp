@@ -53,6 +53,9 @@ void SemanticAnalyser::get_next() {
         else if (If* ift = dynamic_cast<If*>(command)) {
             process_if(ift);
         }
+        else if (For* loop = dynamic_cast<For*>(command)) {
+            process_for(loop);
+        }
         else {
             cout << "É outra coisa" << endl;
         }
@@ -150,6 +153,18 @@ void SemanticAnalyser::process_if(syntax::If* ift) {
     }
 
     throw semantic_exception(ift->get_position(), string("Linha de destino inexistente"));
+}
+
+void SemanticAnalyser::process_for(For* loop) {
+    cout << "FOR ";
+
+    process_variable(loop->get_iterator());
+    cout << loop->get_iterator()->get_identifier() << "[" << loop->get_iterator()->get_index() <<  "]" << endl;
+    vector<Elem*> init = process_expression(loop->get_init());
+    vector<Elem*> stop = process_expression(loop->get_stop());
+    vector<Elem*> step = process_expression(loop->get_step());
+
+    gen.generate(loop, init, stop, step);
 }
 
 string read_elem_type(syntax::Elem* e) {

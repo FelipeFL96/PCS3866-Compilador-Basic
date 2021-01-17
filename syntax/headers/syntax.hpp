@@ -397,6 +397,33 @@ class If : public BStatement {
         int destination_;
 };
 
+class For : public BStatement  {
+    public:
+        For(int index, lexic::position pos, Var* iterator, Exp* init, Exp* stop, Exp* step):
+            BStatement(index, pos), iterator_(iterator), init_(init), stop_(stop), step_(step)
+        {}
+
+        Var* get_iterator() {
+            return iterator_;
+        }
+
+        Exp* get_init() {
+            return init_;
+        }
+
+        Exp* get_stop() {
+            return stop_;
+        }
+
+        Exp* get_step() {
+            return step_;
+        }
+
+    private:
+        Var* iterator_;
+        Exp *init_, *stop_, *step_;
+};
+
 class syntax_exception: public std::exception {
     public:
         syntax_exception(lexic::position& loc, const std::string error_message)

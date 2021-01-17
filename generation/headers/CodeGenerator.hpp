@@ -17,6 +17,7 @@ class CodeGenerator/* : public syntax::Generator*/ {
         void generate(syntax::Data* data, std::vector<std::pair<syntax::Var*, syntax::Num*>>& read_data);
         void generate(syntax::Goto* go);
         void generate(syntax::If* ift, std::vector<syntax::Elem*> left, std::vector<syntax::Elem*> right);
+        void generate(syntax::For* loop, std::vector<syntax::Elem*> init, std::vector<syntax::Elem*> stop, std::vector<syntax::Elem*> step);
 
         void generate_expression(std::vector<syntax::Elem*>& exp);
         void generate_header();

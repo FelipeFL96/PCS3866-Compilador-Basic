@@ -105,6 +105,32 @@ void CodeGenerator::generate(syntax::If* ift, std::vector<syntax::Elem*> left, s
     output << endl;
 }
 
+void CodeGenerator::generate(syntax::For* loop, vector<syntax::Elem*> init, vector<syntax::Elem*> stop, vector<syntax::Elem*> step) {
+    output << "L" << loop->get_index() << ":" << endl;
+
+    // Inicialização do iterador
+    generate_expression(init);
+    output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
+    output << "\tB        L" << loop->get_index() << ".COMP" << endl;
+    output << endl;
+
+    // Incremento do iterador
+    output << "L" << loop->get_index() << ".STEP:" << endl;
+    generate_expression(step);
+    output << "\tLDR      r1, [r12, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
+    output << "\tADD      r0, r1, r0" << endl;
+    output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
+    output << endl;
+
+    // Comparação com a condição de parada
+    output << "L" << loop->get_index() << ".COMP:" << endl;
+    generate_expression(stop);
+    output << "\tLDR      r1, [r12, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
+    output << "\tCMP      r1, r0" << endl;
+    output << "\tBGE      L0" << endl; // Calma
+    output << endl;
+}
+
 void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
     for (auto e : exp) {
         if (e->get_elem_type() == syntax::Elem::NUM) {

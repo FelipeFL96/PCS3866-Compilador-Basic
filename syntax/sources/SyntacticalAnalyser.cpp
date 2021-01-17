@@ -61,6 +61,8 @@ BStatement* SyntacticalAnalyser::get_next() {
                 return parse_goto(index, tk.pos);
             case lexic::type::IF:
                 return parse_if(index, tk.pos);
+            case lexic::type::FOR:
+                return parse_for(index, tk.pos);
             default:
                 return nullptr;
         }
@@ -161,6 +163,32 @@ If* SyntacticalAnalyser::parse_if(int index, lexic::position pos) {
     destination = stoi(tk.value);
 
     return new If(index, pos, left, op, right, destination);
+}
+
+For* SyntacticalAnalyser::parse_for(int index, lexic::position pos) {
+    Var* iterator;
+    Exp *init, *step, *stop;
+
+    iterator = parse_var();
+
+    consume(lexic::type::EQL, false, true);
+    init = parse_exp();
+
+    consume(lexic::type::TO, false, true);
+    stop = parse_exp();
+
+    if (consume(lexic::type::STEP, false)) {
+        step = parse_exp();
+    }
+    else {
+        vector<Operator*> operators;
+        vector<Eb*> operands;
+        operands.push_back(new Num(Elem::NUM, 1, false, 0));
+
+        step = new Exp(Elem::EXP, false, operands, operators);
+    }
+
+    return new For(index, pos, iterator, init, stop, step);
 }
 
 Exp* SyntacticalAnalyser::parse_exp() {

@@ -29,6 +29,7 @@ class SyntacticalAnalyser {
         syntax::Data* parse_data(int index, lexic::position pos);
         syntax::Goto* parse_goto(int index, lexic::position pos);
         syntax::If* parse_if(int index, lexic::position pos);
+        syntax::For* parse_for(int index, lexic::position pos);
 
         syntax::Eb* parse_eb(void);
         syntax::Operator* parse_operator(void);
