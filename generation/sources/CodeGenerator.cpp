@@ -159,10 +159,6 @@ void CodeGenerator::generate(syntax::Return* ret) {
     output << endl;
 }
 
-void CodeGenerator::generate(syntax::Rem* rem) {
-    output << endl;
-}
-
 void CodeGenerator::generate(syntax::End* end) {
     output << endl;
 }

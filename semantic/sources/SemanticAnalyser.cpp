@@ -37,6 +37,8 @@ void SemanticAnalyser::get_next() {
 
     while (true) {
         sx = stx.get_next();
+        if (dynamic_cast<Rem*>(sx))
+            continue;
         if (sx == nullptr)
             break;
         statements.insert(sx);
@@ -84,9 +86,6 @@ void SemanticAnalyser::get_next() {
         }
         else if (Return* ret = dynamic_cast<Return*>(command)) {
             process_return(ret);
-        }
-        else if (Rem* remark = dynamic_cast<Rem*>(command)) {
-            process_remark(remark);
         }
         else if (End* end = dynamic_cast<End*>(command)) {
             process_end(end);
@@ -264,10 +263,6 @@ void SemanticAnalyser::process_gosub(syntax::Gosub* gosub) {
 void SemanticAnalyser::process_return(syntax::Return* ret) {
     cout << "RETURN" << endl;
     gen.generate(ret);
-}
-
-void SemanticAnalyser::process_remark(syntax::Rem* remark) {
-    cout << "REMARK não implementado" << endl;
 }
 
 void SemanticAnalyser::process_end(syntax::End* end) {

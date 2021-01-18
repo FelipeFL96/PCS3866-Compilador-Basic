@@ -34,7 +34,6 @@ class SemanticAnalyser {
     void process_def(syntax::Def* def);
     void process_gosub(syntax::Gosub* gosub);
     void process_return(syntax::Return* ret);
-    void process_remark(syntax::Rem* remark);
     void process_end(syntax::End* end);
 
     std::vector<syntax::Elem*> process_expression(syntax::Exp* e);

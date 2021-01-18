@@ -24,7 +24,6 @@ class CodeGenerator/* : public syntax::Generator*/ {
         void generate(syntax::Def* def);
         void generate(syntax::Gosub* gosub);
         void generate(syntax::Return* ret);
-        void generate(syntax::Rem* rem);
         void generate(syntax::End* end);
 
         void generate_expression(std::vector<syntax::Elem*>& exp);
