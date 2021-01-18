@@ -287,7 +287,7 @@ void SemanticAnalyser::process_return(syntax::Return* ret) {
 }
 
 void SemanticAnalyser::process_end(syntax::End* end) {
-    cout << "END não implementado" << endl;
+    gen.generate(end);
 }
 
 string read_elem_type(syntax::Elem* e) {

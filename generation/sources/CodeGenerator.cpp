@@ -173,6 +173,8 @@ void CodeGenerator::generate(syntax::Return* ret) {
 }
 
 void CodeGenerator::generate(syntax::End* end) {
+    output << "L" << end->get_index() << ":" << endl;
+    output << "\tB        L" << end->get_index() << endl;
     output << endl;
 }
 
