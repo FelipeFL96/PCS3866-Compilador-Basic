@@ -182,6 +182,10 @@ class Var : public Eb {
             return Eb::VAR;
         }
 
+        void turn_parameter(std::string func_name) {
+            identifier_ = func_name + "." + identifier_;
+        }
+
     private:
         std::string identifier_;
         bool indexed;
@@ -520,7 +524,7 @@ class Dim : public BStatement {
 
 class Def : public BStatement {
     public:
-        Def(int index, lexic::position pos, std::string identifier, std::vector<std::string> parameters, Exp* exp):
+        Def(int index, lexic::position pos, std::string identifier, std::vector<Var*> parameters, Exp* exp):
             BStatement(index, pos), identifier_(identifier), parameters_(parameters), exp_(exp)
         {}
 
@@ -528,7 +532,7 @@ class Def : public BStatement {
             return identifier_;
         }
 
-        std::vector<std::string> get_parameters() {
+        std::vector<Var*> get_parameters() {
             return parameters_;
         }
 
@@ -538,7 +542,7 @@ class Def : public BStatement {
 
     private:
         std::string identifier_;
-        std::vector<std::string> parameters_;
+        std::vector<Var*> parameters_;
         Exp* exp_;
 };
 

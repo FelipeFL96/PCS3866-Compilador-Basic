@@ -21,7 +21,7 @@ class CodeGenerator/* : public syntax::Generator*/ {
                         std::vector<syntax::Elem*> step, int index_inside_loop, int index_outside_loop);
         void generate(syntax::Next* next);
 
-        void generate(syntax::Def* def);
+        void generate(syntax::Def* def, std::vector<syntax::Elem*>& exp);
         void generate(syntax::Gosub* gosub);
         void generate(syntax::Return* ret);
         void generate(syntax::End* end);

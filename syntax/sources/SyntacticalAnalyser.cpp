@@ -271,20 +271,22 @@ Dim* SyntacticalAnalyser::parse_dim(int index, lexic::position pos) {
 Def* SyntacticalAnalyser::parse_def(int index, lexic::position pos) {
     cout << "DEF" << endl;
     string identifier;
-    vector<string> parameters;
+    vector<Var*> parameters;
 
     consume(lexic::type::FN, false, true);
-    identifier = tk.value;
 
     consume(lexic::type::IDN, false, true);
+    identifier = tk.value;
 
     consume(lexic::type::PRO, false, true);
     consume(lexic::type::IDN, false, true);
-    parameters.push_back(tk.value);
+    parameters.push_back(new Var(Elem::VAR, string(identifier + "." + tk.value)));
+    cout << parameters.front()->get_identifier() << endl;
 
     while (consume(lexic::type::COM, false)) {
         consume(lexic::type::IDN, false, true);
-        parameters.push_back(tk.value);
+        parameters.push_back(new Var(Elem::VAR, string(identifier + "." + tk.value)));
+        cout << parameters.back()->get_identifier() << endl;
     }
     consume(lexic::type::PRC, false, true);
 

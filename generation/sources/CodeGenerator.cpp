@@ -143,7 +143,20 @@ void CodeGenerator::generate(syntax::Next* next) {
     output << endl;
 }
 
-void CodeGenerator::generate(syntax::Def* def) {
+void CodeGenerator::generate(syntax::Def* def, std::vector<syntax::Elem*>& exp) {
+    output << def->get_identifier() << ":" << endl;
+
+    auto parameters = def->get_parameters();
+    while (!parameters.empty()) {
+        auto param = parameters.back();
+        output << "\tLDMFD    sp!, {r1}" << endl;
+        output << "\tSTR      [r12, #"
+            << 4 * symb_table.select_variable(param) << "]" << endl;
+        parameters.pop_back();
+    }
+
+    generate_expression(exp);
+    output << "\tMOV      pc, lr" << endl;
     output << endl;
 }
 

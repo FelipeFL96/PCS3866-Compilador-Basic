@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string.h>
 #include <utility>
 #include <vector>
 #include <set>
@@ -244,7 +245,23 @@ void SemanticAnalyser::process_dim(Dim* dim) {
 }
 
 void SemanticAnalyser::process_def(syntax::Def* def) {
-    cout << "DEF não implementado" << endl;
+
+    for (auto parameter : def->get_parameters()) {
+        process_variable(parameter);
+    }
+    vector<Elem*> exp = process_expression(def->get_exp());
+
+    for (auto e : exp) {
+        if (Var* var = dynamic_cast<Var*>(e)) {
+            for (auto parameter : def->get_parameters()) {
+                if ((def->get_identifier() + "." + var->get_identifier()) == parameter->get_identifier()) {
+                    var->turn_parameter(def->get_identifier());
+                }
+            }
+        }
+    }
+
+    gen.generate(def, exp);
 }
 
 void SemanticAnalyser::process_gosub(syntax::Gosub* gosub) {
