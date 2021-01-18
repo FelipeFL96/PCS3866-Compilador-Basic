@@ -28,8 +28,12 @@ SemanticAnalyser::SemanticAnalyser(ifstream& input, ofstream& output):
 
 int find_next_index(BStatement* current) {
     for (auto statement : statements) {
-        if (statement->get_index() > current->get_index())
+        if (statement->get_index() > current->get_index()
+            && !dynamic_cast<Def*>(statement)
+            && !dynamic_cast<Rem*>(statement)
+            ) {
             return statement->get_index();
+        }
     }
 }
 
