@@ -25,11 +25,18 @@ class SemanticAnalyser {
     void process_assign(syntax::Assign* assign);
     void process_read(syntax::Read* read);
     void process_data(syntax::Data* data);
+    void process_print(syntax::Print* print);
     void process_goto(syntax::Goto* go);
     void process_if(syntax::If* ift);
     void process_for(syntax::For* loop);
     void process_next(syntax::Next* next);
     void process_dim(syntax::Dim* dim);
+
+    void process_def(syntax::Def* def);
+    void process_gosub(syntax::Gosub* gosub);
+    void process_return(syntax::Return* ret);
+    void process_remark(syntax::Rem* remark);
+    void process_end(syntax::End* end);
 
     std::vector<syntax::Elem*> process_expression(syntax::Exp* e);
     void process_variable(syntax::Var* v);

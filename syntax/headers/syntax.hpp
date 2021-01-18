@@ -330,21 +330,50 @@ class Data : public BStatement {
 };
 
 class Pitem {
-    enum class type {
-        string,
-        variable,
-        number
-    };
+    public:
+        enum type {
+            STR,
+            EXP
+        };
 
-    Pitem::type type;
+        Pitem(std::string str):
+            str_(str)
+        {}
 
-    Num num;
-    Var var;
-    std::string str;
+        Pitem(Exp* exp):
+            exp_(exp)
+        {}
+
+        bool has_exp() {
+            return exp_ == nullptr;
+        }
+
+        Exp* get_exp() {
+            return exp_;
+        }
+
+        std::string get_str() {
+            return str_;
+        }
+
+    private:
+        Pitem::type type;
+        Exp* exp_;
+        std::string str_;
 };
 
-class Print {
-    std::vector<Pitem> pitems;
+class Print : public BStatement {
+    public:
+        Print(int index, lexic::position pos, std::vector<Pitem*> pitems):
+            BStatement(index, pos), pitems_(pitems)
+        {}
+
+        std::vector<Pitem*> get_pitems() {
+            return pitems_;
+        }
+
+    private:
+        std::vector<Pitem*> pitems_;
 };
 
 class Goto : public BStatement {
@@ -477,7 +506,7 @@ class Array {
 
 class Dim : public BStatement {
     public:
-        Dim(int index, lexic::position pos, std::vector<Array*>& arrays):
+        Dim(int index, lexic::position pos, std::vector<Array*> arrays):
             BStatement(index, pos), arrays_(arrays)
         {}
 
@@ -487,6 +516,65 @@ class Dim : public BStatement {
 
     private:
     std::vector<Array*> arrays_;
+};
+
+class Def : public BStatement {
+    public:
+        Def(int index, lexic::position pos, std::string identifier, std::vector<std::string> parameters, Exp* exp):
+            BStatement(index, pos), identifier_(identifier), parameters_(parameters), exp_(exp)
+        {}
+
+        std::string get_identifier() {
+            return identifier_;
+        }
+
+        std::vector<std::string> get_parameters() {
+            return parameters_;
+        }
+
+        Exp* get_exp() {
+            return exp_;
+        }
+
+    private:
+        std::string identifier_;
+        std::vector<std::string> parameters_;
+        Exp* exp_;
+};
+
+class Gosub : public BStatement {
+    public:
+        Gosub(int index, lexic::position pos, int destination):
+            BStatement(index, pos), destination_(destination)
+        {}
+
+        int get_destination() {
+            return destination_;
+        }
+
+    private:
+        int destination_;
+};
+
+class Return : public BStatement {
+    public:
+        Return(int index, lexic::position pos):
+            BStatement(index, pos)
+        {}
+};
+
+class Rem : public BStatement {
+    public:
+        Rem(int index, lexic::position pos):
+            BStatement(index, pos)
+        {}
+};
+
+class End : public BStatement {
+    public:
+        End(int index, lexic::position pos):
+            BStatement(index, pos)
+        {}
 };
 
 class syntax_exception: public std::exception {

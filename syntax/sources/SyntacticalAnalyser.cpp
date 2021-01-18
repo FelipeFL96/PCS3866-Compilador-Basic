@@ -48,6 +48,8 @@ BStatement* SyntacticalAnalyser::get_next() {
                 return parse_read(index, tk.pos);
             case lexic::type::DATA:
                 return parse_data(index, tk.pos);
+            case lexic::type::PRINT:
+                return parse_print(index, tk.pos);
             case lexic::type::GO:
             case lexic::type::GOTO:
                 return parse_goto(index, tk.pos);
@@ -59,6 +61,16 @@ BStatement* SyntacticalAnalyser::get_next() {
                 return parse_next(index, tk.pos);
             case lexic::type::DIM:
                 return parse_dim(index, tk.pos);
+            case lexic::type::DEF:
+                return parse_def(index, tk.pos);
+            case lexic::type::GOSUB:
+                return parse_gosub(index, tk.pos);
+            case lexic::type::RETURN:
+                return parse_return(index, tk.pos);
+            case lexic::type::REM:
+                return parse_rem(index, tk.pos);
+            case lexic::type::END:
+                return parse_end(index, tk.pos);
             default:
                 return nullptr;
         }
@@ -108,6 +120,37 @@ Data* SyntacticalAnalyser::parse_data(int index, lexic::position pos) {
     }
 
     return new Data(index, pos, values);
+}
+
+Pitem* SyntacticalAnalyser::parse_pitem() {
+    Exp* exp;
+    string str;
+
+    if (consume(lexic::type::STR, false)) {
+        str = tk.value;
+        return new Pitem(str);
+    }
+
+    if (consume(lexic::type::INT, true)
+        || consume(lexic::type::IDN, true)
+        || consume(lexic::type::FN, true)
+        || consume(lexic::type::PRO, true)
+        ) {
+        
+        exp = parse_exp();
+        return new Pitem(exp);
+    }
+}
+
+Print* SyntacticalAnalyser::parse_print(int index, lexic::position pos) {
+    vector<Pitem*> pitems;
+
+    pitems.push_back(parse_pitem());
+    while (consume(lexic::type::INT, false)) {
+        pitems.push_back(parse_pitem());
+    }
+
+    return new Print(index, pos, pitems);
 }
 
 Goto* SyntacticalAnalyser::parse_goto(int index, lexic::position pos) {
@@ -223,6 +266,56 @@ Dim* SyntacticalAnalyser::parse_dim(int index, lexic::position pos) {
     }
 
     return new Dim(index, pos, arrays);
+}
+
+Def* SyntacticalAnalyser::parse_def(int index, lexic::position pos) {
+    cout << "DEF" << endl;
+    string identifier;
+    vector<string> parameters;
+
+    consume(lexic::type::FN, false, true);
+    identifier = tk.value;
+
+    consume(lexic::type::IDN, false, true);
+
+    consume(lexic::type::PRO, false, true);
+    consume(lexic::type::IDN, false, true);
+    parameters.push_back(tk.value);
+
+    while (consume(lexic::type::COM, false)) {
+        consume(lexic::type::IDN, false, true);
+        parameters.push_back(tk.value);
+    }
+    consume(lexic::type::PRC, false, true);
+
+    consume(lexic::type::EQL, false, true);
+    Exp* exp = parse_exp();
+
+    return new Def(index, pos, identifier, parameters, exp);
+}
+
+Gosub* SyntacticalAnalyser::parse_gosub(int index, lexic::position pos) {
+    int destination;
+
+    consume(lexic::type::INT, false, true);
+    destination = stoi(tk.value);
+    cout << destination << endl;
+
+    return new Gosub(index, pos, destination);
+}
+
+Return* SyntacticalAnalyser::parse_return(int index, lexic::position pos) {
+    return new Return(index, pos);
+}
+
+Rem* SyntacticalAnalyser::parse_rem(int index, lexic::position pos) {
+    consume(lexic::type::CMT, false);
+
+    return new Rem(index, pos);
+}
+
+End* SyntacticalAnalyser::parse_end(int index, lexic::position pos) {
+    return new End(index, pos);
 }
 
 Exp* SyntacticalAnalyser::parse_exp() {
@@ -408,6 +501,7 @@ Call* SyntacticalAnalyser::parse_call() {
 }
 
 bool SyntacticalAnalyser::consume(lexic::type type, bool lookahead, bool force) {
+    lexic::position pos = tk.pos;
     if (token_consumed)
         tk = lex.get_next();
 

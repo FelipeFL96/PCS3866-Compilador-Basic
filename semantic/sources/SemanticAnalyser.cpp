@@ -58,6 +58,9 @@ void SemanticAnalyser::get_next() {
         else if (Data* data = dynamic_cast<Data*>(command)) {
             process_data(data);
         }
+        else if (Print* print = dynamic_cast<Print*>(command)) {
+            process_print(print);
+        }
         else if (Goto* go = dynamic_cast<Goto*>(command)) {
             process_goto(go);
         }
@@ -72,6 +75,21 @@ void SemanticAnalyser::get_next() {
         }
         else if (Dim* dim = dynamic_cast<Dim*>(command)) {
             process_dim(dim);
+        }
+        else if (Def* def = dynamic_cast<Def*>(command)) {
+            process_def(def);
+        }
+        else if (Gosub* gosub = dynamic_cast<Gosub*>(command)) {
+            process_gosub(gosub);
+        }
+        else if (Return* ret = dynamic_cast<Return*>(command)) {
+            process_return(ret);
+        }
+        else if (Rem* remark = dynamic_cast<Rem*>(command)) {
+            process_remark(remark);
+        }
+        else if (End* end = dynamic_cast<End*>(command)) {
+            process_end(end);
         }
         else {
             cout << "É outra coisa" << endl;
@@ -143,6 +161,9 @@ void SemanticAnalyser::process_data(syntax::Data* data) {
         gen.generate(data, read_data, next_index);
 }
 
+void SemanticAnalyser::process_print(syntax::Print* print) {
+    cout << "Geração para PRINT não implementada" << endl;
+}
 
 void SemanticAnalyser::process_goto(Goto* go) {
     cout << "GOTO";
@@ -221,6 +242,26 @@ void SemanticAnalyser::process_dim(Dim* dim) {
         }
         cout << "]" << endl;
     }
+}
+
+void SemanticAnalyser::process_def(syntax::Def* def) {
+    cout << "DEF" << endl;
+}
+
+void SemanticAnalyser::process_gosub(syntax::Gosub* gosub) {
+    cout << "GOSUB" << endl;
+}
+
+void SemanticAnalyser::process_return(syntax::Return* ret) {
+    cout << "RETURN" << endl;
+}
+
+void SemanticAnalyser::process_remark(syntax::Rem* remark) {
+    cout << "REMARK" << endl;
+}
+
+void SemanticAnalyser::process_end(syntax::End* end) {
+    cout << "END" << endl;
 }
 
 string read_elem_type(syntax::Elem* e) {

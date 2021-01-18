@@ -98,7 +98,7 @@ token LexicalAnalyser::extract_token() {
             do {
                 c = ac.get_next();
                 lexeme.add_char(c.character);
-                if (ac.peek_next().character == EOF)
+                if (c.character != '"' && ac.peek_next().character == EOF)
                     throw lexical_exception(lexeme.pos, "String não terminada. Esperando '\"'");
             } while (c.character != '"');
         }
@@ -118,6 +118,9 @@ token LexicalAnalyser::read_comment() {
     while (c.character != 0xA) {
         comment.add_char(c.character);
         c = ac.get_next();
+
+        if (file.eof())
+            break;
     }
     comment.add_char(' ');
     return comment;
