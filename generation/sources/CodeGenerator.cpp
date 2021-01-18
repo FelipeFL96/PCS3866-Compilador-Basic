@@ -143,6 +143,30 @@ void CodeGenerator::generate(syntax::Next* next) {
     output << endl;
 }
 
+void CodeGenerator::generate(syntax::Def* def) {
+    output << endl;
+}
+
+void CodeGenerator::generate(syntax::Gosub* gosub) {
+    output << "L" << gosub->get_index() << ":" << endl;
+    output << "\tBL       L" << gosub->get_destination() << endl;
+    output << endl;
+}
+
+void CodeGenerator::generate(syntax::Return* ret) {
+    output << "L" << ret->get_index() << ":" << endl;
+    output << "\tMOV      pc, lr" << endl;
+    output << endl;
+}
+
+void CodeGenerator::generate(syntax::Rem* rem) {
+    output << endl;
+}
+
+void CodeGenerator::generate(syntax::End* end) {
+    output << endl;
+}
+
 void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
     for (auto e : exp) {
         if (e->get_elem_type() == syntax::Elem::NUM) {

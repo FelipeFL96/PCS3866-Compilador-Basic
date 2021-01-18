@@ -31,7 +31,6 @@ class SemanticAnalyser {
     void process_for(syntax::For* loop);
     void process_next(syntax::Next* next);
     void process_dim(syntax::Dim* dim);
-
     void process_def(syntax::Def* def);
     void process_gosub(syntax::Gosub* gosub);
     void process_return(syntax::Return* ret);

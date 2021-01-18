@@ -245,23 +245,33 @@ void SemanticAnalyser::process_dim(Dim* dim) {
 }
 
 void SemanticAnalyser::process_def(syntax::Def* def) {
-    cout << "DEF" << endl;
+    cout << "DEF não implementado" << endl;
 }
 
 void SemanticAnalyser::process_gosub(syntax::Gosub* gosub) {
     cout << "GOSUB" << endl;
+
+    for (auto statement : statements) {
+        if (gosub->get_destination() == statement->get_index()) {
+            gen.generate(gosub);
+            return;
+        }
+    }
+
+    throw semantic_exception(gosub->get_position(), string("Subrotina de destino inexistente"));
 }
 
 void SemanticAnalyser::process_return(syntax::Return* ret) {
     cout << "RETURN" << endl;
+    gen.generate(ret);
 }
 
 void SemanticAnalyser::process_remark(syntax::Rem* remark) {
-    cout << "REMARK" << endl;
+    cout << "REMARK não implementado" << endl;
 }
 
 void SemanticAnalyser::process_end(syntax::End* end) {
-    cout << "END" << endl;
+    cout << "END não implementado" << endl;
 }
 
 string read_elem_type(syntax::Elem* e) {
