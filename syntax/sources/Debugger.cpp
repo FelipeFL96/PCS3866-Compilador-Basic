@@ -4,7 +4,7 @@
 #include "syntax.hpp"
 #include "lexic.hpp"
 #include "LexicalAnalyser.hpp"
-#include "SyntacticalAnalyser.hpp"
+#include "SyntaxAnalyser.hpp"
 
 #include "Debugger.hpp"
 

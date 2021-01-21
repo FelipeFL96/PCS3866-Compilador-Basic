@@ -5,7 +5,7 @@
 #include <string>
 #include "lexic.hpp"
 #include "LexicalAnalyser.hpp"
-#include "SyntacticalAnalyser.hpp"
+#include "SyntaxAnalyser.hpp"
 
 
 class Debugger {

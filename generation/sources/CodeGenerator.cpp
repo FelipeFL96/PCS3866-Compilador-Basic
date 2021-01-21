@@ -43,6 +43,7 @@ void CodeGenerator::generate_variables() {
     install_predef();
     output << "variables: " << endl;
     output << "\t.space " << symb_table.total_variable_size() << endl;
+    output << endl;
     output << "stack: " << endl;
     output << "\t.space " << STACK_SIZE << endl;
     output << endl;

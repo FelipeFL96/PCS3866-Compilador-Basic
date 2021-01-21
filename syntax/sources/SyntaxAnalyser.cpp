@@ -6,12 +6,12 @@
 #include "Debugger.hpp"
 #include "syntax.hpp"
 
-#include "SyntacticalAnalyser.hpp"
+#include "SyntaxAnalyser.hpp"
 
 using namespace std;
 using namespace syntax;
 
-SyntacticalAnalyser::SyntacticalAnalyser(ifstream& file):
+SyntaxAnalyser::SyntaxAnalyser(ifstream& file):
     file(file), lex(file) {}
 
 
@@ -34,7 +34,7 @@ void print_exp(Exp* e) {
     cout << ") ";
 }
 
-BStatement* SyntacticalAnalyser::get_next() {
+BStatement* SyntaxAnalyser::get_next() {
     int index;
 
     if (consume(lexic::type::INT, false)) {
@@ -80,7 +80,7 @@ BStatement* SyntacticalAnalyser::get_next() {
 }
 
 
-Assign* SyntacticalAnalyser::parse_assign(int index, lexic::position pos) {
+Assign* SyntaxAnalyser::parse_assign(int index, lexic::position pos) {
     Var* variable;
     Exp* expression;
 
@@ -94,7 +94,7 @@ Assign* SyntacticalAnalyser::parse_assign(int index, lexic::position pos) {
     return new Assign(index, pos, variable, expression);
 }
 
-Read* SyntacticalAnalyser::parse_read(int index, lexic::position pos) {
+Read* SyntaxAnalyser::parse_read(int index, lexic::position pos) {
     vector<Var*> variables;
 
     consume(lexic::type::IDN, false, true);
@@ -108,7 +108,7 @@ Read* SyntacticalAnalyser::parse_read(int index, lexic::position pos) {
     return new Read(index, pos, variables);
 }
 
-Data* SyntacticalAnalyser::parse_data(int index, lexic::position pos) {
+Data* SyntaxAnalyser::parse_data(int index, lexic::position pos) {
     vector<Num*> values;
 
     Num* n = parse_snum();
@@ -122,7 +122,7 @@ Data* SyntacticalAnalyser::parse_data(int index, lexic::position pos) {
     return new Data(index, pos, values);
 }
 
-Pitem* SyntacticalAnalyser::parse_pitem() {
+Pitem* SyntaxAnalyser::parse_pitem() {
     Exp* exp;
     string str;
 
@@ -142,7 +142,7 @@ Pitem* SyntacticalAnalyser::parse_pitem() {
     }
 }
 
-Print* SyntacticalAnalyser::parse_print(int index, lexic::position pos) {
+Print* SyntaxAnalyser::parse_print(int index, lexic::position pos) {
     vector<Pitem*> pitems;
 
     pitems.push_back(parse_pitem());
@@ -153,7 +153,7 @@ Print* SyntacticalAnalyser::parse_print(int index, lexic::position pos) {
     return new Print(index, pos, pitems);
 }
 
-Goto* SyntacticalAnalyser::parse_goto(int index, lexic::position pos) {
+Goto* SyntaxAnalyser::parse_goto(int index, lexic::position pos) {
     int destination;
 
     if (consume(lexic::type::TO, false)) {
@@ -168,7 +168,7 @@ Goto* SyntacticalAnalyser::parse_goto(int index, lexic::position pos) {
     return new Goto(index, pos, destination);
 }
 
-If* SyntacticalAnalyser::parse_if(int index, lexic::position pos) {
+If* SyntaxAnalyser::parse_if(int index, lexic::position pos) {
     Exp *left, *right;
     If::cmp op;
     int destination;
@@ -204,7 +204,7 @@ If* SyntacticalAnalyser::parse_if(int index, lexic::position pos) {
     return new If(index, pos, left, op, right, destination);
 }
 
-For* SyntacticalAnalyser::parse_for(int index, lexic::position pos) {
+For* SyntaxAnalyser::parse_for(int index, lexic::position pos) {
     Var* iterator;
     Exp *init, *step, *stop;
 
@@ -230,7 +230,7 @@ For* SyntacticalAnalyser::parse_for(int index, lexic::position pos) {
     return new For(index, pos, iterator, init, stop, step);
 }
 
-Next* SyntacticalAnalyser::parse_next(int index, lexic::position pos) {
+Next* SyntaxAnalyser::parse_next(int index, lexic::position pos) {
     Var* iterator;
 
     iterator = parse_var();
@@ -238,7 +238,7 @@ Next* SyntacticalAnalyser::parse_next(int index, lexic::position pos) {
     return new Next(index, pos, iterator);
 }
 
-Array* SyntacticalAnalyser::parse_array() {
+Array* SyntaxAnalyser::parse_array() {
     string identifier;
     vector<int> dimensions;
 
@@ -256,7 +256,7 @@ Array* SyntacticalAnalyser::parse_array() {
     return new Array(identifier, dimensions);
 }
 
-Dim* SyntacticalAnalyser::parse_dim(int index, lexic::position pos) {
+Dim* SyntaxAnalyser::parse_dim(int index, lexic::position pos) {
     vector<Array*> arrays;
 
     arrays.push_back(parse_array());
@@ -268,7 +268,7 @@ Dim* SyntacticalAnalyser::parse_dim(int index, lexic::position pos) {
     return new Dim(index, pos, arrays);
 }
 
-Def* SyntacticalAnalyser::parse_def(int index, lexic::position pos) {
+Def* SyntaxAnalyser::parse_def(int index, lexic::position pos) {
     cout << "DEF" << endl;
     string identifier;
     vector<Var*> parameters;
@@ -299,7 +299,7 @@ Def* SyntacticalAnalyser::parse_def(int index, lexic::position pos) {
     return new Def(index, pos, identifier, parameters, exp);
 }
 
-Gosub* SyntacticalAnalyser::parse_gosub(int index, lexic::position pos) {
+Gosub* SyntaxAnalyser::parse_gosub(int index, lexic::position pos) {
     int destination;
 
     consume(lexic::type::INT, false, true);
@@ -309,21 +309,21 @@ Gosub* SyntacticalAnalyser::parse_gosub(int index, lexic::position pos) {
     return new Gosub(index, pos, destination);
 }
 
-Return* SyntacticalAnalyser::parse_return(int index, lexic::position pos) {
+Return* SyntaxAnalyser::parse_return(int index, lexic::position pos) {
     return new Return(index, pos);
 }
 
-Rem* SyntacticalAnalyser::parse_rem(int index, lexic::position pos) {
+Rem* SyntaxAnalyser::parse_rem(int index, lexic::position pos) {
     consume(lexic::type::CMT, false);
 
     return new Rem(index, pos);
 }
 
-End* SyntacticalAnalyser::parse_end(int index, lexic::position pos) {
+End* SyntaxAnalyser::parse_end(int index, lexic::position pos) {
     return new End(index, pos);
 }
 
-Exp* SyntacticalAnalyser::parse_exp() {
+Exp* SyntaxAnalyser::parse_exp() {
     bool negative = false;
     std::vector<Eb*> operands;
     std::vector<Operator*> operators;
@@ -348,7 +348,7 @@ Exp* SyntacticalAnalyser::parse_exp() {
     return new Exp(Elem::EXP, negative, operands, operators);
 }
 
-Operator* SyntacticalAnalyser::parse_operator() {
+Operator* SyntaxAnalyser::parse_operator() {
     if (consume(lexic::type::ADD, true)) {
         consume(lexic::type::ADD, false, true);
         return new Operator(Elem::ADD, Operator::ADD, tk.value);
@@ -374,7 +374,7 @@ Operator* SyntacticalAnalyser::parse_operator() {
     }
 }
 
-Eb* SyntacticalAnalyser::parse_eb() {
+Eb* SyntaxAnalyser::parse_eb() {
     if (consume(lexic::type::INT, true)) {
         return parse_num();
     }
@@ -405,7 +405,7 @@ Eb* SyntacticalAnalyser::parse_eb() {
     }
 }
 
-Num* SyntacticalAnalyser::parse_snum() {
+Num* SyntaxAnalyser::parse_snum() {
     bool negative = false;
 
     if (consume(lexic::type::ADD, false)) {
@@ -420,7 +420,7 @@ Num* SyntacticalAnalyser::parse_snum() {
     return new Num(negative, n);
 }
 
-Num* SyntacticalAnalyser::parse_num() {
+Num* SyntaxAnalyser::parse_num() {
     int integer, exponent = 0;
     bool neg_exp = false;
 
@@ -441,7 +441,7 @@ Num* SyntacticalAnalyser::parse_num() {
     return new Num(Elem::NUM, integer, neg_exp, exponent);
 }
 
-Var* SyntacticalAnalyser::parse_var() {
+Var* SyntaxAnalyser::parse_var() {
     string identifier;
 
     if (consume(lexic::type::IDN, false, true))
@@ -450,7 +450,7 @@ Var* SyntacticalAnalyser::parse_var() {
     return new Var(Elem::VAR, identifier);
 }
 
-Call* SyntacticalAnalyser::parse_call() {
+Call* SyntaxAnalyser::parse_call() {
     vector<Exp*> args;
     string identifier;
 
@@ -505,7 +505,7 @@ Call* SyntacticalAnalyser::parse_call() {
     return new Call(Elem::FUN, identifier, args);
 }
 
-bool SyntacticalAnalyser::consume(lexic::type type, bool lookahead, bool force) {
+bool SyntaxAnalyser::consume(lexic::type type, bool lookahead, bool force) {
     lexic::position pos = tk.pos;
     if (token_consumed)
         tk = lex.get_next();

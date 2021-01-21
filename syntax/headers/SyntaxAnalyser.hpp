@@ -1,5 +1,5 @@
-#ifndef SYNTACTICAL_ANALYSER_HPP
-#define SYNTACTICAL_ANALYSER_HPP
+#ifndef SYNTAX_ANALYSER_HPP
+#define SYNTAX_ANALYSER_HPP
 
 #include <iostream>
 #include <string>
@@ -10,9 +10,9 @@
 
 namespace syntax {
 
-class SyntacticalAnalyser {
+class SyntaxAnalyser {
     public:
-        SyntacticalAnalyser(std::ifstream& file);
+        SyntaxAnalyser(std::ifstream& file);
 
         syntax::BStatement* get_next(void);
 
@@ -52,7 +52,7 @@ class SyntacticalAnalyser {
 
 } // namespace syntax
 
-#endif // SYNTACTICAL_ANALYSER_HPP
+#endif // SYNTAX_ANALYSER_HPP
 
 /*struct state {
     int id;

@@ -8,7 +8,7 @@
 
 #include "syntax.hpp"
 #include "semantic.hpp"
-#include "SyntacticalAnalyser.hpp"
+#include "SyntaxAnalyser.hpp"
 #include "CodeGenerator.hpp"
 
 namespace semantic {
@@ -44,7 +44,7 @@ class SemanticAnalyser {
     void gen_negative_exp_vector(syntax::Exp* e, std::vector<syntax::Elem*>& exp);
     std::vector<syntax::Elem*> convert_to_postfix(std::vector<syntax::Elem*>& exp);
 
-    syntax::SyntacticalAnalyser stx;
+    syntax::SyntaxAnalyser stx;
     CodeGenerator gen;
     semantic::SymbolTable symb_table;
     std::queue<syntax::Var*> read_variables;
