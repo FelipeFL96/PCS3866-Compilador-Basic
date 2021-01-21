@@ -72,7 +72,7 @@ BStatement* SyntacticalAnalyser::get_next() {
             case lexic::type::END:
                 return parse_end(index, tk.pos);
             default:
-                return nullptr;
+                throw syntax_exception(tk.pos, string("Token inesperado: ") + tk.value);
         }
     }
 
