@@ -279,15 +279,18 @@ Def* SyntacticalAnalyser::parse_def(int index, lexic::position pos) {
     identifier = tk.value;
 
     consume(lexic::type::PRO, false, true);
-    consume(lexic::type::IDN, false, true);
-    parameters.push_back(new Var(Elem::VAR, string(identifier + "." + tk.value)));
-    cout << parameters.front()->get_identifier() << endl;
 
-    while (consume(lexic::type::COM, false)) {
-        consume(lexic::type::IDN, false, true);
+    if (consume(lexic::type::IDN, false)) {
         parameters.push_back(new Var(Elem::VAR, string(identifier + "." + tk.value)));
-        cout << parameters.back()->get_identifier() << endl;
+        cout << parameters.front()->get_identifier() << endl;
+
+        while (consume(lexic::type::COM, false)) {
+            consume(lexic::type::IDN, false, true);
+            parameters.push_back(new Var(Elem::VAR, string(identifier + "." + tk.value)));
+            cout << parameters.back()->get_identifier() << endl;
+        }
     }
+
     consume(lexic::type::PRC, false, true);
 
     consume(lexic::type::EQL, false, true);
