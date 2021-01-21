@@ -7,7 +7,7 @@
 #include "semantic.hpp"
 #include "ASCIIClassifier.hpp"
 #include "LexicalAnalyser.hpp"
-#include "SyntacticalAnalyser.hpp"
+#include "SyntaxAnalyser.hpp"
 #include "SemanticAnalyser.hpp"
 #include "CodeGenerator.hpp"
 
@@ -90,7 +90,7 @@ void synt_test(ifstream& file) {
     using namespace std;
     using namespace syntax;
 
-    SyntacticalAnalyser synt(file);
+    SyntaxAnalyser synt(file);
 
 
     //syntax::BStatement a = synt.get_next();
@@ -109,7 +109,7 @@ void gen_test(ifstream& input, ofstream& output) {
     using namespace std;
     using namespace syntax;
 
-    SyntacticalAnalyser stx(input);
+    SyntaxAnalyser stx(input);
     //CodeGenerator gen(output);
     semantic::SemanticAnalyser smt(input, output);
 

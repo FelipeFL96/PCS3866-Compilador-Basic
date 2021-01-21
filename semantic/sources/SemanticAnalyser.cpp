@@ -237,14 +237,15 @@ void SemanticAnalyser::process_dim(Dim* dim) {
     cout << "DIM" << endl;
 
     for (auto array : dim->get_arrays()) {
-        cout << "\t" << array->get_identifier() << "[";
+        process_variable(array);
+        /*cout << "\t" << array->get_identifier() << "[";
         for (auto dimension : array->get_dimensions()) {
             if (dimension == array->get_dimensions().at(0))
                 cout << dimension;
             else
                 cout << "," << dimension ;
         }
-        cout << "]" << endl;
+        cout << "]" << endl;*/
     }
 }
 
@@ -326,8 +327,13 @@ vector<Elem*> SemanticAnalyser::process_expression(Exp* e) {
 }
 
 void SemanticAnalyser::process_variable(Var* v) {
-    int index = symb_table.insert_variable(v);
-    //cout << "Variável gravada com índice: " << index << endl;
+    int index;
+    if (Array* a = dynamic_cast<Array*>(v)) {
+        index = symb_table.insert_array(a);
+    }
+    else {
+        index = symb_table.insert_variable(v);
+    }
     v->set_index(index);
 }
 
@@ -451,9 +457,16 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
         syntax::Elem* e = infix.front();
         infix.erase(infix.begin());
         //cout << "LIDO: " << read_elem_type(e);
-        //print_exp(infix);
+        print_exp(infix);
 
-        if (e->get_elem_type() == syntax::Elem::NUM || e->get_elem_type() == syntax::Elem::VAR) {
+        if (e->get_elem_type() == syntax::Elem::NUM) {
+            postfix.push_back(e);
+        }
+        else if (e->get_elem_type() == syntax::Elem::VAR) {
+            Var* v = dynamic_cast<Var*>(e);
+            if (symb_table.select_variable(v) == 0)
+                throw semantic_exception(v->get_position(), string("Variável " + v->get_identifier() + " não declarada"));
+
             postfix.push_back(e);
         }
         else if (e->get_elem_type() == Elem::FUN) {
@@ -513,7 +526,7 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
         print_exp(stack);
         cout << endl;*/
     }
-    //print_exp(postfix);
+    print_exp(postfix);
     return postfix;
     /*
     while there are tokens to be read:

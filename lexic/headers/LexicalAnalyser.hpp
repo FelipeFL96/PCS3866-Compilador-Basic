@@ -27,6 +27,6 @@ class LexicalAnalyser {
         lexic::state analyser_state;
 };
 
-} // namespace lexical
+} // namespace lexic
 
 #endif // LEXICAL_ANALYZER_HPP

@@ -1,5 +1,5 @@
-#ifndef LEXICAL_HPP
-#define LEXICAL_HPP
+#ifndef LEXIC_HPP
+#define LEXIC_HPP
 
 #include <string>
 
@@ -137,6 +137,6 @@ class token {
         }
 };
 
-}; // namespace lexical
+}; // namespace lexic
 
-#endif // LEXICAL_HPP
+#endif // LEXIC_HPP

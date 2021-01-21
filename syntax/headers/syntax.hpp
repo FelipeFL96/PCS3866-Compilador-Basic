@@ -162,8 +162,8 @@ class Num : public Eb {
 
 class Var : public Eb {
     public:
-        Var(Elem::type elem, std::string identifier):
-            Eb(elem), identifier_(identifier)
+        Var(Elem::type elem, lexic::position pos, std::string identifier):
+            Eb(elem), pos_(pos), identifier_(identifier)
         {}
 
         std::string get_identifier() {
@@ -178,6 +178,10 @@ class Var : public Eb {
             return size_;
         }
 
+        lexic::position& get_position() {
+            return pos_;
+        }
+
         Eb::type get_eb_type() {
             return Eb::VAR;
         }
@@ -190,12 +194,32 @@ class Var : public Eb {
             identifier_ = func_name + "." + identifier_;
         }
 
+    protected:
+        int size_ = 4;
+
     private:
         std::string identifier_;
         bool indexed;
-        int dimension;
+        lexic::position pos_;
+        int index_;
+};
 
-        int index_, size_ = 4;
+class Array : public Var {
+    public:
+        Array(Elem::type elem, lexic::position pos, std::string identifier, std::vector<int> dimensions):
+            Var(elem, pos, identifier), dimensions_(dimensions)
+        {
+            size_ = 4;
+            for (auto dimension : dimensions)
+                size_ *= dimension;
+        }
+
+        std::vector<int> get_dimensions() {
+            return dimensions_;
+        }
+
+    private:
+        std::vector<int> dimensions_;
 };
 
 class Exp : public Eb {
@@ -491,25 +515,6 @@ class Next : public BStatement {
     private:
         Var* iterator_;
         For* loop_;
-};
-
-class Array {
-    public:
-        Array(std::string identifier, std::vector<int> dimensions):
-            identifier_(identifier), dimensions_(dimensions)
-        {}
-
-        std::string get_identifier() {
-            return identifier_;
-        }
-
-        std::vector<int> get_dimensions() {
-            return dimensions_;
-        }
-
-    private:
-        std::string identifier_;
-        std::vector<int> dimensions_;
 };
 
 class Dim : public BStatement {

@@ -85,7 +85,7 @@ Assign* SyntaxAnalyser::parse_assign(int index, lexic::position pos) {
     Exp* expression;
 
     consume(lexic::type::IDN, false, true);
-    variable = new Var(Elem::VAR, tk.value);
+    variable = new Var(Elem::VAR, tk.pos, tk.value);
 
     consume(lexic::type::EQL, false, true);
 
@@ -98,11 +98,11 @@ Read* SyntaxAnalyser::parse_read(int index, lexic::position pos) {
     vector<Var*> variables;
 
     consume(lexic::type::IDN, false, true);
-    variables.push_back(new Var(Elem::VAR, tk.value));
+    variables.push_back(new Var(Elem::VAR, tk.pos, tk.value));
 
     while(consume(lexic::type::COM, false)) {
         consume(lexic::type::IDN, false, true);
-        variables.push_back(new Var(Elem::VAR, tk.value));
+        variables.push_back(new Var(Elem::VAR, tk.pos, tk.value));
     }
 
     return new Read(index, pos, variables);
@@ -208,7 +208,8 @@ For* SyntaxAnalyser::parse_for(int index, lexic::position pos) {
     Var* iterator;
     Exp *init, *step, *stop;
 
-    iterator = parse_var();
+    consume(lexic::type::IDN, false, true);
+    iterator = new Var(Elem::VAR, tk.pos, tk.value);
 
     consume(lexic::type::EQL, false, true);
     init = parse_exp();
@@ -233,7 +234,8 @@ For* SyntaxAnalyser::parse_for(int index, lexic::position pos) {
 Next* SyntaxAnalyser::parse_next(int index, lexic::position pos) {
     Var* iterator;
 
-    iterator = parse_var();
+    consume(lexic::type::IDN, false, true);
+    iterator = new Var(Elem::VAR, tk.pos, tk.value);
 
     return new Next(index, pos, iterator);
 }
@@ -241,9 +243,11 @@ Next* SyntaxAnalyser::parse_next(int index, lexic::position pos) {
 Array* SyntaxAnalyser::parse_array() {
     string identifier;
     vector<int> dimensions;
+    lexic::position pos;
 
     consume(lexic::type::IDN, false, true);
     identifier = tk.value;
+    pos = tk.pos;
     consume(lexic::type::PRO, false, true);
     consume(lexic::type::INT, false, true);
     dimensions.push_back(stoi(tk.value));
@@ -253,7 +257,7 @@ Array* SyntaxAnalyser::parse_array() {
     }
     consume(lexic::type::PRC, false, true);
 
-    return new Array(identifier, dimensions);
+    return new Array(Elem::VAR, pos, identifier, dimensions);
 }
 
 Dim* SyntaxAnalyser::parse_dim(int index, lexic::position pos) {
@@ -263,6 +267,13 @@ Dim* SyntaxAnalyser::parse_dim(int index, lexic::position pos) {
 
     while (consume(lexic::type::COM, false)) {
         arrays.push_back(parse_array());
+    }
+
+    for (auto array : arrays) {
+        cout << "DIM " << array->get_identifier();
+        for (auto dimension : array->get_dimensions())
+            cout << "[" << dimension << "]";
+        cout << " (Array " << array->get_size() << ")" << endl;
     }
 
     return new Dim(index, pos, arrays);
@@ -281,12 +292,12 @@ Def* SyntaxAnalyser::parse_def(int index, lexic::position pos) {
     consume(lexic::type::PRO, false, true);
 
     if (consume(lexic::type::IDN, false)) {
-        parameters.push_back(new Var(Elem::VAR, string(identifier + "." + tk.value)));
+        parameters.push_back(new Var(Elem::VAR, tk.pos, string(identifier + "." + tk.value)));
         cout << parameters.front()->get_identifier() << endl;
 
         while (consume(lexic::type::COM, false)) {
             consume(lexic::type::IDN, false, true);
-            parameters.push_back(new Var(Elem::VAR, string(identifier + "." + tk.value)));
+            parameters.push_back(new Var(Elem::VAR, tk.pos, string(identifier + "." + tk.value)));
             cout << parameters.back()->get_identifier() << endl;
         }
     }
@@ -447,7 +458,14 @@ Var* SyntaxAnalyser::parse_var() {
     if (consume(lexic::type::IDN, false, true))
         identifier = tk.value;
 
-    return new Var(Elem::VAR, identifier);
+    /*if (consume(lexic::type::PRO, false)) {
+        parse_exp();
+        while (consume(lexic::type::COM, false))
+            parse_exp();
+        consume(lexic::type::PRC, false)
+    }*/
+
+    return new Var(Elem::VAR, tk.pos, identifier);
 }
 
 Call* SyntaxAnalyser::parse_call() {

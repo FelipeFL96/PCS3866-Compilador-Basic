@@ -14,11 +14,22 @@ class SymbolTable {
     {}
 
     int insert_variable(syntax::Var* v) {
-        if (int index = select_variable(v) != 0)
-            return index;
+        if (int var_index = select_variable(v) != 0)
+            return var_index;
 
         variables.push_back(v);
-        return variables.size();
+        return index++;
+    }
+
+    int insert_array(syntax::Array* a) {
+        if (int var_index = select_variable(a) != 0)
+            return var_index;
+
+        variables.push_back(a);
+        int var_index = index;
+        index += a->get_size();
+
+        return var_index;
     }
 
     int select_variable(syntax::Var* v) {
@@ -48,6 +59,7 @@ class SymbolTable {
     }
     
     private:
+    int index = 1;
     std::vector<syntax::Var*> variables;
 };
 
