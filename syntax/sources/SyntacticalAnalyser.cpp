@@ -447,7 +447,7 @@ Var* SyntacticalAnalyser::parse_var() {
     if (consume(lexic::type::IDN, false, true))
         identifier = tk.value;
 
-    return new Var(Elem::VAR, identifier);;
+    return new Var(Elem::VAR, identifier);
 }
 
 Call* SyntacticalAnalyser::parse_call() {

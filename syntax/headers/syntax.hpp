@@ -174,12 +174,16 @@ class Var : public Eb {
             return index_;
         }
 
-        void set_index(int index) {
-            index_ = index;
+        int get_size() {
+            return size_;
         }
 
         Eb::type get_eb_type() {
             return Eb::VAR;
+        }
+
+        void set_index(int index) {
+            index_ = index;
         }
 
         void turn_parameter(std::string func_name) {
@@ -191,7 +195,7 @@ class Var : public Eb {
         bool indexed;
         int dimension;
 
-        int index_, size;
+        int index_, size_ = 4;
 };
 
 class Exp : public Eb {

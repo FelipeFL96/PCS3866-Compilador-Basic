@@ -38,6 +38,14 @@ class SymbolTable {
 
         return 0;
     }
+
+    int total_variable_size() {
+        int total_size = 4;
+        for (auto var : variables) {
+            total_size += var->get_size();
+        }
+        return total_size;
+    }
     
     private:
     std::vector<syntax::Var*> variables;

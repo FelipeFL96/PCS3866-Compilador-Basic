@@ -3,6 +3,8 @@
 #include "syntax.hpp"
 #include "CodeGenerator.hpp"
 
+#define STACK_SIZE 256
+
 using namespace std;
 
 CodeGenerator::CodeGenerator(ifstream& input, ofstream& output, semantic::SymbolTable& symb_table):
@@ -39,8 +41,10 @@ void CodeGenerator::generate_header() {
 
 void CodeGenerator::generate_variables() {
     install_predef();
-    output << "variables: .space 500" << endl;
-    output << "stack: .space 500" << endl;
+    output << "variables: " << endl;
+    output << "\t.space " << symb_table.total_variable_size() << endl;
+    output << "stack: " << endl;
+    output << "\t.space " << STACK_SIZE << endl;
     output << endl;
 }
 
