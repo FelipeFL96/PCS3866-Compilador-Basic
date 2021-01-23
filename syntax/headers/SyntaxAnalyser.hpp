@@ -47,7 +47,8 @@ class SyntaxAnalyser {
         syntax::Array* parse_array(void);
         syntax::Pitem* parse_pitem(void);
 
-        bool consume(lexic::type type, bool lookahead, bool force = false);
+        enum class method {REQUIRED, OPTIONAL, LOOKAHEAD};
+        bool consume(lexic::type type, method m);
 };
 
 } // namespace syntax
