@@ -7,6 +7,9 @@
 
 using namespace std;
 
+bool found_div = false;
+bool found_pow = false;
+
 CodeGenerator::CodeGenerator(ifstream& input, ofstream& output, semantic::SymbolTable& symb_table):
     input(input), output(output), symb_table(symb_table)
 {}
@@ -200,16 +203,23 @@ void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
         else if (e->is_operator()) {
             output << "\tLDMFD    sp!, {r2}" << endl;
             output << "\tLDMFD    sp!, {r1}" << endl;
-            if (e->get_elem_type() == syntax::Elem::ADD)
+            if (e->get_elem_type() == syntax::Elem::ADD) {
                 output << "\tADD      r0, r1, r2" << endl;
-            else if (e->get_elem_type() == syntax::Elem::SUB)
+            }
+            else if (e->get_elem_type() == syntax::Elem::SUB) {
                 output << "\tSUB      r0, r1, r2" << endl;
-            else if (e->get_elem_type() == syntax::Elem::MUL)
+            }
+            else if (e->get_elem_type() == syntax::Elem::MUL) {
                 output << "\tMUL      r0, r1, r2" << endl;
-            else if (e->get_elem_type() == syntax::Elem::DIV)
+            }
+            else if (e->get_elem_type() == syntax::Elem::DIV) {
+                found_div = true;
                 output << "\tBL       sdiv" << endl;
-            else if (e->get_elem_type() == syntax::Elem::POW)
+            }
+            else if (e->get_elem_type() == syntax::Elem::POW) {
+                found_pow = true;
                 output << "\tBL       pow" << endl;
+            }
             output << "\tSTMFD    sp!, {r0}" << endl;
         }
     }
@@ -217,8 +227,10 @@ void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
 }
 
 void CodeGenerator::install_predef() {
-    install_sdiv();
-    install_pow();
+    if (found_div)
+        install_sdiv();
+    if (found_pow)
+        install_pow();
 }
 
 /*
