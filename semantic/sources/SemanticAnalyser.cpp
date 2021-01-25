@@ -52,7 +52,14 @@ void SemanticAnalyser::get_next() {
     cout << "ACHEI " << statements.size() << " COMANDOS" << endl;
     gen.generate_header();
 
+    if (!dynamic_cast<End*>(*statements.rbegin()))
+        throw semantic_exception((*statements.rbegin())->get_position(), "Programa não termina com comando END");
+
+    bool ended = false;
     for (auto command : statements) {
+        if (ended)
+            throw semantic_exception(command->get_position(), "Programa continua após o comando END");
+
         if (command == nullptr)
             cout << "sintaxema nulo?!" << endl;
 
@@ -93,6 +100,7 @@ void SemanticAnalyser::get_next() {
             process_return(ret);
         }
         else if (End* end = dynamic_cast<End*>(command)) {
+            ended = true;
             process_end(end);
         }
         else {
