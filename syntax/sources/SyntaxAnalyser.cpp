@@ -37,46 +37,48 @@ void print_exp(Exp* e) {
 BStatement* SyntaxAnalyser::get_next() {
     int index;
 
-    if (consume(lexic::type::INT, method::OPTIONAL)) {
-        int index = stoi(tk.value);
-        tk = lex.get_next();
+    if (file.eof())
+        return nullptr;
 
-        switch (tk.type) {
-            case lexic::type::LET:
-                return parse_assign(index, tk.pos);
-            case lexic::type::READ:
-                return parse_read(index, tk.pos);
-            case lexic::type::DATA:
-                return parse_data(index, tk.pos);
-            case lexic::type::PRINT:
-                return parse_print(index, tk.pos);
-            case lexic::type::GO:
-            case lexic::type::GOTO:
-                return parse_goto(index, tk.pos);
-            case lexic::type::IF:
-                return parse_if(index, tk.pos);
-            case lexic::type::FOR:
-                return parse_for(index, tk.pos);
-            case lexic::type::NEXT:
-                return parse_next(index, tk.pos);
-            case lexic::type::DIM:
-                return parse_dim(index, tk.pos);
-            case lexic::type::DEF:
-                return parse_def(index, tk.pos);
-            case lexic::type::GOSUB:
-                return parse_gosub(index, tk.pos);
-            case lexic::type::RETURN:
-                return parse_return(index, tk.pos);
-            case lexic::type::REM:
-                return parse_rem(index, tk.pos);
-            case lexic::type::END:
-                return parse_end(index, tk.pos);
-            default:
-                throw syntax_exception(tk.pos, string("Token inesperado: ") + tk.value);
-        }
+    consume(lexic::type::INT, method::REQUIRED);
+    index = stoi(tk.value);
+
+    tk = lex.get_next();
+    cout << "TOKEN LIDO: " << tk.value << endl;
+
+    switch (tk.type) {
+        case lexic::type::LET:
+            return parse_assign(index, tk.pos);
+        case lexic::type::READ:
+            return parse_read(index, tk.pos);
+        case lexic::type::DATA:
+            return parse_data(index, tk.pos);
+        case lexic::type::PRINT:
+            return parse_print(index, tk.pos);
+        case lexic::type::GO:
+        case lexic::type::GOTO:
+            return parse_goto(index, tk.pos);
+        case lexic::type::IF:
+            return parse_if(index, tk.pos);
+        case lexic::type::FOR:
+            return parse_for(index, tk.pos);
+        case lexic::type::NEXT:
+            return parse_next(index, tk.pos);
+        case lexic::type::DIM:
+            return parse_dim(index, tk.pos);
+        case lexic::type::DEF:
+            return parse_def(index, tk.pos);
+        case lexic::type::GOSUB:
+            return parse_gosub(index, tk.pos);
+        case lexic::type::RETURN:
+            return parse_return(index, tk.pos);
+        case lexic::type::REM:
+            return parse_rem(index, tk.pos);
+        case lexic::type::END:
+            return parse_end(index, tk.pos);
+        default:
+            throw syntax_exception(tk.pos, string("Token inesperado: ") + tk.value);
     }
-
-    return nullptr;
 }
 
 
@@ -146,7 +148,7 @@ Print* SyntaxAnalyser::parse_print(int index, lexic::position pos) {
     vector<Pitem*> pitems;
 
     pitems.push_back(parse_pitem());
-    while (consume(lexic::type::INT, method::OPTIONAL)) {
+    while (consume(lexic::type::COM, method::OPTIONAL)) {
         pitems.push_back(parse_pitem());
     }
 

@@ -17,14 +17,6 @@ enum class type {
     IF              // Desvio condicional
 };
 
-class Generator {
-    public:
-        virtual void generate(class Assign* assign) = 0;
-        virtual void generate(class Read* go) = 0;
-        virtual void generate(class Data* go) = 0;
-        virtual void generate(class Goto* go) = 0;
-};
-
 class Elem {
     public:
         enum type {
@@ -117,22 +109,6 @@ class Num : public Eb {
         {
             delete n;
         }
-
-        /*int get_value() {
-            int num = integer_;
-
-            if (neg_exp_) {
-                for (int i = 0; i < exponent_; i++) {
-                    num /= 10;
-                }
-            }
-            else {
-                for (int i = 0; i < exponent_; i++) {
-                    num *= 10;
-                }
-            }
-            return (negative_?  (-num) : num);
-        }*/
 
         int get_value() {
             double num = integer_;
@@ -320,10 +296,6 @@ class Assign : public BStatement {
             return expression_;
         }
 
-        void accept(Generator& gen) {
-            gen.generate(this);
-        }
-
     private:
         Var* variable_;
         Exp* expression_;
@@ -339,10 +311,6 @@ class Read : public BStatement {
             return variables_;
         }
 
-        void accept(Generator& gen) {
-            gen.generate(this);
-        }
-
     private:
         std::vector<Var*> variables_;
 };
@@ -355,10 +323,6 @@ class Data : public BStatement {
 
         std::vector<Num*> get_values() {
             return values_;
-        }
-
-        void accept(Generator& gen) {
-            gen.generate(this);
         }
 
     private:
@@ -420,10 +384,6 @@ class Goto : public BStatement {
 
         int get_destination() {
             return destination_;
-        }
-
-        void accept(Generator& gen) {
-            gen.generate(this);
         }
 
     private:
