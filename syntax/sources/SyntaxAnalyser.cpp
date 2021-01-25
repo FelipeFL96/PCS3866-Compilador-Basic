@@ -223,7 +223,7 @@ For* SyntaxAnalyser::parse_for(int index, lexic::position pos) {
     else {
         vector<Operator*> operators;
         vector<Eb*> operands;
-        operands.push_back(new Num(Elem::NUM, 1, false, 0));
+        operands.push_back(new Num(Elem::NUM, 1, 0, false, 0));
 
         step = new Exp(Elem::EXP, false, operands, operators);
     }
@@ -384,7 +384,9 @@ Operator* SyntaxAnalyser::parse_operator() {
 }
 
 Eb* SyntaxAnalyser::parse_eb() {
-    if (consume(lexic::type::INT, method::LOOKAHEAD)) {
+    if (consume(lexic::type::INT, method::LOOKAHEAD)
+        || consume(lexic::type::PNT, method::LOOKAHEAD)
+        ) {
         return parse_num();
     }
     else if (consume(lexic::type::IDN, method::LOOKAHEAD)) {
@@ -430,24 +432,48 @@ Num* SyntaxAnalyser::parse_snum() {
 }
 
 Num* SyntaxAnalyser::parse_num() {
-    int integer, exponent = 0;
+    int integer = 0, exponent = 0;
+    double frac = 0.0;
     bool neg_exp = false;
 
-    consume(lexic::type::INT, method::REQUIRED);
-    integer = stoi(tk.value);
+    cout << "NUM: ";
+    if (consume(lexic::type::PNT, method::OPTIONAL)) {
+        consume(lexic::type::INT, method::REQUIRED);
+        frac = stod("0." + tk.value);
+        cout << " + " << frac;
+    }
+    else if (consume(lexic::type::INT, method::OPTIONAL)) {
+        integer = stoi(tk.value);
+        cout << integer;
+
+        if (consume(lexic::type::PNT, method::OPTIONAL)) {
+            consume(lexic::type::INT, method::REQUIRED);
+            frac = stod("0." + tk.value);
+            cout << " + " << frac;
+        }
+    }
+    else {
+        throw syntax_exception(tk.pos, "Esperado encontrar um número");
+    }
 
     if (consume(lexic::type::EXD, method::OPTIONAL)) {
-        if (consume(lexic::type::ADD, method::OPTIONAL))
+        cout << "E";
+        if (consume(lexic::type::ADD, method::OPTIONAL)) {
+            cout << "+";
             neg_exp = false;
+        }
 
-        else if (consume(lexic::type::SUB, method::OPTIONAL))
+        else if (consume(lexic::type::SUB, method::OPTIONAL)) {
+            cout << "-";
             neg_exp = true;
+        }
 
         consume(lexic::type::INT, method::REQUIRED);
         exponent = stoi(tk.value);
+        cout << exponent;
     }
-
-    return new Num(Elem::NUM, integer, neg_exp, exponent);
+    cout << endl;
+    return new Num(Elem::NUM, integer, frac, neg_exp, exponent);
 }
 
 Var* SyntaxAnalyser::parse_var() {

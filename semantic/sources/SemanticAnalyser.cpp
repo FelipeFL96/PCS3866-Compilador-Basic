@@ -390,7 +390,7 @@ void SemanticAnalyser::gen_negative_exp_vector(syntax::Exp* e, std::vector<synta
     operators.push_back(sub);
 
     vector<Eb*> operands;
-    Eb* zero = new Num(Elem::NUM, 0, false, 0);
+    Eb* zero = new Num(Elem::NUM, 0, 0, false, 0);
     operands.push_back(zero);
     e->make_positive();
     operands.push_back(e);

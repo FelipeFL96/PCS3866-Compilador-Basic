@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include "lexic.hpp"
 
@@ -107,8 +108,8 @@ class Eb : public Elem {
 
 class Num : public Eb {
     public:
-        Num(Elem::type elem, int integer, bool neg_exp, int exponent):
-            Eb(elem), integer_(integer), neg_exp_(neg_exp), exponent_(exponent)
+        Num(Elem::type elem, int integer, double frac, bool neg_exp, int exponent):
+            Eb(elem), integer_(integer), frac_(frac), neg_exp_(neg_exp), exponent_(exponent)
         {}
 
         Num(bool negative, Num* n):
@@ -117,23 +118,7 @@ class Num : public Eb {
             delete n;
         }
 
-        bool get_negative() {
-            return negative_;
-        }
-
-        int get_integer() {
-            return integer_;
-        }
-
-        bool get_neg_exp() {
-            return neg_exp_;
-        }
-
-        int get_exponent() {
-            return exponent_;
-        }
-
-        int get_value() {
+        /*int get_value() {
             int num = integer_;
 
             if (neg_exp_) {
@@ -147,6 +132,24 @@ class Num : public Eb {
                 }
             }
             return (negative_?  (-num) : num);
+        }*/
+
+        int get_value() {
+            double num = integer_;
+
+            num += frac_;
+
+            if (neg_exp_) {
+                for (int i = 0; i < exponent_; i++) {
+                    num /= 10;
+                }
+            }
+            else {
+                for (int i = 0; i < exponent_; i++) {
+                    num *= 10;
+                }
+            }
+            return (int) std::round((negative_?  (-num) : num));
         }
 
         Eb::type get_eb_type() {
@@ -156,6 +159,7 @@ class Num : public Eb {
     private:
         bool negative_ = false;
         int integer_ = 0;
+        double frac_ = 0;
         bool neg_exp_ = false;
         int exponent_ = 0;
 };
