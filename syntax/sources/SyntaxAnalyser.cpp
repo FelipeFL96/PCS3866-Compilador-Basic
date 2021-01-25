@@ -44,7 +44,6 @@ BStatement* SyntaxAnalyser::get_next() {
     index = stoi(tk.value);
 
     tk = lex.get_next();
-    cout << "TOKEN LIDO: " << tk.value << endl;
 
     switch (tk.type) {
         case lexic::type::LET:
@@ -87,7 +86,7 @@ Assign* SyntaxAnalyser::parse_assign(int index, lexic::position pos) {
     Exp* expression;
 
     consume(lexic::type::IDN, method::REQUIRED);
-    variable = new Var(Elem::VAR, tk.pos, tk.value);
+    variable = new Var(Elem::VAR, tk.pos, false, tk.value);
 
     consume(lexic::type::EQL, method::REQUIRED);
 
@@ -99,12 +98,10 @@ Assign* SyntaxAnalyser::parse_assign(int index, lexic::position pos) {
 Read* SyntaxAnalyser::parse_read(int index, lexic::position pos) {
     vector<Var*> variables;
 
-    consume(lexic::type::IDN, method::REQUIRED);
-    variables.push_back(new Var(Elem::VAR, tk.pos, tk.value));
+    variables.push_back(parse_var());
 
     while(consume(lexic::type::COM, method::OPTIONAL)) {
-        consume(lexic::type::IDN, method::REQUIRED);
-        variables.push_back(new Var(Elem::VAR, tk.pos, tk.value));
+        variables.push_back(parse_var());
     }
 
     return new Read(index, pos, variables);
@@ -211,7 +208,7 @@ For* SyntaxAnalyser::parse_for(int index, lexic::position pos) {
     Exp *init, *step, *stop;
 
     consume(lexic::type::IDN, method::REQUIRED);
-    iterator = new Var(Elem::VAR, tk.pos, tk.value);
+    iterator = new Var(Elem::VAR, tk.pos, false, tk.value);
 
     consume(lexic::type::EQL, method::REQUIRED);
     init = parse_exp();
@@ -237,7 +234,7 @@ Next* SyntaxAnalyser::parse_next(int index, lexic::position pos) {
     Var* iterator;
 
     consume(lexic::type::IDN, method::REQUIRED);
-    iterator = new Var(Elem::VAR, tk.pos, tk.value);
+    iterator = new Var(Elem::VAR, tk.pos, false, tk.value);
 
     return new Next(index, pos, iterator);
 }
@@ -297,12 +294,12 @@ Def* SyntaxAnalyser::parse_def(int index, lexic::position pos) {
     consume(lexic::type::PRO, method::REQUIRED);
 
     if (consume(lexic::type::IDN, method::OPTIONAL)) {
-        parameters.push_back(new Var(Elem::VAR, tk.pos, tk.value));
+        parameters.push_back(new Var(Elem::VAR, tk.pos, false, tk.value));
         cout << parameters.front()->get_identifier() << endl;
 
         while (consume(lexic::type::COM, method::OPTIONAL)) {
             consume(lexic::type::IDN, method::REQUIRED);
-            parameters.push_back(new Var(Elem::VAR, tk.pos, tk.value));
+            parameters.push_back(new Var(Elem::VAR, tk.pos, false, tk.value));
             cout << parameters.back()->get_identifier() << endl;
         }
     }
@@ -438,20 +435,16 @@ Num* SyntaxAnalyser::parse_num() {
     double frac = 0.0;
     bool neg_exp = false;
 
-    cout << "NUM: ";
     if (consume(lexic::type::PNT, method::OPTIONAL)) {
         consume(lexic::type::INT, method::REQUIRED);
         frac = stod("0." + tk.value);
-        cout << " + " << frac;
     }
     else if (consume(lexic::type::INT, method::OPTIONAL)) {
         integer = stoi(tk.value);
-        cout << integer;
 
         if (consume(lexic::type::PNT, method::OPTIONAL)) {
             consume(lexic::type::INT, method::REQUIRED);
             frac = stod("0." + tk.value);
-            cout << " + " << frac;
         }
     }
     else {
@@ -459,22 +452,16 @@ Num* SyntaxAnalyser::parse_num() {
     }
 
     if (consume(lexic::type::EXD, method::OPTIONAL)) {
-        cout << "E";
-        if (consume(lexic::type::ADD, method::OPTIONAL)) {
-            cout << "+";
+        if (consume(lexic::type::ADD, method::OPTIONAL))
             neg_exp = false;
-        }
 
-        else if (consume(lexic::type::SUB, method::OPTIONAL)) {
-            cout << "-";
+        else if (consume(lexic::type::SUB, method::OPTIONAL))
             neg_exp = true;
-        }
 
         consume(lexic::type::INT, method::REQUIRED);
         exponent = stoi(tk.value);
-        cout << exponent;
     }
-    cout << endl;
+
     return new Num(Elem::NUM, integer, frac, neg_exp, exponent);
 }
 
@@ -484,14 +471,21 @@ Var* SyntaxAnalyser::parse_var() {
     if (consume(lexic::type::IDN, method::REQUIRED))
         identifier = tk.value;
 
-    /*if (consume(lexic::type::PRO, method::OPTIONAL)) {
-        parse_exp();
-        while (consume(lexic::type::COM, method::OPTIONAL))
-            parse_exp();
-        consume(lexic::type::PRC, method::OPTIONAL)
-    }*/
+    if (consume(lexic::type::PRO, method::OPTIONAL)) {
+        int dimension = 1;
+        vector<Exp*> access_exps;
 
-    return new Var(Elem::VAR, tk.pos, identifier);
+        access_exps.push_back(parse_exp());
+        while (consume(lexic::type::COM, method::OPTIONAL)) {
+            access_exps.push_back(parse_exp());
+            dimension++;
+        }
+        consume(lexic::type::PRC, method::OPTIONAL);
+
+        return new ArrayAccess(Elem::VAR, tk.pos, identifier, dimension, access_exps);
+    }
+
+    return new Var(Elem::VAR, tk.pos, false, identifier);
 }
 
 Call* SyntaxAnalyser::parse_call() {

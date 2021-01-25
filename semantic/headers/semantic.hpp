@@ -22,32 +22,50 @@ class SymbolTable {
     }
 
     int insert_array(syntax::Array* a) {
-        if (int var_index = select_variable(a) != 0)
+        if (int var_index = select_variable(dynamic_cast<syntax::Var*>(a)) != 0)
             return var_index;
 
         variables.push_back(a);
         int var_index = index;
-        index += a->get_size();
+
+        for (int d : a->get_dimensions())
+            index += d;
 
         return var_index;
     }
 
     int select_variable(syntax::Var* v) {
-        //using namespace std;
+        using namespace std;
         if (variables.empty())
             return 0;
 
         //cout << "Procurando por variável de nome: " << v->get_identifier() << endl;
         for (auto var : variables) {
-            //cout << "Testando [" << var->get_identifier() << ": ";
+            //cout << "Testando [" << var->get_identifier() << "] : ";
             if (var->get_identifier() == v->get_identifier()) {
-                //cout << "APROVADA" << endl;
+                //cout << "JÁ EXISTE" << endl;
                 return var->get_index();
             }
-            //cout << "REPROVADA" << endl;
+            //cout << "AINDA NÃO EXISTE" << endl;
         }
 
         return 0;
+    }
+
+    syntax::Var* pointer_to_variable(syntax::Var* v) {
+        if (variables.empty())
+            return nullptr;
+
+        for (auto var : variables) {
+            //cout << "Testando [" << var->get_identifier() << "] : ";
+            if (var->get_identifier() == v->get_identifier()) {
+                //cout << "JÁ EXISTE" << endl;
+                return var;
+            }
+            //cout << "AINDA NÃO EXISTE" << endl;
+        }
+
+        return nullptr;
     }
 
     int total_variable_size() {

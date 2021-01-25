@@ -42,7 +42,9 @@ class SemanticAnalyser {
     void gen_exp_vector(syntax::Exp* e, std::vector<syntax::Elem*>& exp);
     void gen_exp_vector_operand(syntax::Eb* operand, std::vector<syntax::Elem*>& exp);
     void gen_negative_exp_vector(syntax::Exp* e, std::vector<syntax::Elem*>& exp);
+    std::vector<syntax::Elem*> process_array_access_exp(syntax::ArrayAccess* access);
     std::vector<syntax::Elem*> convert_to_postfix(std::vector<syntax::Elem*>& exp);
+
 
     syntax::SyntaxAnalyser stx;
     CodeGenerator gen;

@@ -142,8 +142,8 @@ class Num : public Eb {
 
 class Var : public Eb {
     public:
-        Var(Elem::type elem, lexic::position pos, std::string identifier):
-            Eb(elem), pos_(pos), identifier_(identifier)
+        Var(Elem::type elem, lexic::position pos, bool array, std::string identifier):
+            Eb(elem), array_(array), pos_(pos), identifier_(identifier)
         {}
 
         std::string get_identifier() {
@@ -174,12 +174,16 @@ class Var : public Eb {
             identifier_ = func_name + "." + identifier_;
         }
 
+        bool is_array() {
+            return array_;
+        }
+
     protected:
         int size_ = 4;
 
     private:
         std::string identifier_;
-        bool indexed;
+        bool array_;
         lexic::position pos_;
         int index_;
 };
@@ -187,7 +191,7 @@ class Var : public Eb {
 class Array : public Var {
     public:
         Array(Elem::type elem, lexic::position pos, std::string identifier, std::vector<int> dimensions):
-            Var(elem, pos, identifier), dimensions_(dimensions)
+            Var(elem, pos, true, identifier), dimensions_(dimensions)
         {
             size_ = 4;
             for (auto dimension : dimensions)
@@ -232,6 +236,43 @@ class Exp : public Eb {
         bool negative_;
         std::vector<Eb*> operands_;
         std::vector<Operator*> operators_;
+};
+
+class ArrayAccess : public Var {
+    public:
+        ArrayAccess(Elem::type elem, lexic::position pos, std::string identifier, int dimension, std::vector<Exp*> access_exps):
+            Var(elem, pos, true, identifier), dimension_(dimension), access_exps_(access_exps)
+        {}
+
+        int get_dimension() {
+            return dimension_;
+        }
+
+        std::vector<Exp*> get_access_exps() {
+            return access_exps_;
+        }
+
+        Array* get_array() {
+            return array_;
+        }
+
+        std::vector<Elem*> get_processed_access_exps() {
+            return processed_access_exps_;
+        }
+
+        void set_array(Array* array) {
+            array_ = array;
+        }
+
+        void set_processed_access_exps(std::vector<Elem*> processed_access_exps) {
+            processed_access_exps_ = processed_access_exps;
+        }
+
+    private:
+        int dimension_;
+        std::vector<Exp*> access_exps_;
+        Array* array_;
+        std::vector<Elem*> processed_access_exps_;
 };
 
 class Call : public Eb {

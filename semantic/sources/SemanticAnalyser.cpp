@@ -12,6 +12,7 @@ using namespace std;
 using namespace syntax;
 using namespace semantic;
 
+
 auto cmp = [](syntax::BStatement* a, syntax::BStatement* b) {
     if (a->get_index() == b->get_index()) {
         throw semantic_exception(a->get_position(), "Índice de linha já existente");
@@ -123,8 +124,23 @@ void SemanticAnalyser::process_assign(syntax::Assign* assign) {
 }
 
 void SemanticAnalyser::process_read(syntax::Read* read) {
-    cout << "READ";
+    cout << "READ" << endl;
     for (auto var: read->get_variables()) {
+        if (var->is_array()) {
+            cout << "VAR[" << var << "] (" << var->get_identifier() << ") É ARRAY" << endl;
+            if (symb_table.select_variable(var) == 0)
+                throw semantic_exception(var->get_position(), "Atribuição de variável indexada não declarada '" + var->get_identifier() + "' não é permitida");
+
+            Array* decl = dynamic_cast<Array*>(symb_table.pointer_to_variable(var));
+            ArrayAccess* access = dynamic_cast<ArrayAccess*>(var);
+            access->set_array(dynamic_cast<Array*>(decl));
+
+            vector<Elem*> processed_array_exps;
+            processed_array_exps = process_array_access_exp(access);
+
+            access->set_processed_access_exps(processed_array_exps);
+        }
+
         read_variables.push(var);
         process_variable(var);
         cout << " " << var->get_identifier();
@@ -260,6 +276,9 @@ void SemanticAnalyser::process_dim(Dim* dim) {
     cout << "DIM" << endl;
 
     for (auto array : dim->get_arrays()) {
+
+        int ret = symb_table.select_variable(array);
+
         process_variable(array);
         /*cout << "\t" << array->get_identifier() << "[";
         for (auto dimension : array->get_dimensions()) {
@@ -410,7 +429,9 @@ void SemanticAnalyser::gen_exp_vector_operand(syntax::Eb* operand, vector<syntax
     else if (operand->get_eb_type() == Eb::CALL) {
         exp.push_back(operand);
         exp.push_back(new Elem(Elem::PRO));
+
         vector<Exp*> args = dynamic_cast<Call*>(operand)->get_args();
+
         if (!args.empty()) {
             gen_exp_vector(args.at(0), exp);
             for (int i = 1; i < args.size(); i++) {
@@ -419,6 +440,26 @@ void SemanticAnalyser::gen_exp_vector_operand(syntax::Eb* operand, vector<syntax
             }
         }
         exp.push_back(new Elem(Elem::PRC));
+    }
+    else if (operand->get_eb_type() == Eb::VAR) {
+        exp.push_back(operand);
+        Var* v = dynamic_cast<Var*>(operand);
+
+        if (v->is_array()) {
+            exp.push_back(new Elem(Elem::PRO));
+
+            vector<Exp*> accesses = dynamic_cast<ArrayAccess*>(v)->get_access_exps();
+
+            gen_exp_vector(accesses.at(0), exp);
+            for (int i = 1; i < accesses.size(); i++) {
+                exp.push_back(new Elem(Elem::COM));
+                gen_exp_vector(accesses.at(i), exp);
+            }
+            exp.push_back(new Elem(Elem::PRC));
+        }
+        else {
+            exp.push_back(operand);
+        }
     }
     else {
         exp.push_back(operand);
@@ -439,6 +480,32 @@ void SemanticAnalyser::gen_negative_exp_vector(syntax::Exp* e, std::vector<synta
     Exp* neg_exp = new Exp(Elem::EXP, false, operands, operators);
 
     gen_exp_vector(neg_exp, exp);
+}
+
+vector<Elem*> SemanticAnalyser::process_array_access_exp(ArrayAccess* access) {
+    vector<Elem*> processed_access_exps;
+
+    int dimensions = access->get_access_exps().size();
+    Array* decl = access->get_array();
+
+    for (int i = 0; i < dimensions; i++) {
+        vector<Elem*> ae = process_expression(access->get_access_exps().at(i));
+        for (auto elem : ae) {
+            processed_access_exps.push_back(elem);
+        }
+
+        for ( int j = i + 1; j < dimensions; j++) {
+            processed_access_exps.push_back(new Num(Elem::NUM, decl->get_dimensions().at(j), 0, false, 0));
+            processed_access_exps.push_back(new Elem(Elem::MUL));
+        }
+
+        if (i != 0)
+            processed_access_exps.push_back(new Elem(Elem::ADD));
+
+    }
+
+    print_exp(processed_access_exps);
+    return processed_access_exps;
 }
 
 int precedence(syntax::Elem* e) {
@@ -486,19 +553,19 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
 
     vector<syntax::Elem*> postfix, stack;
 
-    /*cout << "infix: ";
+    cout << "infix: ";
     print_exp(infix);
     cout << "postfix: ";
     print_exp(postfix);
     cout << "stack: ";
     print_exp(stack);
-    cout << endl;*/
+    cout << endl;
 
     while (!infix.empty()) {
         syntax::Elem* e = infix.front();
         infix.erase(infix.begin());
         //cout << "LIDO: " << read_elem_type(e);
-        print_exp(infix);
+        //print_exp(infix);
 
         if (e->get_elem_type() == syntax::Elem::NUM) {
             postfix.push_back(e);
@@ -508,7 +575,10 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
             if (symb_table.select_variable(v) == 0)
                 throw semantic_exception(v->get_position(), string("Variável '" + v->get_identifier() + "' não declarada"));
 
-            postfix.push_back(e);
+            if (v->is_array())
+                stack.push_back(v);
+            else
+                postfix.push_back(e);
         }
         else if (e->get_elem_type() == Elem::FUN) {
             Call* c = dynamic_cast<Call*>(e);
@@ -545,31 +615,33 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
             if (stack.back()->get_elem_type() == syntax::Elem::PRO) {
                 stack.pop_back();
             }
-            if (stack.back()->get_elem_type() == syntax::Elem::FUN) {
+            if (stack.back()->get_elem_type() == syntax::Elem::FUN
+                || stack.back()->get_elem_type() == syntax::Elem::VAR // Variáveis indexadas
+                ) {
                 postfix.push_back(stack.back());
                 stack.pop_back();
             }
         }
 
-        /*cout << "infix: ";
+        cout << "infix: ";
         print_exp(infix);
         cout << "postfix: ";
         print_exp(postfix);
         cout << "stack: ";
         print_exp(stack);
-        cout << endl;*/
+        cout << endl;
     }
     while (!stack.empty()) {
         postfix.push_back(stack.back());
         stack.pop_back();
 
-        /*cout << "infix: ";
+        cout << "infix: ";
         print_exp(infix);
         cout << "postfix: ";
         print_exp(postfix);
         cout << "stack: ";
         print_exp(stack);
-        cout << endl;*/
+        cout << endl;
     }
     print_exp(postfix);
     return postfix;

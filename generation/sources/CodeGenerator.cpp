@@ -63,8 +63,25 @@ void CodeGenerator::generate(syntax::Assign* assign, vector<syntax::Elem*> exp, 
 void CodeGenerator::generate(syntax::Read* read, std::vector<pair<syntax::Var*, syntax::Num*>>& read_data, int next_index) {
     output << "L" << read->get_index() << ":" << endl;
     for (auto pair : read_data) {
-        output << "\tMOV      r0, #" << get<1>(pair)->get_value() << endl;
-        output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(get<0>(pair)) << "]" << endl;
+        syntax::Var* var = get<0>(pair);
+        syntax::Num* val = get<1>(pair);
+
+        if (var->is_array()) {
+            syntax::ArrayAccess* access = dynamic_cast<syntax::ArrayAccess*>(var);
+            vector<syntax::Elem*> access_expression = access->get_processed_access_exps();
+
+            generate_expression(access_expression);
+
+            output << "\tMOV      r1, r0, LSL #2" << endl;
+            output << "\tMOV      r2, #" << 4 * symb_table.select_variable(var) << endl;
+            output << "\tADD      r1, r1, r2" << endl;
+            output << "\tMOV      r0, #" << val->get_value() << endl;
+            output << "\tSTR      r0, [r12, r1]" << endl;
+        }
+        else {
+            output << "\tMOV      r0, #" << val->get_value() << endl;
+            output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(var) << "]" << endl;
+        }
     }
     output << "\tB        L" << next_index << endl;
     output << endl;
@@ -73,8 +90,25 @@ void CodeGenerator::generate(syntax::Read* read, std::vector<pair<syntax::Var*, 
 void CodeGenerator::generate(syntax::Data* data, std::vector<pair<syntax::Var*, syntax::Num*>>& read_data, int next_index) {
     output << "L" << data->get_index() << ":" << endl;
     for (auto pair : read_data) {
-        output << "\tMOV      r0, #" << get<1>(pair)->get_value() << endl;
-        output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(get<0>(pair)) << "]" << endl;
+        syntax::Var* var = get<0>(pair);
+        syntax::Num* val = get<1>(pair);
+
+        if (var->is_array()) {
+            syntax::ArrayAccess* access = dynamic_cast<syntax::ArrayAccess*>(var);
+            vector<syntax::Elem*> access_expression = access->get_processed_access_exps();
+
+            generate_expression(access_expression);
+
+            output << "\tMOV      r1, r0, LSL #2" << endl;
+            output << "\tMOV      r2, #" << 4 * symb_table.select_variable(var) << endl;
+            output << "\tADD      r1, r1, r2" << endl;
+            output << "\tMOV      r0, #" << val->get_value() << endl;
+            output << "\tSTR      r0, [r12, r1]" << endl;
+        }
+        else {
+            output << "\tMOV      r0, #" << val->get_value() << endl;
+            output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(var) << "]" << endl;
+        }
     }
     output << "\tB        L" << next_index << endl;
     output << endl;
