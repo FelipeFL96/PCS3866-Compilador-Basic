@@ -42,18 +42,22 @@ void SemanticAnalyser::get_next() {
 
     while (true) {
         sx = stx.get_next();
+
         if (dynamic_cast<Rem*>(sx))
             continue;
+
         if (sx == nullptr)
             break;
+
         statements.insert(sx);
     }
 
     cout << "ACHEI " << statements.size() << " COMANDOS" << endl;
-    gen.generate_header();
 
     if (!dynamic_cast<End*>(*statements.rbegin()))
         throw semantic_exception((*statements.rbegin())->get_position(), "Programa não termina com comando END");
+
+    gen.generate_header();
 
     bool ended = false;
     for (auto command : statements) {
@@ -188,7 +192,7 @@ void SemanticAnalyser::process_goto(Goto* go) {
         }
     }
 
-    throw semantic_exception(go->get_position(), string("Linha de destino inexistente"));
+    throw semantic_exception(go->get_position(), string("Comando GOTO com linha de destino inexistente"));
 }
 
 void SemanticAnalyser::process_if(syntax::If* ift) {
@@ -205,17 +209,28 @@ void SemanticAnalyser::process_if(syntax::If* ift) {
         }
     }
 
-    throw semantic_exception(ift->get_position(), string("Linha de destino inexistente"));
+    throw semantic_exception(ift->get_position(), string("Comando IF com linha de destino inexistente"));
 }
 
 void SemanticAnalyser::process_for(For* loop) {
-    cout << "FOR ";
+    cout << "FOR " << endl;
+
+    if (symb_table.select_variable(loop->get_iterator()))
+        throw semantic_exception(loop->get_position(), "Variável de iteração " + loop->get_iterator()->get_identifier() + " já declarada");
+
+    process_variable(loop->get_iterator());
 
     for_stack.push_back(loop);
 }
 
 void SemanticAnalyser::process_next(Next* next) {
-    cout << "NEXT ";
+    cout << "NEXT " << endl;
+
+    if (for_stack.empty())
+        throw semantic_exception(next->get_position(), "NEXT sem FOR correspondente");
+
+    process_variable(next->get_iterator());
+
     For* loop = for_stack.back();
 
     if (symb_table.select_variable(next->get_iterator())
@@ -287,7 +302,7 @@ void SemanticAnalyser::process_gosub(syntax::Gosub* gosub) {
         }
     }
 
-    throw semantic_exception(gosub->get_position(), string("Subrotina de destino inexistente"));
+    throw semantic_exception(gosub->get_position(), string("Comando GOSUB com subrotina de destino inexistente"));
 }
 
 void SemanticAnalyser::process_return(syntax::Return* ret) {
@@ -296,6 +311,11 @@ void SemanticAnalyser::process_return(syntax::Return* ret) {
 }
 
 void SemanticAnalyser::process_end(syntax::End* end) {
+    if (!read_variables.empty())
+        throw semantic_exception(end->get_position(), "Fim de programa atingido com " + to_string(read_variables.size()) + " variável(is) aguardando em READ");
+    else if (!for_stack.empty())
+        throw semantic_exception(end->get_position(), "Fim de programa atingido com laço FOR não terminado");
+
     gen.generate(end);
 }
 
@@ -473,7 +493,7 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
         else if (e->get_elem_type() == syntax::Elem::VAR) {
             Var* v = dynamic_cast<Var*>(e);
             if (symb_table.select_variable(v) == 0)
-                throw semantic_exception(v->get_position(), string("Variável " + v->get_identifier() + " não declarada"));
+                throw semantic_exception(v->get_position(), string("Variável '" + v->get_identifier() + "' não declarada"));
 
             postfix.push_back(e);
         }
