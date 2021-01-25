@@ -47,8 +47,9 @@ void CodeGenerator::generate_variables() {
     output << "variables: " << endl;
     output << "\t.space " << symb_table.total_variable_size() << endl;
     output << endl;
-    output << "stack: " << endl;
+    // Espaço para a pilha
     output << "\t.space " << STACK_SIZE << endl;
+    output << "stack: " << endl;
     output << endl;
 }
 
@@ -73,8 +74,7 @@ void CodeGenerator::generate(syntax::Read* read, std::vector<pair<syntax::Var*, 
             generate_expression(access_expression);
 
             output << "\tMOV      r1, r0, LSL #2" << endl;
-            output << "\tMOV      r2, #" << 4 * symb_table.select_variable(var) << endl;
-            output << "\tADD      r1, r1, r2" << endl;
+            output << "\tADD      r1, r1, #" << 4 * symb_table.select_variable(var) << endl;
             output << "\tMOV      r0, #" << val->get_value() << endl;
             output << "\tSTR      r0, [r12, r1]" << endl;
         }
@@ -100,8 +100,7 @@ void CodeGenerator::generate(syntax::Data* data, std::vector<pair<syntax::Var*, 
             generate_expression(access_expression);
 
             output << "\tMOV      r1, r0, LSL #2" << endl;
-            output << "\tMOV      r2, #" << 4 * symb_table.select_variable(var) << endl;
-            output << "\tADD      r1, r1, r2" << endl;
+            output << "\tADD      r1, r1, #" << 4 * symb_table.select_variable(var) << endl;
             output << "\tMOV      r0, #" << val->get_value() << endl;
             output << "\tSTR      r0, [r12, r1]" << endl;
         }
@@ -227,8 +226,20 @@ void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
             output << "\tSTMFD    sp!, {r1}" << endl;
         }
         else if (e->get_elem_type() == syntax::Elem::VAR) {
-            output << "\tLDR      r1, [r12, #" << 4 * symb_table.select_variable(dynamic_cast<syntax::Var*>(e)) << "]" << endl;
-            output << "\tSTMFD    sp!, {r1}" << endl;
+            syntax::Var* var = dynamic_cast<syntax::Var*>(e);
+
+            if (var->is_array()) {
+                syntax::ArrayAccess* access = dynamic_cast<syntax::ArrayAccess*>(var);
+                output << "\tLDMFD    sp!, {r1}" << endl;
+                output << "\tMOV      r1, r1, LSL #2" << endl;
+                output << "\tADD      r1, r1, #" << 4 * symb_table.select_variable(var) << endl;
+                output << "\tLDR      r1, [r12, r1]" << endl;
+                output << "\tSTMFD    sp!, {r1}" << endl;
+            }
+            else {
+                output << "\tLDR      r1, [r12, #" << 4 * symb_table.select_variable(var) << "]" << endl;
+                output << "\tSTMFD    sp!, {r1}" << endl;
+            }
         }
         else if (e->get_elem_type() == syntax::Elem::FUN) {
             output << "\tBL       " << dynamic_cast<syntax::Call*>(e)->get_identifier() << endl;

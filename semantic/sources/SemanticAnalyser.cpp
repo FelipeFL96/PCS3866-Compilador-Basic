@@ -127,13 +127,12 @@ void SemanticAnalyser::process_read(syntax::Read* read) {
     cout << "READ" << endl;
     for (auto var: read->get_variables()) {
         if (var->is_array()) {
-            cout << "VAR[" << var << "] (" << var->get_identifier() << ") É ARRAY" << endl;
             if (symb_table.select_variable(var) == 0)
                 throw semantic_exception(var->get_position(), "Atribuição de variável indexada não declarada '" + var->get_identifier() + "' não é permitida");
 
             Array* decl = dynamic_cast<Array*>(symb_table.pointer_to_variable(var));
             ArrayAccess* access = dynamic_cast<ArrayAccess*>(var);
-            access->set_array(dynamic_cast<Array*>(decl));
+            access->set_array(decl);
 
             vector<Elem*> processed_array_exps;
             processed_array_exps = process_array_access_exp(access);
@@ -443,18 +442,35 @@ void SemanticAnalyser::gen_exp_vector_operand(syntax::Eb* operand, vector<syntax
     }
     else if (operand->get_eb_type() == Eb::VAR) {
         exp.push_back(operand);
+
         Var* v = dynamic_cast<Var*>(operand);
 
         if (v->is_array()) {
+
+            if (symb_table.select_variable(v) == 0)
+                    throw semantic_exception(v->get_position(), "Acesso a variável indexada não declarada '" + v->get_identifier() + "' não é permitido");
+
+            Array* decl = dynamic_cast<Array*>(symb_table.pointer_to_variable(v));
+            ArrayAccess* access = dynamic_cast<ArrayAccess*>(v);
+            access->set_array(decl);
+            int dimensions = access->get_access_exps().size();
+
             exp.push_back(new Elem(Elem::PRO));
 
-            vector<Exp*> accesses = dynamic_cast<ArrayAccess*>(v)->get_access_exps();
+            for (int i = 0; i < dimensions; i++) {
+                if (i != 0)
+                    exp.push_back(new Elem(Elem::ADD));
 
-            gen_exp_vector(accesses.at(0), exp);
-            for (int i = 1; i < accesses.size(); i++) {
-                exp.push_back(new Elem(Elem::COM));
-                gen_exp_vector(accesses.at(i), exp);
+                exp.push_back(new Elem(Elem::PRO));
+                gen_exp_vector(access->get_access_exps().at(i), exp);
+                exp.push_back(new Elem(Elem::PRC));
+
+                for ( int j = i + 1; j < dimensions; j++) {
+                    exp.push_back(new Elem(Elem::MUL));
+                    exp.push_back(new Num(Elem::NUM, decl->get_dimensions().at(j), 0, false, 0));
+                }
             }
+
             exp.push_back(new Elem(Elem::PRC));
         }
         else {
