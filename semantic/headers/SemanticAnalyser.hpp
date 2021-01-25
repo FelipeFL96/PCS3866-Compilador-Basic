@@ -47,6 +47,7 @@ class SemanticAnalyser {
     syntax::SyntaxAnalyser stx;
     CodeGenerator gen;
     semantic::SymbolTable symb_table;
+
     std::queue<syntax::Var*> read_variables;
     std::queue<syntax::Num*> data_values;
     std::vector<syntax::For*> for_stack;

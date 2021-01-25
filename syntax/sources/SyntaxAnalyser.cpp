@@ -297,12 +297,12 @@ Def* SyntaxAnalyser::parse_def(int index, lexic::position pos) {
     consume(lexic::type::PRO, method::REQUIRED);
 
     if (consume(lexic::type::IDN, method::OPTIONAL)) {
-        parameters.push_back(new Var(Elem::VAR, tk.pos, string(identifier + "." + tk.value)));
+        parameters.push_back(new Var(Elem::VAR, tk.pos, tk.value));
         cout << parameters.front()->get_identifier() << endl;
 
         while (consume(lexic::type::COM, method::OPTIONAL)) {
             consume(lexic::type::IDN, method::REQUIRED);
-            parameters.push_back(new Var(Elem::VAR, tk.pos, string(identifier + "." + tk.value)));
+            parameters.push_back(new Var(Elem::VAR, tk.pos, tk.value));
             cout << parameters.back()->get_identifier() << endl;
         }
     }
@@ -394,7 +394,7 @@ Eb* SyntaxAnalyser::parse_eb() {
     else if (consume(lexic::type::IDN, method::LOOKAHEAD)) {
         return parse_var();
     }
-    else if (consume(lexic::type::PRO, method::LOOKAHEAD)) {
+    else if (consume(lexic::type::PRO, method::OPTIONAL)) {
         Exp* exp = parse_exp();
         consume(lexic::type::PRC, method::REQUIRED);
         return exp;
@@ -537,7 +537,7 @@ Call* SyntaxAnalyser::parse_call() {
 
     // Função sem argumentos
     if (consume(lexic::type::PRC, method::OPTIONAL))
-        return new Call(Elem::FUN, identifier, args);
+        return new Call(Elem::FUN, tk.pos, identifier, args);
 
     args.push_back(parse_exp());
     while (consume(lexic::type::COM, method::OPTIONAL)) {
@@ -546,7 +546,7 @@ Call* SyntaxAnalyser::parse_call() {
 
     consume(lexic::type::PRC, method::REQUIRED);
 
-    return new Call(Elem::FUN, identifier, args);
+    return new Call(Elem::FUN, tk.pos, identifier, args);
 }
 
 bool SyntaxAnalyser::consume(lexic::type type, method m) {

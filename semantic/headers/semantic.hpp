@@ -57,10 +57,43 @@ class SymbolTable {
         }
         return total_size;
     }
+
+    bool insert_function(syntax::Def* f) {
+         if (select_function(f))
+            return false;
+
+        functions.push_back(f);
+        return true;
+    }
+
+    syntax::Def* select_function(syntax::Call* c) {
+        if (functions.empty())
+            return nullptr;
+
+        for (auto fn : functions) {
+            if (fn->get_identifier() == c->get_identifier())
+                return fn;
+        }
+
+        return nullptr;
+    }
+
+    syntax::Def* select_function(syntax::Def* f) {
+        if (functions.empty())
+            return nullptr;
+
+        for (auto fn : functions) {
+            if (fn->get_identifier() == f->get_identifier())
+                return fn;
+        }
+
+        return nullptr;
+    }
     
     private:
     int index = 1;
     std::vector<syntax::Var*> variables;
+    std::vector<syntax::Def*> functions;
 };
 
 class semantic_exception: public std::exception {

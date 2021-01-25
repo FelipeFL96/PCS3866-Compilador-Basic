@@ -170,7 +170,7 @@ class Var : public Eb {
             index_ = index;
         }
 
-        void turn_parameter(std::string func_name) {
+        void make_parameter(std::string func_name) {
             identifier_ = func_name + "." + identifier_;
         }
 
@@ -236,8 +236,8 @@ class Exp : public Eb {
 
 class Call : public Eb {
     public:
-        Call(Elem::type elem, std::string identifier, std::vector<Exp*>& args):
-            Eb(elem), identifier_(identifier), args_(args)
+        Call(Elem::type elem, lexic::position& pos, std::string identifier, std::vector<Exp*>& args):
+            Eb(elem), pos_(pos), identifier_(identifier), args_(args)
         {}
 
         std::string get_identifier() {
@@ -254,11 +254,16 @@ class Call : public Eb {
             return args_.size();
         }
 
+        lexic::position& get_position() {
+            return pos_;
+        }
+
         Eb::type get_eb_type() {
             return Eb::CALL;
         }
 
     private:
+        lexic::position& pos_;
         std::string identifier_;
         std::vector<Exp*> args_;
 };

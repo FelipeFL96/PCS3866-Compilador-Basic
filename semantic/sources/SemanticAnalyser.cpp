@@ -272,22 +272,35 @@ void SemanticAnalyser::process_dim(Dim* dim) {
     }
 }
 
-void SemanticAnalyser::process_def(syntax::Def* def) {
-
-    for (auto parameter : def->get_parameters()) {
-        process_variable(parameter);
-    }
-    vector<Elem*> exp = process_expression(def->get_exp());
-
-    for (auto e : exp) {
-        if (Var* var = dynamic_cast<Var*>(e)) {
+void identify_def_parameters(Def* def, Exp* exp) {
+    for (auto operand : exp->get_operands()) {
+        if (Var* v = dynamic_cast<Var*>(operand)) {
             for (auto parameter : def->get_parameters()) {
-                if ((def->get_identifier() + "." + var->get_identifier()) == parameter->get_identifier()) {
-                    var->turn_parameter(def->get_identifier());
-                }
+                if (v->get_identifier() == parameter->get_identifier())
+                    v->make_parameter(def->get_identifier());
             }
         }
+        else if (Exp* e = dynamic_cast<Exp*>(operand)) {
+            identify_def_parameters(def, e);
+        }
     }
+}
+
+void SemanticAnalyser::process_def(Def* def) {
+    cout << "DEF " << def->get_identifier() << ": ";
+    if (!symb_table.insert_function(def))
+        throw semantic_exception(def->get_position(), "Declaração dupla para função " + def->get_identifier());
+
+    identify_def_parameters(def, def->get_exp());
+
+    for (auto parameter : def->get_parameters()) {
+        parameter->make_parameter(def->get_identifier());
+        process_variable(parameter);
+        cout << parameter->get_identifier() << ", ";
+    }
+    cout << endl;
+
+    vector<Elem*> exp = process_expression(def->get_exp());
 
     gen.generate(def, exp);
 }
@@ -498,6 +511,10 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
             postfix.push_back(e);
         }
         else if (e->get_elem_type() == Elem::FUN) {
+            Call* c = dynamic_cast<Call*>(e);
+            if (!symb_table.select_function(c))
+                throw semantic_exception(c->get_position(), "Função '" + c->get_identifier() + "' não declarada");
+
             stack.push_back(e);
         }
         else if (e->is_operator()) {
