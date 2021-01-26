@@ -117,8 +117,14 @@ void SemanticAnalyser::get_next() {
 
 void SemanticAnalyser::process_assign(syntax::Assign* assign) {
     cout << "ASSIGN" << endl;
+
+    Var* decl = symb_table.pointer_to_variable(assign->get_variable());
+    if (decl != nullptr && decl->is_array())
+        throw semantic_exception(assign->get_position(), "Variáveis indexadas não podem ser atribuídas em LET");
+
     process_variable(assign->get_variable());
     vector<Elem*> exp = process_expression(assign->get_expression());
+
     int next_index = find_next_index(assign);
     gen.generate(assign, exp, next_index);
 }
@@ -426,6 +432,14 @@ void SemanticAnalyser::gen_exp_vector_operand(syntax::Eb* operand, vector<syntax
         exp.push_back(new Elem(Elem::PRC));
     }
     else if (operand->get_eb_type() == Eb::CALL) {
+        Call* c = dynamic_cast<Call*>(operand);
+        if (!symb_table.select_function(c))
+            throw semantic_exception(c->get_position(), "Função '" + c->get_identifier() + "' não declarada");
+
+        Def* decl = symb_table.select_function(c);
+        if (decl->get_parameters().size() != c->get_args().size())
+            throw semantic_exception(c->get_position(), "Lista de parâmetros incompatível com a declaração de '" + decl->get_identifier() + "'");
+
         exp.push_back(operand);
         exp.push_back(new Elem(Elem::PRO));
 
@@ -438,20 +452,23 @@ void SemanticAnalyser::gen_exp_vector_operand(syntax::Eb* operand, vector<syntax
                 gen_exp_vector(args.at(i), exp);
             }
         }
+
         exp.push_back(new Elem(Elem::PRC));
     }
     else if (operand->get_eb_type() == Eb::VAR) {
         exp.push_back(operand);
 
         Var* v = dynamic_cast<Var*>(operand);
+        if (symb_table.select_variable(v) == 0)
+                throw semantic_exception(v->get_position(), string("Variável '" + v->get_identifier() + "' não declarada"));
 
         if (v->is_array()) {
-
-            if (symb_table.select_variable(v) == 0)
-                    throw semantic_exception(v->get_position(), "Acesso a variável indexada não declarada '" + v->get_identifier() + "' não é permitido");
-
             Array* decl = dynamic_cast<Array*>(symb_table.pointer_to_variable(v));
             ArrayAccess* access = dynamic_cast<ArrayAccess*>(v);
+
+            if (decl->get_dimensions().size() != access->get_dimension())
+                throw semantic_exception(v->get_position(), "Lista de acesso a variável indexada incompatível com a declaração de '" + v->get_identifier() + "'");
+
             access->set_array(decl);
             int dimensions = access->get_access_exps().size();
 
@@ -588,8 +605,6 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
         }
         else if (e->get_elem_type() == syntax::Elem::VAR) {
             Var* v = dynamic_cast<Var*>(e);
-            if (symb_table.select_variable(v) == 0)
-                throw semantic_exception(v->get_position(), string("Variável '" + v->get_identifier() + "' não declarada"));
 
             if (v->is_array())
                 stack.push_back(v);
@@ -597,10 +612,6 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
                 postfix.push_back(e);
         }
         else if (e->get_elem_type() == Elem::FUN) {
-            Call* c = dynamic_cast<Call*>(e);
-            if (!symb_table.select_function(c))
-                throw semantic_exception(c->get_position(), "Função '" + c->get_identifier() + "' não declarada");
-
             stack.push_back(e);
         }
         else if (e->is_operator()) {
