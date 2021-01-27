@@ -44,16 +44,16 @@ void SemanticAnalyser::get_next() {
     while (true) {
         sx = stx.get_next();
 
-        if (dynamic_cast<Rem*>(sx))
-            continue;
-
         if (sx == nullptr)
             break;
+
+        if (dynamic_cast<Rem*>(sx))
+            continue;
 
         statements.insert(sx);
     }
 
-    cout << "ACHEI " << statements.size() << " COMANDOS" << endl;
+    //cout << "ACHEI " << statements.size() << " COMANDOS" << endl;
 
     if (!dynamic_cast<End*>(*statements.rbegin()))
         throw semantic_exception((*statements.rbegin())->get_position(), "Programa não termina com comando END");
@@ -112,11 +112,12 @@ void SemanticAnalyser::get_next() {
             cout << "É outra coisa" << endl;
         }
     }
+
     gen.generate_variables();
 }
 
 void SemanticAnalyser::process_assign(syntax::Assign* assign) {
-    cout << "ASSIGN" << endl;
+    //cout << "ASSIGN" << endl;
 
     Var* decl = symb_table.pointer_to_variable(assign->get_variable());
     if (decl != nullptr && decl->is_array())
@@ -311,7 +312,6 @@ void identify_def_parameters(Def* def, Exp* exp) {
 }
 
 void SemanticAnalyser::process_def(Def* def) {
-    cout << "DEF " << def->get_identifier() << ": ";
     if (!symb_table.insert_function(def))
         throw semantic_exception(def->get_position(), "Declaração dupla para função " + def->get_identifier());
 
@@ -456,13 +456,13 @@ void SemanticAnalyser::gen_exp_vector_operand(syntax::Eb* operand, vector<syntax
         exp.push_back(new Elem(Elem::PRC));
     }
     else if (operand->get_eb_type() == Eb::VAR) {
-        exp.push_back(operand);
-
         Var* v = dynamic_cast<Var*>(operand);
         if (symb_table.select_variable(v) == 0)
                 throw semantic_exception(v->get_position(), string("Variável '" + v->get_identifier() + "' não declarada"));
 
         if (v->is_array()) {
+            exp.push_back(operand);
+
             Array* decl = dynamic_cast<Array*>(symb_table.pointer_to_variable(v));
             ArrayAccess* access = dynamic_cast<ArrayAccess*>(v);
 
@@ -586,13 +586,13 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
 
     vector<syntax::Elem*> postfix, stack;
 
-    cout << "infix: ";
+    /*cout << "infix: ";
     print_exp(infix);
     cout << "postfix: ";
     print_exp(postfix);
     cout << "stack: ";
     print_exp(stack);
-    cout << endl;
+    cout << endl;*/
 
     while (!infix.empty()) {
         syntax::Elem* e = infix.front();
@@ -642,35 +642,37 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
             if (stack.back()->get_elem_type() == syntax::Elem::PRO) {
                 stack.pop_back();
             }
-            if (stack.back()->get_elem_type() == syntax::Elem::FUN
-                || stack.back()->get_elem_type() == syntax::Elem::VAR // Variáveis indexadas
+            if (!stack.empty()
+                && (stack.back()->get_elem_type() == syntax::Elem::FUN
+                    || stack.back()->get_elem_type() == syntax::Elem::VAR) // Variáveis indexadas
                 ) {
                 postfix.push_back(stack.back());
                 stack.pop_back();
             }
         }
 
-        cout << "infix: ";
+        /*cout << "infix: ";
         print_exp(infix);
         cout << "postfix: ";
         print_exp(postfix);
         cout << "stack: ";
         print_exp(stack);
-        cout << endl;
+        cout << endl;*/
     }
     while (!stack.empty()) {
         postfix.push_back(stack.back());
         stack.pop_back();
 
-        cout << "infix: ";
+        /*cout << "infix: ";
         print_exp(infix);
         cout << "postfix: ";
         print_exp(postfix);
         cout << "stack: ";
         print_exp(stack);
-        cout << endl;
+        cout << endl;*/
     }
-    print_exp(postfix);
+    /*cout << "postfix: ";
+    print_exp(postfix);*/
     return postfix;
     /*
     while there are tokens to be read:

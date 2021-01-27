@@ -18,27 +18,10 @@ void CodeGenerator::generate_header() {
     output << "/* BASIC COMPILER */" << endl;
     output << ".global main" << endl;
     output << endl;
+
     output << "main: " << endl;
     output << "\tLDR      r12, =variables" << endl;
     output << "\tLDR      sp, =stack" << endl;
-    /*/
-    output << "func:" << endl;
-    output << "LDMFD sp!, {r1}" << endl;
-    output << "MUL r2, r1, r1" << endl;
-    output << "MOV r3, #2" << endl;
-    output << "MUL r0, r1, r3" << endl;
-    output << "ADD r0, r0, r2" << endl;
-    output << "ADD r0, r0, #1" << endl;
-    output << "MOV pc, lr" << endl;
-    output << endl;
-    /*/
-    /*/
-    output << "LDR r12, =variables" << endl;
-    output << "MOV r0, #2" << endl;
-    output << "STR r0, [r12, #0]" << endl;
-    output << "MOV r0, #5" << endl;
-    output << "STR r0, [r12, #4]" << endl;
-    /*/
     output << endl;
 }
 

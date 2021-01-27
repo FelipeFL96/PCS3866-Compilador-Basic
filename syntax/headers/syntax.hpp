@@ -289,12 +289,6 @@ class Call : public Eb {
             return args_;
         }
 
-        // Provisório: o objeto chamada precisa ser ligado à declaração correspondente
-        // A declaração de função é quem deve dizer a quantidade de argumentos esperada
-        int param_count() {
-            return args_.size();
-        }
-
         lexic::position& get_position() {
             return pos_;
         }

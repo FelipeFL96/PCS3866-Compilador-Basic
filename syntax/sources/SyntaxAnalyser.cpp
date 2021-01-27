@@ -34,10 +34,18 @@ void print_exp(Exp* e) {
     cout << ") ";
 }
 
+bool SyntaxAnalyser::file_end() {
+    if (token_consumed) {
+        tk = lex.get_next();
+        token_consumed = false;
+    }
+    return tk.type == lexic::type::EoF;
+}
+
 BStatement* SyntaxAnalyser::get_next() {
     int index;
 
-    if (file.eof())
+    if (file_end())
         return nullptr;
 
     consume(lexic::type::INT, method::REQUIRED);
@@ -75,6 +83,8 @@ BStatement* SyntaxAnalyser::get_next() {
             return parse_rem(index, tk.pos);
         case lexic::type::END:
             return parse_end(index, tk.pos);
+        case lexic::type::EoF:
+            return nullptr;
         default:
             throw syntax_exception(tk.pos, string("Token inesperado: ") + tk.value);
     }

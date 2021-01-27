@@ -49,6 +49,8 @@ class SyntaxAnalyser {
 
         enum class method {REQUIRED, OPTIONAL, LOOKAHEAD};
         bool consume(lexic::type type, method m);
+
+        bool file_end();
 };
 
 } // namespace syntax
