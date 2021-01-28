@@ -186,7 +186,9 @@ void CodeGenerator::generate(syntax::Def* def, std::vector<syntax::Elem*>& exp) 
 
 void CodeGenerator::generate(syntax::Gosub* gosub) {
     output << "L" << gosub->get_index() << ":" << endl;
+    output << "\tSTMFD    sp!, {lr}" << endl;
     output << "\tBL       L" << gosub->get_destination() << endl;
+    output << "\tLDMFD    sp!, {lr}" << endl;
     output << endl;
 }
 
@@ -225,7 +227,9 @@ void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
             }
         }
         else if (e->get_elem_type() == syntax::Elem::FUN) {
+            output << "\tSTMFD    sp!, {lr}" << endl;
             output << "\tBL       " << dynamic_cast<syntax::Call*>(e)->get_identifier() << endl;
+            output << "\tLDMFD    sp!, {lr}" << endl;
             output << "\tSTMFD    sp!, {r0}" << endl;
         }
         else if (e->is_operator()) {
@@ -242,11 +246,15 @@ void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
             }
             else if (e->get_elem_type() == syntax::Elem::DIV) {
                 found_div = true;
+                output << "\tSTMFD    sp!, {lr}" << endl;
                 output << "\tBL       sdiv" << endl;
+                output << "\tLDMFD    sp!, {lr}" << endl;
             }
             else if (e->get_elem_type() == syntax::Elem::POW) {
                 found_pow = true;
+                output << "\tSTMFD    sp!, {lr}" << endl;
                 output << "\tBL       pow" << endl;
+                output << "\tLDMFD    sp!, {lr}" << endl;
             }
             output << "\tSTMFD    sp!, {r0}" << endl;
         }
