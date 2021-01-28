@@ -71,7 +71,7 @@ void ascii_test(ifstream& file) {
     ASCIIClassifier ac(file);
     while (!file.eof()) {
         ascii_character c = ac.get_next();
-        cout << c.pos.position_str() << " " << c.character << "\t[" << ascii2name(c.type) << "]" << endl;
+        cout << c.pos.position_str() << "\t" << c.character << "\t[" << ascii2name(c.type) << "]" << endl;
     }
 }
 
