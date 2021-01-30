@@ -19,8 +19,8 @@ GENHDR = generation/headers
 GENSRC = generation/sources
 GENOBJ = $(OBJPATH)/generation
 
-MAINSRC = main
-MAINHDR = "syntax/headers lexic/headers"
+MAINSRC = main/sources
+MAINHDR = "main/headers"
 MAINOBJ = $(OBJPATH)/main
 
 SOURCES = \
@@ -33,7 +33,8 @@ HEADERS = \
 	$(wildcard $(LEXHDR)/*.hpp)\
 	$(wildcard $(STXHDR)/*.hpp)\
 	$(wildcard $(SMTHDR)/*.hpp)\
-	$(wildcard $(GENHDR)/*.hpp)
+	$(wildcard $(GENHDR)/*.hpp)\
+	$(wildcard $(MAINHDR)/*.hpp)
 OBJECTS = \
 	$(subst .cpp,.o,\
 	$(subst $(LEXSRC),$(LEXOBJ),\
@@ -52,7 +53,7 @@ basicc: $(OBJECTS)
 
 ./$(MAINOBJ)/%.o: ./$(MAINSRC)/%.cpp
 	mkdir -p $(MAINOBJ)
-	$(COMPILER) $(FLAGS) -I $(LEXHDR) -I $(STXHDR) -I $(SMTHDR) -I $(GENHDR) -o $@ $^
+	$(COMPILER) $(FLAGS) -I $(LEXHDR) -I $(STXHDR) -I $(SMTHDR) -I $(GENHDR) -I $(MAINHDR) -o $@ $^
 
 ./$(LEXOBJ)/%.o: ./$(LEXSRC)/%.cpp ./$(LEXHDR)/%.hpp
 	mkdir -p $(LEXOBJ)
