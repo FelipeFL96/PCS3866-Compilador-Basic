@@ -51,6 +51,18 @@ void print_num(syntax::Num* num) {
     cout << tab << "NUM[ " << num->get_value() <<" ]";
 }
 
+void print_call(syntax::Call* call) {
+    cout << tab << "CALL" << endl;
+    tab.push_back('\t');
+    cout << tab << "FN [" << call->get_identifier() << "]" << endl;
+    for (auto arg : call->get_args()) {
+        /*if (arg != *call->get_args().begin())
+            cout << */
+        print_exp(arg);
+        cout << endl;
+    }
+}
+
 void print_op(syntax::Operator* op) {
     cout << tab << "OP [ " << op->get_symbol() << " ]";
 }
@@ -77,6 +89,9 @@ void print_exp(syntax::Exp* e) {
     else if (e->get_operands().at(0)->get_eb_type() == syntax::Eb::VAR) {
         print_var(dynamic_cast<syntax::Var*>(e->get_operands().at(0)));
     }
+    else if (e->get_operands().at(0)->get_eb_type() == syntax::Eb::CALL) {
+        print_call(dynamic_cast<syntax::Call*>(e->get_operands().at(0)));
+    }
     else if (e->get_operands().at(0)->get_eb_type() == syntax::Eb::EXP) {
         print_exp(dynamic_cast<syntax::Exp*>(e->get_operands().at(0)));
     }
@@ -91,6 +106,9 @@ void print_exp(syntax::Exp* e) {
         }
         else if (e->get_operands().at(i + 1)->get_eb_type() == syntax::Eb::VAR) {
             print_var(dynamic_cast<syntax::Var*>(e->get_operands().at(i + 1)));
+        }
+        else if (e->get_operands().at(i + 1)->get_eb_type() == syntax::Eb::CALL) {
+            print_call(dynamic_cast<syntax::Call*>(e->get_operands().at(i + 1)));
         }
         else if (e->get_operands().at(i + 1)->get_eb_type() == syntax::Eb::EXP) {
             print_exp(dynamic_cast<syntax::Exp*>(e->get_operands().at(i + 1)));
