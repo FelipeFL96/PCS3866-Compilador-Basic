@@ -586,9 +586,9 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
 
     vector<syntax::Elem*> postfix, stack;
 
-    /*cout << "infix: ";
+    cout << "infix: ";
     print_exp(infix);
-    cout << "postfix: ";
+    /*cout << "postfix: ";
     print_exp(postfix);
     cout << "stack: ";
     print_exp(stack);
@@ -671,8 +671,8 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
         print_exp(stack);
         cout << endl;*/
     }
-    /*cout << "postfix: ";
-    print_exp(postfix);*/
+    cout << "postfix: ";
+    print_exp(postfix);
     return postfix;
     /*
     while there are tokens to be read:
