@@ -6,7 +6,6 @@
 #include "syntax.hpp"
 #include "semantic.hpp"
 #include "generation.hpp"
-
 #include "ASCIIClassifier.hpp"
 #include "LexicalAnalyser.hpp"
 #include "SyntaxAnalyser.hpp"
