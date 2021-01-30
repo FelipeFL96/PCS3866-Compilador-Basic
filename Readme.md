@@ -2,16 +2,24 @@
 Projeto para a disciplina PCS3866 - Linguagens e Compiladores
 Felipe Fernandes de Lima
 
-# Novos lexemas:
-    STR "string": um conjunto de caracteres quaisquer entre aspas
-    CMT "comentário": tudo entre a palavra reservada REM e um \n
-    IDN "identificador: nomes de variáveis e funções definidas pelo programador
+# Códigos tratados:
+    Entrada: Dartmouth Basic
+    Saída: Assembly para ARM7TDMI
 
-# Novos sintaxemas:
-    NUM: Uniu as regras NUM e SNUM
+# Módulos:
+    Léxico: Faz o tratamento do código fonte de entrada para gerar lexemas previstos na linguagem
+    Sintático: Interpreta construções sintáticas entre lexemas e produz a representação sintática do programa
+    Semântico: Percorre os elementos sintáticos para buscar problemas de significado e processar expressões aritméticas
+    Geração: Obtém a representação sintática tratada pelo semântico para convertê-la em código objeto
+    Main: Módulo de chamada do programa. Também oferece funções para teste dos demais módulos
 
-    Analisar expressões para convertê-las em operações aplicando regras de precedência
+# Instruções de chamada:
+    Chamada comum ao compilador:
+        basicc <arquivo fonte> <arquivo objeto>
 
+    Teste do Classificador ASCII:
+        basicc <arquivo fonte> -A
 
+    Teste do Analisador Léxico:
+        basicc <arquivo fonte> -L
 
-    http://cs.ecs.baylor.edu/~maurer/SieveE/kkb.htm
