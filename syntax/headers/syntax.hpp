@@ -378,7 +378,7 @@ class Pitem {
         };
 
         Pitem(std::string str):
-            str_(str)
+            str_(str), exp_(nullptr)
         {}
 
         Pitem(Exp* exp):
@@ -386,7 +386,7 @@ class Pitem {
         {}
 
         bool has_exp() {
-            return exp_ == nullptr;
+            return exp_ != nullptr;
         }
 
         Exp* get_exp() {

@@ -76,8 +76,10 @@ void SemanticAnalyser::run() {
         if (sx == nullptr)
             break;
 
-        if (dynamic_cast<Rem*>(sx))
+        if (dynamic_cast<Rem*>(sx)) {
+            delete sx;
             continue;
+        }
 
         statements.insert(sx);
     }

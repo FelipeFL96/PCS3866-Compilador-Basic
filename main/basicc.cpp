@@ -17,9 +17,9 @@ using namespace std;
 string type2name(lexic::type t);
 string ascii2name(lexic::ascii_type t);
 
-void lex_test(ifstream& file);
 void ascii_test(ifstream& file);
-void synt_test(ifstream& file);
+void lex_test(ifstream& file);
+void stx_test(ifstream& file);
 
 int main(int argc, char* argv[]) {
     std::cout << "Bem-Vindo ao compilador basicc!" << std::endl;
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
             lex_test(input);
         }
         else if (argc > 2 && 0 == strcmp(argv[2], "-S")) {
-            //synt_test(file);
+            stx_test(input);
         }
         else {
             if (argc > 2)
@@ -102,18 +102,222 @@ void lex_test(ifstream& file) {
     }
 }
 
-void synt_test(ifstream& file) {
+string tab = "";
+
+void print_var(syntax::Var* var) {
+    cout << tab << "VAR[ " << var->get_identifier() <<" ]";
+}
+
+void print_num(syntax::Num* num) {
+    cout << tab << "NUM[ " << num->get_value() <<" ]";
+}
+
+void print_op(syntax::Operator* op) {
+    cout << tab << "OP [ " << op->get_symbol() << " ]";
+}
+
+void print_op(syntax::If::cmp op) {
+    switch (op) {
+        case syntax::If::EQL: cout << "="; break;
+        case syntax::If::NEQ: cout << "<>"; break;
+        case syntax::If::GTN: cout << ">"; break;
+        case syntax::If::LTN: cout << "<"; break;
+        case syntax::If::GEQ: cout << ">="; break;
+        case syntax::If::LEQ: cout << "<="; break;
+    }
+}
+
+void print_exp(syntax::Exp* e) {
+    cout << tab << "EXP ";
+    cout << (e->is_negative()? "-" : "");
+    tab.push_back('\t');
+    cout << "\n";
+    if (e->get_operands().at(0)->get_eb_type() == syntax::Eb::NUM) {
+        print_num(dynamic_cast<syntax::Num*>(e->get_operands().at(0)));
+    }
+    else if (e->get_operands().at(0)->get_eb_type() == syntax::Eb::VAR) {
+        print_var(dynamic_cast<syntax::Var*>(e->get_operands().at(0)));
+    }
+    else if (e->get_operands().at(0)->get_eb_type() == syntax::Eb::EXP) {
+        print_exp(dynamic_cast<syntax::Exp*>(e->get_operands().at(0)));
+    }
+
+    for (int i = 0; i < e->get_operators().size(); i++) {
+        cout << "\n";
+        print_op(e->get_operators().at(i));
+
+        cout << "\n";
+        if (e->get_operands().at(i + 1)->get_eb_type() == syntax::Eb::NUM) {
+            print_num(dynamic_cast<syntax::Num*>(e->get_operands().at(i + 1)));
+        }
+        else if (e->get_operands().at(i + 1)->get_eb_type() == syntax::Eb::VAR) {
+            print_var(dynamic_cast<syntax::Var*>(e->get_operands().at(i + 1)));
+        }
+        else if (e->get_operands().at(i + 1)->get_eb_type() == syntax::Eb::EXP) {
+            print_exp(dynamic_cast<syntax::Exp*>(e->get_operands().at(i + 1)));
+        }
+
+        cout << " ";
+    }
+    tab.pop_back();
+    cout << endl;
+}
+
+void print_pitem(syntax::Pitem* pitem) {
+    cout << tab << "PITEM";
+    if (pitem->has_exp()) {
+        tab.push_back('\t');
+        cout << "\n";
+        print_exp(pitem->get_exp());
+        tab.pop_back();
+        cout << "\n" << tab;
+    }
+    else {
+        cout << "[ ";
+        cout << pitem->get_str();
+        cout << "]";
+    }
+}
+
+void stx_test(ifstream& file) {
     using namespace std;
     using namespace syntax;
 
-    SyntaxAnalyser synt(file);
+    SyntaxAnalyser stx(file);
 
+    syntax::BStatement* command;
 
-    //syntax::BStatement a = synt.get_next();
+    while (true) {
+        command = stx.get_next();
 
-    //cout << "Na linha " << a.get_index() << " li a atribuição de " << a.get_value() << " à variável " << a.get_identifier() << endl;
+        if (command == nullptr)
+            break;
 
-    //generate_code(a);
+        if (Assign* assign = dynamic_cast<Assign*>(command)) {
+            cout << assign->get_index() << " ASSIGN ";
+            tab.push_back('\t');
+            cout << endl;
+            print_var(assign->get_variable());
+            cout << endl;
+            print_exp(assign->get_expression());
+            tab.pop_back();
+            cout << endl;
+        }
+        else if (Read* read = dynamic_cast<Read*>(command)) {
+            cout << read->get_index() << " READ " << endl;
+            tab.push_back('\t');
+            for (auto var : read->get_variables()) {
+                if (var != *read->get_variables().begin())
+                    cout << endl;
+                print_var(var);
+            }
+            tab.pop_back();
+            cout << endl;
+        }
+        else if (Data* data = dynamic_cast<Data*>(command)) {
+            cout << data->get_index() << " DATA" << endl;
+            tab.push_back('\t');
+            for (auto num : data->get_values()) {
+                if (num != *data->get_values().begin())
+                    cout << endl;
+                print_num(num);
+            }
+            tab.pop_back();
+            cout << endl;
+        }
+        else if (Print* print = dynamic_cast<Print*>(command)) {
+            cout << print->get_index() << " PRINT" << endl;
+            tab.push_back('\t');
+            for (auto pitem : print->get_pitems()) {
+                if (pitem != *print->get_pitems().begin())
+                    cout << endl;
+                print_pitem(pitem);
+            }
+            tab.pop_back();
+            cout << endl;
+        }
+        else if (Goto* go = dynamic_cast<Goto*>(command)) {
+            cout << go->get_index() << " GOTO [ " << go->get_destination() << " ]" << endl;
+        }
+        else if (If* ift = dynamic_cast<If*>(command)) {
+            cout << ift->get_index() << " IF";
+            tab.push_back('\t');
+            print_exp(ift->get_left());
+            cout << endl;
+            cout << tab << "OP [ ";
+            print_op(ift->get_op());
+            cout << " ]" << endl;
+            print_exp(ift->get_right());
+            cout << endl;
+            cout << tab << "THEN [ " << ift->get_destination() << " ]" << endl;
+            tab.pop_back();
+        }
+        else if (For* loop = dynamic_cast<For*>(command)) {
+            cout << loop->get_index() << " FOR" << endl;
+            tab.push_back('\t');
+            print_var(loop->get_iterator());
+            cout << endl;
+            print_exp(loop->get_init());
+            cout << endl;
+            cout << tab << "TO" << endl;
+            tab.push_back('\t');
+            print_exp(loop->get_stop());
+            tab.pop_back();
+            cout << endl;
+            cout << tab << "STEP" << endl;
+            tab.push_back('\t');
+            print_exp(loop->get_step());
+            tab.pop_back();
+            cout << endl;
+        }
+        else if (Next* next = dynamic_cast<Next*>(command)) {
+            cout << next->get_index() << " NEXT" << endl;
+            tab.push_back('\t');
+            print_var(next->get_iterator());
+            tab.pop_back();
+            cout << endl;
+        }
+        else if (Dim* dim = dynamic_cast<Dim*>(command)) {
+            cout << dim->get_index() << " DIM" << endl;
+            tab.push_back('\t');
+            for (auto array : dim->get_arrays()) {
+                cout << tab << " ARRAY [ " << array->get_identifier();
+                for (auto dimension : array->get_dimensions())
+                    cout << "[" << dimension << "]";
+                cout << " ]" << endl;
+            }
+            tab.pop_back();
+            cout << endl;
+        }
+        else if (Def* def = dynamic_cast<Def*>(command)) {
+            cout << def->get_index() << " DEF" << endl;
+            tab.push_back('\t');
+            cout << tab << "FN [ " << def->get_identifier() << " ]" << endl;
+            for (auto param : def->get_parameters()) {
+                if (param != *def->get_parameters().begin())
+                    cout << endl;
+                print_var(param);
+            }
+            cout << endl;
+            print_exp(def->get_exp());
+            tab.pop_back();
+        }
+        else if (Gosub* gosub = dynamic_cast<Gosub*>(command)) {
+            cout << gosub->get_index() << " GOSUB [ " << gosub->get_destination() << " ]" << endl;
+        }
+        else if (Return* ret = dynamic_cast<Return*>(command)) {
+            cout << ret->get_index() << " RETURN" << endl;
+        }
+        else if (Rem* rem = dynamic_cast<Rem*>(command)) {
+            cout << rem->get_index() << " REMARK" << endl;
+        }
+        else if (End* end = dynamic_cast<End*>(command)) {
+            cout << end->get_index() << " END" << endl;
+        }
+        else {
+            cout << "É outra coisa" << endl;
+        }
+    }
 }
 
 string ascii2name(lexic::ascii_type t) {

@@ -14,25 +14,6 @@ SyntaxAnalyser::SyntaxAnalyser(ifstream& file):
     file(file), lex(file) {}
 
 
-void print_exp(Exp* e) {
-    cout << (e->is_negative()? "- ( " : "( ");
-    if (e->get_operands().at(0)->get_eb_type() == Eb::NUM)
-        cout << dynamic_cast<Num*>(e->get_operands().at(0))->get_value() << " ";
-
-    for (int i = 0; i < e->get_operators().size(); i++) {
-        cout << e->get_operators().at(i)->get_symbol() << " ";
-
-        if (e->get_operands().at(i + 1)->get_eb_type() == Eb::NUM)
-            cout << dynamic_cast<Num*>(e->get_operands().at(i + 1))->get_value() << " ";
-        else if (e->get_operands().at(i + 1)->get_eb_type() == Eb::VAR)
-            cout << dynamic_cast<Var*>(e->get_operands().at(i + 1))->get_identifier() << " ";
-        else if (e->get_operands().at(i + 1)->get_eb_type() == Eb::EXP)
-            print_exp(dynamic_cast<Exp*>(e->get_operands().at(i + 1)));
-
-    }
-    cout << ") ";
-}
-
 bool SyntaxAnalyser::file_end() {
     if (token_consumed) {
         tk = lex.get_next();
@@ -138,13 +119,11 @@ Pitem* SyntaxAnalyser::parse_pitem() {
         str = tk.value;
         return new Pitem(str);
     }
-
-    if (consume(lexic::type::INT, method::LOOKAHEAD)
+    else if (consume(lexic::type::INT, method::LOOKAHEAD)
         || consume(lexic::type::IDN, method::LOOKAHEAD)
         || consume(lexic::type::FN, method::LOOKAHEAD)
         || consume(lexic::type::PRO, method::LOOKAHEAD)
         ) {
-        
         exp = parse_exp();
         return new Pitem(exp);
     }
@@ -280,18 +259,10 @@ Dim* SyntaxAnalyser::parse_dim(int index, lexic::position pos) {
         arrays.push_back(parse_array());
     }
 
-    for (auto array : arrays) {
-        cout << "DIM " << array->get_identifier();
-        for (auto dimension : array->get_dimensions())
-            cout << "[" << dimension << "]";
-        cout << " (Array " << array->get_size() << ")" << endl;
-    }
-
     return new Dim(index, pos, arrays);
 }
 
 Def* SyntaxAnalyser::parse_def(int index, lexic::position pos) {
-    cout << "DEF" << endl;
     string identifier;
     vector<Var*> parameters;
 
@@ -304,12 +275,10 @@ Def* SyntaxAnalyser::parse_def(int index, lexic::position pos) {
 
     if (consume(lexic::type::IDN, method::OPTIONAL)) {
         parameters.push_back(new Var(Elem::VAR, tk.pos, false, tk.value));
-        cout << parameters.front()->get_identifier() << endl;
 
         while (consume(lexic::type::COM, method::OPTIONAL)) {
             consume(lexic::type::IDN, method::REQUIRED);
             parameters.push_back(new Var(Elem::VAR, tk.pos, false, tk.value));
-            cout << parameters.back()->get_identifier() << endl;
         }
     }
 
@@ -326,7 +295,6 @@ Gosub* SyntaxAnalyser::parse_gosub(int index, lexic::position pos) {
 
     consume(lexic::type::INT, method::REQUIRED);
     destination = stoi(tk.value);
-    cout << destination << endl;
 
     return new Gosub(index, pos, destination);
 }
