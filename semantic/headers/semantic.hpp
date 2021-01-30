@@ -29,8 +29,10 @@ class SymbolTable {
         variables.push_back(a);
         int var_index = index;
 
+        int size = 1;
         for (int d : a->get_dimensions())
-            index += d;
+            size *= d;
+        index += size;
 
         return var_index;
     }
@@ -75,6 +77,12 @@ class SymbolTable {
             total_size += var->get_size();
         }
         return total_size;
+    }
+
+    void print_variables() {
+        for (int i = 0; i < variables.size(); i++) {
+            std::cout << "[" << variables.at(i)->get_index() << "] " << variables.at(i)->get_identifier() << std::endl;
+        }
     }
 
     bool insert_function(syntax::Def* f) {
