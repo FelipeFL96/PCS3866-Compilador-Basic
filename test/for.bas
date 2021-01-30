@@ -1,0 +1,5 @@
+00 LET A = 1
+01 FOR I = 0 TO 26 STEP 2
+02 LET A = A + 1
+03 NEXT I
+04 END
