@@ -16,6 +16,7 @@ namespace semantic {
 class SemanticAnalyser {
     public:
     SemanticAnalyser(std::ifstream& input, SymbolTable& symb_table, generation::CodeGenerator& gen);
+    ~SemanticAnalyser();
     
     void run(void);
 
@@ -34,14 +35,15 @@ class SemanticAnalyser {
     void process_return(syntax::Return* ret);
     void process_end(syntax::End* end);
 
-    std::vector<syntax::Elem*> process_expression(syntax::Exp* e);
     void process_variable(syntax::Var* v);
-
+    std::vector<syntax::Elem*> process_expression(syntax::Exp* e);
     void gen_exp_vector(syntax::Exp* e, std::vector<syntax::Elem*>& exp);
     void gen_exp_vector_operand(syntax::Eb* operand, std::vector<syntax::Elem*>& exp);
     void gen_negative_exp_vector(syntax::Exp* e, std::vector<syntax::Elem*>& exp);
     std::vector<syntax::Elem*> process_array_access_exp(syntax::ArrayAccess* access);
     std::vector<syntax::Elem*> convert_to_postfix(std::vector<syntax::Elem*>& exp);
+
+    void delete_statement(syntax::BStatement* statement);
 
 
     syntax::SyntaxAnalyser stx;

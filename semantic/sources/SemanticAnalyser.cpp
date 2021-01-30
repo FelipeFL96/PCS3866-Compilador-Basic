@@ -5,6 +5,7 @@
 #include <set>
 
 #include "syntax.hpp"
+#include "semantic.hpp"
 
 #include "SemanticAnalyser.hpp"
 
@@ -12,6 +13,7 @@ using namespace std;
 using namespace syntax;
 using namespace semantic;
 using namespace generation;
+
 
 
 auto cmp = [](syntax::BStatement* a, syntax::BStatement* b) {
@@ -22,11 +24,17 @@ auto cmp = [](syntax::BStatement* a, syntax::BStatement* b) {
 };
 set<syntax::BStatement*, decltype(cmp)> statements(cmp);
 
-
 SemanticAnalyser::SemanticAnalyser(ifstream& input, SymbolTable& symb_table, CodeGenerator& gen):
     stx(input), symb_table(symb_table), gen(gen)
 {}
 
+SemanticAnalyser::~SemanticAnalyser() {
+    while (!statements.empty()) {
+        set<BStatement*>::iterator it = statements.begin();
+        statements.erase(it);
+        delete_statement(*it);
+    }
+}
 
 int find_next_index(BStatement* current = nullptr) {
     int read = false;
@@ -377,6 +385,29 @@ void SemanticAnalyser::process_end(syntax::End* end) {
     gen.generate(end);
 }
 
+
+void SemanticAnalyser::process_variable(Var* v) {
+    int index;
+    if (Array* a = dynamic_cast<Array*>(v)) {
+        index = symb_table.insert_array(a);
+    }
+    else {
+        index = symb_table.insert_variable(v);
+    }
+    v->set_index(index);
+}
+
+vector<Elem*> SemanticAnalyser::process_expression(Exp* e) {
+    //syntax::Exp* e = stx.parse_exp();
+
+    vector<syntax::Elem*> exp;
+    gen_exp_vector(e, exp);
+
+    //print_exp(exp);
+
+    return convert_to_postfix(exp);
+}
+
 string read_elem_type(syntax::Elem* e) {
     switch (e->get_elem_type()) {
         case syntax::Elem::NUM: return to_string(dynamic_cast<syntax::Num*>(e)->get_value());
@@ -399,28 +430,6 @@ void print_exp(const vector<syntax::Elem*>& exp) {
         cout << read_elem_type(elem) << " ";
     }
     cout << "]" << endl;
-}
-
-vector<Elem*> SemanticAnalyser::process_expression(Exp* e) {
-    //syntax::Exp* e = stx.parse_exp();
-
-    vector<syntax::Elem*> exp;
-    gen_exp_vector(e, exp);
-
-    //print_exp(exp);
-
-    return convert_to_postfix(exp);
-}
-
-void SemanticAnalyser::process_variable(Var* v) {
-    int index;
-    if (Array* a = dynamic_cast<Array*>(v)) {
-        index = symb_table.insert_array(a);
-    }
-    else {
-        index = symb_table.insert_variable(v);
-    }
-    v->set_index(index);
 }
 
 void SemanticAnalyser::gen_exp_vector(syntax::Exp* e, vector<syntax::Elem*>& exp) {
@@ -609,11 +618,11 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
 
     cout << "infix: ";
     print_exp(infix);
-    /*cout << "postfix: ";
-    print_exp(postfix);
-    cout << "stack: ";
-    print_exp(stack);
-    cout << endl;*/
+    //cout << "postfix: ";
+    //print_exp(postfix);
+    //cout << "stack: ";
+    //print_exp(stack);
+    //cout << endl;
 
     while (!infix.empty()) {
         syntax::Elem* e = infix.front();
@@ -672,58 +681,56 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
             }
         }
 
-        /*cout << "infix: ";
-        print_exp(infix);
-        cout << "postfix: ";
-        print_exp(postfix);
-        cout << "stack: ";
-        print_exp(stack);
-        cout << endl;*/
+        //cout << "infix: ";
+        //print_exp(infix);
+        //cout << "postfix: ";
+        //print_exp(postfix);
+        //cout << "stack: ";
+        //print_exp(stack);
+        //cout << endl;
     }
     while (!stack.empty()) {
         postfix.push_back(stack.back());
         stack.pop_back();
 
-        /*cout << "infix: ";
-        print_exp(infix);
-        cout << "postfix: ";
-        print_exp(postfix);
-        cout << "stack: ";
-        print_exp(stack);
-        cout << endl;*/
+        //cout << "infix: ";
+        //print_exp(infix);
+        //cout << "postfix: ";
+        //print_exp(postfix);
+        //cout << "stack: ";
+        //print_exp(stack);
+        //cout << endl;
     }
     cout << "postfix: ";
     print_exp(postfix);
     return postfix;
-    /*
-    while there are tokens to be read:
-        read a token.
-        if the token is a number, then:
-            push it to the output queue.
-        else if the token is a function then:
-            push it onto the operator stack 
-        else if the token is an operator then:
-            while ((there is an operator at the top of the operator stack)
-                and ((the operator at the top of the operator stack has greater precedence)
-                    or (the operator at the top of the operator stack has equal precedence and the token is left associative))
-                and (the operator at the top of the operator stack is not a left parenthesis)):
-                pop operators from the operator stack onto the output queue.
-            push it onto the operator stack.
-        else if the token is a left parenthesis (i.e. "("), then:
-            push it onto the operator stack.
-        else if the token is a right parenthesis (i.e. ")"), then:
-            while the operator at the top of the operator stack is not a left parenthesis:
-                pop the operator from the operator stack onto the output queue.
-            // If the stack runs out without finding a left parenthesis, then there are mismatched parentheses.
-            if there is a left parenthesis at the top of the operator stack, then:
-                pop the operator from the operator stack and discard it
-            if there is a function token at the top of the operator stack, then:
-                pop the function from the operator stack onto the output queue.
-    // After while loop, if operator stack not null, pop everything to output queue
-    if there are no more tokens to read then:
-        while there are still operator tokens on the stack:
-            // If the operator token on the top of the stack is a parenthesis, then there are mismatched parentheses.
-            pop the operator from the operator stack onto the output queue.
-    exit.
-    */
+}
+
+void SemanticAnalyser::delete_statement(BStatement* statement){
+    if (Assign* assign = dynamic_cast<Assign*>(statement))
+        delete assign;
+    else if (Read* read = dynamic_cast<Read*>(statement))
+        delete read;
+    else if (Data* data = dynamic_cast<Data*>(statement))
+        delete data;
+    else if (Print* print = dynamic_cast<Print*>(statement))
+        delete print;
+    else if (Goto* go = dynamic_cast<Goto*>(statement))
+        delete go;
+    else if (If* ift = dynamic_cast<If*>(statement))
+        delete ift;
+    else if (For* loop = dynamic_cast<For*>(statement))
+        delete loop;
+    else if (Next* next = dynamic_cast<Next*>(statement))
+        delete next;
+    else if (Dim* dim = dynamic_cast<Dim*>(statement))
+        delete dim;
+    else if (Def* def = dynamic_cast<Def*>(statement))
+        delete def;
+    else if (Gosub* gosub = dynamic_cast<Gosub*>(statement))
+        delete gosub;
+    else if (Return* ret = dynamic_cast<Return*>(statement))
+        delete ret;
+    else if (End* end = dynamic_cast<End*>(statement))
+        delete end;
 }
