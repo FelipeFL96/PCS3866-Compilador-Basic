@@ -11,6 +11,7 @@
 using namespace std;
 using namespace syntax;
 using namespace semantic;
+using namespace generation;
 
 
 auto cmp = [](syntax::BStatement* a, syntax::BStatement* b) {
@@ -22,8 +23,8 @@ auto cmp = [](syntax::BStatement* a, syntax::BStatement* b) {
 set<syntax::BStatement*, decltype(cmp)> statements(cmp);
 
 
-SemanticAnalyser::SemanticAnalyser(ifstream& input, ofstream& output):
-    stx(input), gen(input, output, symb_table)
+SemanticAnalyser::SemanticAnalyser(ifstream& input, SymbolTable& symb_table, CodeGenerator& gen):
+    stx(input), symb_table(symb_table), gen(gen)
 {}
 
 
@@ -58,7 +59,7 @@ int find_next_index(BStatement* current = nullptr) {
     }
 }
 
-void SemanticAnalyser::get_next() {
+void SemanticAnalyser::run() {
     BStatement* sx;
 
     while (true) {

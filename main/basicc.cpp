@@ -5,6 +5,8 @@
 #include "lexic.hpp"
 #include "syntax.hpp"
 #include "semantic.hpp"
+#include "generation.hpp"
+
 #include "ASCIIClassifier.hpp"
 #include "LexicalAnalyser.hpp"
 #include "SyntaxAnalyser.hpp"
@@ -16,51 +18,63 @@ using namespace std;
 string type2name(lexic::type t);
 string ascii2name(lexic::ascii_type t);
 
-void lex_test(ifstream& file, const char* filename);
+void lex_test(ifstream& file);
 void ascii_test(ifstream& file);
 void synt_test(ifstream& file);
-void sem_test(ifstream& input, ofstream& output);
-void gen_test(ifstream& input, ofstream& output);
 
 int main(int argc, char* argv[]) {
     std::cout << "Bem-Vindo ao compilador basicc!" << std::endl;
 
     if (argc < 2) {
-        cerr << "Uso esperado: basicc arquivo.txt" << endl;
+        cerr << "Uso esperado: basicc <entrada.bas> [ <saída.s> ]" << endl;
         return 1;
     }
 
-    char* filename = argv[1];
-    ifstream input(filename);
-    ofstream output("out.s");
+    string input_file = argv[1];
+    string output_file = "out.s";
+
+    ifstream input(input_file);
+    if (!input.is_open()) {
+        cerr << "\033[1;31mErro: \033[0m" << "Não foi possível abrir o arquivo '" << input_file << "' para entrada" << endl;
+        exit(EXIT_FAILURE);
+    }
 
     try {
         if (argc > 2 && 0 == strcmp(argv[2], "-A")) {
             ascii_test(input);
         }
         else if (argc > 2 && 0 == strcmp(argv[2], "-L")) {
-            lex_test(input, filename);
+            lex_test(input);
         }
         else if (argc > 2 && 0 == strcmp(argv[2], "-S")) {
-            gen_test(input, output);
             //synt_test(file);
         }
         else {
-            sem_test(input, output);
+            if (argc > 2)
+                output_file = argv[2];
+
+            semantic::SymbolTable symb_table;
+
+            generation::CodeGenerator gen(input_file, output_file, symb_table);
+            semantic::SemanticAnalyser smt(input, symb_table, gen);
+
+            smt.run();
         }
     }
     catch (lexic::lexical_exception& e) {
-        cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+        cerr << "\033[1;31mErro léxico: \033[37;1m" << input_file << "\033[0m" << e.message() << endl;
     }
     catch (syntax::syntax_exception& e) {
-        cerr << "\033[1;31mErro sintático: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+        cerr << "\033[1;31mErro sintático: \033[37;1m" << input_file << "\033[0m" << e.message() << endl;
     }
     catch (semantic::semantic_exception& e) {
-        cerr << "\033[1;31mErro semântico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
+        cerr << "\033[1;31mErro semântico: \033[37;1m" << input_file << "\033[0m" << e.message() << endl;
+    }
+    catch (generation::generation_exception& e) {
+        cerr << "\033[1;31mErro de geração: \033[0m" << e.message() << endl;
     }
 
     input.close();
-    output.close();
 
     return 0;
 }
@@ -69,20 +83,23 @@ void ascii_test(ifstream& file) {
     using namespace lexic;
     
     ASCIIClassifier ac(file);
+
     while (!file.eof()) {
         ascii_character c = ac.get_next();
         cout << c.pos.position_str() << "\t" << c.character << "\t[" << ascii2name(c.type) << "]" << endl;
     }
 }
 
-void lex_test(ifstream& file, const char* filename) {
+void lex_test(ifstream& file) {
     using namespace lexic;
 
     LexicalAnalyser lex(file);
+
     while (true) {
         token s = lex.get_next();
+
         if (s.value == "") break;
-        cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
+            cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
     }
 }
 
@@ -98,47 +115,6 @@ void synt_test(ifstream& file) {
     //cout << "Na linha " << a.get_index() << " li a atribuição de " << a.get_value() << " à variável " << a.get_identifier() << endl;
 
     //generate_code(a);
-}
-
-void sem_test(ifstream& input, ofstream& output) {
-    semantic::SemanticAnalyser smt(input, output);
-    smt.get_next();
-}
-
-void gen_test(ifstream& input, ofstream& output) {
-    using namespace std;
-    using namespace syntax;
-
-    SyntaxAnalyser stx(input);
-    //CodeGenerator gen(output);
-    semantic::SemanticAnalyser smt(input, output);
-
-    /*vector<syntax::Elem*> exp = smt.parse_expression();
-
-    gen.generate_header();
-    gen.generate_expression(exp);*/
-
-
-    //syntax::Syntaxeme* sx;
-    /*for (int i = 0; i < 1; i++) {
-        sx = stx.get_next();
-        sx->accept(gen);
-        delete sx;
-    }*/
-    //stx.get_next();
-
-    //gen.generate_variables();
-
-    /*try {
-        while (true) {
-            token s = lex.get_next();
-            if (s.value == "") break;
-            cout << "(" << s.pos.line << "," << s.pos.column << ")\t[" << type2name(s.type) << "] " << s.value << endl;
-        }
-    }
-    catch (lexical_exception& e) {
-        cerr << "\033[1;31mErro léxico: \033[37;1m" << filename << "\033[0m" << e.message() << endl;
-    }*/
 }
 
 string ascii2name(lexic::ascii_type t) {

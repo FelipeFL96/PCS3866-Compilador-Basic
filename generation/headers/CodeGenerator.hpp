@@ -8,9 +8,12 @@
 #include "syntax.hpp"
 #include "semantic.hpp"
 
-class CodeGenerator/* : public syntax::Generator*/ {
+namespace generation {
+
+class CodeGenerator {
     public:
-        CodeGenerator(std::ifstream& input, std::ofstream& output, semantic::SymbolTable& symb_table);
+        CodeGenerator(std::string& input_file, std::string& output_file, semantic::SymbolTable& symb_table);
+        ~CodeGenerator();
 
         void generate(syntax::Assign* assign, std::vector<syntax::Elem*> exp, int next_index);
         void generate(syntax::Read* read, std::vector<std::pair<syntax::Var*, syntax::Num*>>& read_data, int next_index);
@@ -35,10 +38,12 @@ class CodeGenerator/* : public syntax::Generator*/ {
         void install_pow();
 
     private:
-        std::ifstream& input;
-        std::ofstream& output;
+        std::ofstream output;
+        std::string& input_file;
         semantic::SymbolTable& symb_table;
 
 };
+
+} // namespace generation
 
 #endif // CODE_GENERATOR_HPP

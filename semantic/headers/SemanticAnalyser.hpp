@@ -13,13 +13,11 @@
 
 namespace semantic {
 
-
-
 class SemanticAnalyser {
     public:
-    SemanticAnalyser(std::ifstream& input, std::ofstream& output);
+    SemanticAnalyser(std::ifstream& input, SymbolTable& symb_table, generation::CodeGenerator& gen);
     
-    void get_next(void);
+    void run(void);
 
     private:
     void process_assign(syntax::Assign* assign);
@@ -47,8 +45,8 @@ class SemanticAnalyser {
 
 
     syntax::SyntaxAnalyser stx;
-    CodeGenerator gen;
-    semantic::SymbolTable symb_table;
+    generation::CodeGenerator& gen;
+    SymbolTable& symb_table;
 
     std::queue<syntax::Var*> read_variables;
     std::queue<syntax::Num*> data_values;

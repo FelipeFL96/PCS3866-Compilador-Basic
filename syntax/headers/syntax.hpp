@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <exception>
 
 #include "lexic.hpp"
 

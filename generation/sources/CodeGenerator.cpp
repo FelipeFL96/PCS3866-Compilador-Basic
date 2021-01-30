@@ -1,21 +1,33 @@
 #include <iostream>
 
 #include "syntax.hpp"
+#include "generation.hpp"
+
 #include "CodeGenerator.hpp"
 
 #define STACK_SIZE 256
 
 using namespace std;
+using namespace generation;
 
 bool found_div = false;
 bool found_pow = false;
 
-CodeGenerator::CodeGenerator(ifstream& input, ofstream& output, semantic::SymbolTable& symb_table):
-    input(input), output(output), symb_table(symb_table)
-{}
+CodeGenerator::CodeGenerator(string& input_file, string& output_file, semantic::SymbolTable& symb_table):
+    input_file(input_file), symb_table(symb_table)
+{
+    output.open(output_file);
+    if (!output.is_open())
+        throw generation_exception("Não foi possível abrir o arquivo '" + output_file + "' para saída");
+}
+
+CodeGenerator::~CodeGenerator() {
+    output.close();
+}
 
 void CodeGenerator::generate_header(int first_index) {
     output << "/* BASIC COMPILER */" << endl;
+    output << "/* source: " << input_file << " */" << endl;
     output << ".global main" << endl;
     output << endl;
 

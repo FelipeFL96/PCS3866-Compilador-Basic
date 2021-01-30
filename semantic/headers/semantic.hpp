@@ -2,6 +2,7 @@
 #define SEMANTIC_HPP
 
 #include <iostream>
+#include <exception>
 #include <vector>
 
 #include "syntax.hpp"

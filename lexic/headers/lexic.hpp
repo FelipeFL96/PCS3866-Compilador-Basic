@@ -2,6 +2,7 @@
 #define LEXIC_HPP
 
 #include <string>
+#include <exception>
 
 namespace lexic {
 
