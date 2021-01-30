@@ -20,8 +20,8 @@ void CodeGenerator::generate_header() {
     output << endl;
 
     output << "main: " << endl;
-    output << "\tLDR      r11, =variables" << endl;
-    output << "\tLDR      r12, =exe_stack" << endl;
+    output << "\tLDR      r12, =variables" << endl;
+    output << "\tLDR      r11, =exe_stack" << endl;
     output << "\tLDR      sp,  =exp_stack" << endl;
     output << endl;
 }
@@ -42,7 +42,7 @@ void CodeGenerator::generate_variables() {
 void CodeGenerator::generate(syntax::Assign* assign, vector<syntax::Elem*> exp, int next_index) {
     output << "L" << assign->get_index() << ":" << endl;
     generate_expression(exp);
-    output << "\tSTR      r0, [r11, #" << 4 * symb_table.select_variable(assign->get_variable()) << "]" << endl;
+    output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(assign->get_variable()) << "]" << endl;
     output << "\tB        L" << next_index << endl;
     output << endl;
 }
@@ -62,11 +62,11 @@ void CodeGenerator::generate(syntax::Read* read, std::vector<pair<syntax::Var*, 
             output << "\tMOV      r1, r0, LSL #2" << endl;
             output << "\tADD      r1, r1, #" << 4 * symb_table.select_variable(var) << endl;
             output << "\tMOV      r0, #" << val->get_value() << endl;
-            output << "\tSTR      r0, [r11, r1]" << endl;
+            output << "\tSTR      r0, [r12, r1]" << endl;
         }
         else {
             output << "\tMOV      r0, #" << val->get_value() << endl;
-            output << "\tSTR      r0, [r11, #" << 4 * symb_table.select_variable(var) << "]" << endl;
+            output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(var) << "]" << endl;
         }
     }
     output << "\tB        L" << next_index << endl;
@@ -88,11 +88,11 @@ void CodeGenerator::generate(syntax::Data* data, std::vector<pair<syntax::Var*, 
             output << "\tMOV      r1, r0, LSL #2" << endl;
             output << "\tADD      r1, r1, #" << 4 * symb_table.select_variable(var) << endl;
             output << "\tMOV      r0, #" << val->get_value() << endl;
-            output << "\tSTR      r0, [r11, r1]" << endl;
+            output << "\tSTR      r0, [r12, r1]" << endl;
         }
         else {
             output << "\tMOV      r0, #" << val->get_value() << endl;
-            output << "\tSTR      r0, [r11, #" << 4 * symb_table.select_variable(var) << "]" << endl;
+            output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(var) << "]" << endl;
         }
     }
     output << "\tB        L" << next_index << endl;
@@ -142,22 +142,22 @@ void CodeGenerator::generate(syntax::For* loop, vector<syntax::Elem*> init, vect
 
     // Inicialização do iterador
     generate_expression(init);
-    output << "\tSTR      r0, [r11, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
+    output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
     output << "\tB        L" << loop->get_index() << ".COMP" << endl;
     output << endl;
 
     // Incremento do iterador
     output << "L" << loop->get_index() << ".STEP:" << endl;
     generate_expression(step);
-    output << "\tLDR      r1, [r11, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
+    output << "\tLDR      r1, [r12, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
     output << "\tADD      r0, r1, r0" << endl;
-    output << "\tSTR      r0, [r11, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
+    output << "\tSTR      r0, [r12, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
     output << endl;
 
     // Comparação com a condição de parada
     output << "L" << loop->get_index() << ".COMP:" << endl;
     generate_expression(stop);
-    output << "\tLDR      r1, [r11, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
+    output << "\tLDR      r1, [r12, #" << 4 * symb_table.select_variable(loop->get_iterator()) << "]" << endl;
     output << "\tCMP      r1, r0" << endl;
     output << "\tBGE      L" << index_outside_loop << endl;
     output << "\tB        L" << index_inside_loop << endl;
@@ -177,7 +177,7 @@ void CodeGenerator::generate(syntax::Def* def, std::vector<syntax::Elem*>& exp) 
     while (!parameters.empty()) {
         auto param = parameters.back();
         output << "\tLDMFD    sp!, {r1}" << endl;
-        output << "\tSTR      r1, [r11, #"
+        output << "\tSTR      r1, [r12, #"
             << 4 * symb_table.select_variable(param) << "]" << endl;
         parameters.pop_back();
     }
@@ -189,9 +189,9 @@ void CodeGenerator::generate(syntax::Def* def, std::vector<syntax::Elem*>& exp) 
 
 void CodeGenerator::generate(syntax::Gosub* gosub) {
     output << "L" << gosub->get_index() << ":" << endl;
-    output << "\tSTMFD    r12!, {lr}" << endl;
+    output << "\tSTMFD    r11!, {lr}" << endl;
     output << "\tBL       L" << gosub->get_destination() << endl;
-    output << "\tLDMFD    r12!, {lr}" << endl;
+    output << "\tLDMFD    r11!, {lr}" << endl;
     output << endl;
 }
 
@@ -221,18 +221,18 @@ void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
                 output << "\tLDMFD    sp!, {r1}" << endl;
                 output << "\tMOV      r1, r1, LSL #2" << endl;
                 output << "\tADD      r1, r1, #" << 4 * symb_table.select_variable(var) << endl;
-                output << "\tLDR      r1, [r11, r1]" << endl;
+                output << "\tLDR      r1, [r12, r1]" << endl;
                 output << "\tSTMFD    sp!, {r1}" << endl;
             }
             else {
-                output << "\tLDR      r1, [r11, #" << 4 * symb_table.select_variable(var) << "]" << endl;
+                output << "\tLDR      r1, [r12, #" << 4 * symb_table.select_variable(var) << "]" << endl;
                 output << "\tSTMFD    sp!, {r1}" << endl;
             }
         }
         else if (e->get_elem_type() == syntax::Elem::FUN) {
-            output << "\tSTMFD    r12!, {lr}" << endl;
+            output << "\tSTMFD    r11!, {lr}" << endl;
             output << "\tBL       " << dynamic_cast<syntax::Call*>(e)->get_identifier() << endl;
-            output << "\tLDMFD    r12!, {lr}" << endl;
+            output << "\tLDMFD    r11!, {lr}" << endl;
             output << "\tSTMFD    sp!, {r0}" << endl;
         }
         else if (e->is_operator()) {
@@ -249,15 +249,15 @@ void CodeGenerator::generate_expression(vector<syntax::Elem*>& exp) {
             }
             else if (e->get_elem_type() == syntax::Elem::DIV) {
                 found_div = true;
-                output << "\tSTMFD    r12!, {lr}" << endl;
+                output << "\tSTMFD    r11!, {lr}" << endl;
                 output << "\tBL       sdiv" << endl;
-                output << "\tLDMFD    r12!, {lr}" << endl;
+                output << "\tLDMFD    r11!, {lr}" << endl;
             }
             else if (e->get_elem_type() == syntax::Elem::POW) {
                 found_pow = true;
-                output << "\tSTMFD    r12!, {lr}" << endl;
+                output << "\tSTMFD    r11!, {lr}" << endl;
                 output << "\tBL       pow" << endl;
-                output << "\tLDMFD    r12!, {lr}" << endl;
+                output << "\tLDMFD    r11!, {lr}" << endl;
             }
             output << "\tSTMFD    sp!, {r0}" << endl;
         }
