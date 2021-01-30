@@ -14,7 +14,7 @@ CodeGenerator::CodeGenerator(ifstream& input, ofstream& output, semantic::Symbol
     input(input), output(output), symb_table(symb_table)
 {}
 
-void CodeGenerator::generate_header() {
+void CodeGenerator::generate_header(int first_index) {
     output << "/* BASIC COMPILER */" << endl;
     output << ".global main" << endl;
     output << endl;
@@ -23,6 +23,7 @@ void CodeGenerator::generate_header() {
     output << "\tLDR      r12, =variables" << endl;
     output << "\tLDR      r11, =exe_stack" << endl;
     output << "\tLDR      sp,  =exp_stack" << endl;
+    output << "\tB        L" << first_index << endl;
     output << endl;
 }
 

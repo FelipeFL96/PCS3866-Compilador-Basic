@@ -27,7 +27,7 @@ class CodeGenerator/* : public syntax::Generator*/ {
         void generate(syntax::End* end);
 
         void generate_expression(std::vector<syntax::Elem*>& exp);
-        void generate_header();
+        void generate_header(int first_index);
         void generate_variables();
 
         void install_predef();

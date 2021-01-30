@@ -27,12 +27,32 @@ SemanticAnalyser::SemanticAnalyser(ifstream& input, ofstream& output):
 {}
 
 
-int find_next_index(BStatement* current) {
+int find_next_index(BStatement* current = nullptr) {
+    int read = false;
+    int data = false;
     for (auto statement : statements) {
-        if (statement->get_index() > current->get_index()
-            && !dynamic_cast<Def*>(statement)
-            && !dynamic_cast<Rem*>(statement)
-            ) {
+        if (dynamic_cast<Print*>(statement)
+            || dynamic_cast<Dim*>(statement)
+            || dynamic_cast<Def*>(statement)
+            || dynamic_cast<Rem*>(statement))
+            continue;
+
+        if (dynamic_cast<Read*>(statement)) {
+            read = true;
+            if (!data)
+                continue;
+        }
+
+        if (dynamic_cast<Data*>(statement)) {
+            data = true;
+            if (!read)
+                continue;
+        }
+
+        if (!current) {
+            return statement->get_index();
+        }
+        else if (statement->get_index() > current->get_index()) {
             return statement->get_index();
         }
     }
@@ -58,7 +78,7 @@ void SemanticAnalyser::get_next() {
     if (!dynamic_cast<End*>(*statements.rbegin()))
         throw semantic_exception((*statements.rbegin())->get_position(), "Programa não termina com comando END");
 
-    gen.generate_header();
+    gen.generate_header(find_next_index());
 
     bool ended = false;
     for (auto command : statements) {
