@@ -56,8 +56,6 @@ void print_call(syntax::Call* call) {
     tab.push_back('\t');
     cout << tab << "FN [" << call->get_identifier() << "]" << endl;
     for (auto arg : call->get_args()) {
-        /*if (arg != *call->get_args().begin())
-            cout << */
         print_exp(arg);
         cout << endl;
     }

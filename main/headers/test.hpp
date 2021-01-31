@@ -1,7 +1,3 @@
-#include <iostream>
-#include <string>
-#include <string.h>
-
 #include "lexic.hpp"
 #include "syntax.hpp"
 

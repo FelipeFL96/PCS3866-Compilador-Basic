@@ -23,7 +23,6 @@ class CodeGenerator {
         void generate(syntax::For* loop, std::vector<syntax::Elem*> init, std::vector<syntax::Elem*> stop,
                         std::vector<syntax::Elem*> step, int index_inside_loop, int index_outside_loop);
         void generate(syntax::Next* next);
-
         void generate(syntax::Def* def, std::vector<syntax::Elem*>& exp);
         void generate(syntax::Gosub* gosub, int destination);
         void generate(syntax::Return* ret);

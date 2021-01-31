@@ -1,7 +1,7 @@
 #ifndef SYNTAX_ANALYSER_HPP
 #define SYNTAX_ANALYSER_HPP
 
-#include <iostream>
+#include <fstream>
 #include <string>
 
 #include "syntax.hpp"
@@ -17,10 +17,8 @@ class SyntaxAnalyser {
         syntax::BStatement* get_next(void);
 
     private:
-        std::ifstream& file;
-        lexic::LexicalAnalyser lex;
-        lexic::token tk;
-        bool token_consumed = true;
+        enum class method {REQUIRED, OPTIONAL, LOOKAHEAD};
+        bool consume(lexic::type type, method m);
 
         syntax::Assign* parse_assign(int index, lexic::position pos);
         syntax::Read* parse_read(int index, lexic::position pos);
@@ -47,54 +45,15 @@ class SyntaxAnalyser {
         syntax::Array* parse_array(void);
         syntax::Pitem* parse_pitem(void);
 
-        enum class method {REQUIRED, OPTIONAL, LOOKAHEAD};
-        bool consume(lexic::type type, method m);
-
         bool file_end();
+
+
+        std::ifstream& file;
+        lexic::LexicalAnalyser lex;
+        lexic::token tk;
+        bool token_consumed = true;
 };
 
 } // namespace syntax
 
 #endif // SYNTAX_ANALYSER_HPP
-
-/*struct state {
-    int id;
-    bool accepting;
-    bool operator==(const struct state& st) {
-        return (id == st.id) && (accepting == st.accepting);
-    }
-};
-
-struct transition {
-    struct state current;
-    bool input_is_terminal;
-    int input;
-    struct state next;
-};*/
-
-/*std::string type_name(lexic::type t);
-bool FSM_program(lexic::LexicalAnalyser& lex);
-bool FSM_exp(lexic::LexicalAnalyser& lex);
-bool FSM_num(lexic::LexicalAnalyser& lex);
-bool FSM_var(lexic::LexicalAnalyser& lex);
-bool FSM_eb(lexic::LexicalAnalyser& lex);
-int syntax_read(std::ifstream& file);*/
-
-
-
-            // Para cada transição no reconhecedor utilizado
-                // Filtra o estado da transição
-                    // Verifica se a entrada corresponde a alguma transição de terminal
-                        // Se sim, atribui a transição e consome próximo lexema
-                    // Verifica se a entrada corresponde a alguma transição de não terminal
-                        // Se sim, chama a submáquina de estados correspondente
-                
-            // Se houve transição realizada
-                // Atualiza o estado
-                // Segue o loop
-            
-            // Senão
-                // Se o estado corrente é de aceitação
-                    // Retorna true
-                // Senão
-                    // Retorna false
