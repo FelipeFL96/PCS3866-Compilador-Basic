@@ -17,7 +17,7 @@ using namespace std;
 
 
 int main(int argc, char* argv[]) {
-    std::cout << "Bem-Vindo ao compilador basicc!" << std::endl;
+    std::cout << "Bem-Vindo ao Compilador BasicC!" << std::endl;
 
     if (argc < 2) {
         cerr << "Uso esperado: basicc <entrada.bas> [ <saída.s> ]" << endl;

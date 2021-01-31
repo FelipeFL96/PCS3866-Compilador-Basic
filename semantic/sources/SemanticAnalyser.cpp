@@ -84,8 +84,6 @@ void SemanticAnalyser::run() {
         statements.insert(sx);
     }
 
-    //cout << "ACHEI " << statements.size() << " COMANDOS" << endl;
-
     if (!dynamic_cast<End*>(*statements.rbegin()))
         throw semantic_exception((*statements.rbegin())->get_position(), "Programa não termina com comando END");
 
@@ -146,12 +144,10 @@ void SemanticAnalyser::run() {
 
     gen.generate_variables();
 
-    //symb_table.print_variables();
+    symb_table.print_variables();
 }
 
 void SemanticAnalyser::process_assign(syntax::Assign* assign) {
-    //cout << "ASSIGN" << endl;
-
     Var* decl = symb_table.pointer_to_variable(assign->get_variable());
     if (decl != nullptr && decl->is_array())
         throw semantic_exception(assign->get_position(), "Variáveis indexadas não podem ser atribuídas em LET");
@@ -164,7 +160,6 @@ void SemanticAnalyser::process_assign(syntax::Assign* assign) {
 }
 
 void SemanticAnalyser::process_read(syntax::Read* read) {
-    cout << "READ" << endl;
     for (auto var: read->get_variables()) {
         if (var->is_array()) {
             if (symb_table.select_variable(var) == 0)
@@ -182,51 +177,45 @@ void SemanticAnalyser::process_read(syntax::Read* read) {
 
         read_variables.push(var);
         process_variable(var);
-        //cout << " " << var->get_identifier();
     }
-    //cout << endl;
 
     vector<pair<Var*,Num*>> read_data;
-    //cout << "ATRIBUIÇÕES" << endl;
     while (!read_variables.empty() && !data_values.empty()) {
         Var* var = read_variables.front();
         Num* val = data_values.front();
 
-        cout << "\tVAR[" << var->get_index() << "] " << var->get_identifier() << " = " << val->get_value() << endl;
+        //cout << "\tVAR[" << var->get_index() << "] " << var->get_identifier() << " = " << val->get_value() << endl;
 
         read_data.push_back(make_pair(var, val));
 
         read_variables.pop();
         data_values.pop();
     }
-    cout << endl;
+
     int next_index = find_next_index(read);
     if (!read_data.empty())
         gen.generate(read, read_data, next_index);
 }
 
 void SemanticAnalyser::process_data(syntax::Data* data) {
-    cout << "DATA";
     for (auto val: data->get_values()) {
         data_values.push(val);
-        //cout << " " << val->get_value();
     }
-    //cout << endl;
 
     vector<pair<Var*,Num*>> read_data;
-    //cout << "ATRIBUIÇÕES" << endl;
+
     while (!read_variables.empty() && !data_values.empty()) {
         Var* var = read_variables.front();
         Num* val = data_values.front();
 
-        cout << "\tVAR[" << var->get_index() << "] " << var->get_identifier() << " = " << val->get_value() << endl;
+        //cout << "\tVAR[" << var->get_index() << "] " << var->get_identifier() << " = " << val->get_value() << endl;
 
         read_data.push_back(make_pair(var, val));
 
         read_variables.pop();
         data_values.pop();
     }
-    cout << endl;
+
     int next_index = find_next_index(data);
     if (!read_data.empty())
         gen.generate(data, read_data, next_index);
@@ -237,9 +226,6 @@ void SemanticAnalyser::process_print(syntax::Print* print) {
 }
 
 void SemanticAnalyser::process_goto(Goto* go) {
-    //cout << "GOTO";
-    //cout << " " << go->get_destination() << endl;
-
     for (set<BStatement*>::iterator it = statements.begin(); it != statements.end(); ++it) {
         if (go->get_destination() == (*it)->get_index()) {
             int destination = find_next_index(*(--it));
@@ -252,7 +238,6 @@ void SemanticAnalyser::process_goto(Goto* go) {
 }
 
 void SemanticAnalyser::process_if(syntax::If* ift) {
-    //cout << "IF" << endl;
     vector<Elem*> left = process_expression(ift->get_left());
     vector<Elem*> right = process_expression(ift->get_right());
 
@@ -270,8 +255,6 @@ void SemanticAnalyser::process_if(syntax::If* ift) {
 }
 
 void SemanticAnalyser::process_for(For* loop) {
-    //cout << "FOR " << endl;
-
     if (symb_table.select_variable(loop->get_iterator()))
         throw semantic_exception(loop->get_position(), "Variável de iteração " + loop->get_iterator()->get_identifier() + " já declarada");
 
@@ -281,8 +264,6 @@ void SemanticAnalyser::process_for(For* loop) {
 }
 
 void SemanticAnalyser::process_next(Next* next) {
-    //cout << "NEXT " << endl;
-
     if (for_stack.empty())
         throw semantic_exception(next->get_position(), "NEXT sem FOR correspondente");
 
@@ -294,11 +275,7 @@ void SemanticAnalyser::process_next(Next* next) {
         != symb_table.select_variable(loop->get_iterator()))
         throw semantic_exception(next->get_position(), "NEXT para laço não imediatamente anterior");
 
-    //cout << loop->get_iterator()->get_identifier() << "[" << loop->get_iterator()->get_index() <<  "]" << endl;
-
     // Geração do FOR correspondente
-    process_variable(loop->get_iterator());
-    //cout << loop->get_iterator()->get_identifier() << "[" << loop->get_iterator()->get_index() <<  "]" << endl;
     vector<Elem*> init = process_expression(loop->get_init());
     vector<Elem*> stop = process_expression(loop->get_stop());
     vector<Elem*> step = process_expression(loop->get_step());
@@ -314,21 +291,13 @@ void SemanticAnalyser::process_next(Next* next) {
 }
 
 void SemanticAnalyser::process_dim(Dim* dim) {
-    //cout << "DIM" << endl;
-
     for (auto array : dim->get_arrays()) {
 
         int ret = symb_table.select_variable(array);
+        if (ret != 0)
+            throw semantic_exception(array->get_position(), "Variável " + array->get_identifier() + " já foi declarada");
 
         process_variable(array);
-        /*cout << "\t" << array->get_identifier() << "[";
-        for (auto dimension : array->get_dimensions()) {
-            if (dimension == array->get_dimensions().at(0))
-                cout << dimension;
-            else
-                cout << "," << dimension ;
-        }
-        cout << "]" << endl;*/
     }
 }
 
@@ -355,9 +324,7 @@ void SemanticAnalyser::process_def(Def* def) {
     for (auto parameter : def->get_parameters()) {
         parameter->make_parameter(def->get_identifier());
         process_variable(parameter);
-        //cout << parameter->get_identifier() << ", ";
     }
-    //cout << endl;
 
     vector<Elem*> exp = process_expression(def->get_exp());
 
@@ -365,8 +332,6 @@ void SemanticAnalyser::process_def(Def* def) {
 }
 
 void SemanticAnalyser::process_gosub(syntax::Gosub* gosub) {
-    //cout << "GOSUB" << endl;
-
     for (set<BStatement*>::iterator it = statements.begin(); it != statements.end(); ++it) {
         if (gosub->get_destination() == (*it)->get_index()) {
             int destination = find_next_index(*(--it));
@@ -379,7 +344,6 @@ void SemanticAnalyser::process_gosub(syntax::Gosub* gosub) {
 }
 
 void SemanticAnalyser::process_return(syntax::Return* ret) {
-    //cout << "RETURN" << endl;
     gen.generate(ret);
 }
 
@@ -405,12 +369,9 @@ void SemanticAnalyser::process_variable(Var* v) {
 }
 
 vector<Elem*> SemanticAnalyser::process_expression(Exp* e) {
-    //syntax::Exp* e = stx.parse_exp();
-
     vector<syntax::Elem*> exp;
-    gen_exp_vector(e, exp);
 
-    //print_exp(exp);
+    gen_exp_vector(e, exp);
 
     return convert_to_postfix(exp);
 }
@@ -574,7 +535,6 @@ vector<Elem*> SemanticAnalyser::process_array_access_exp(ArrayAccess* access) {
 
     }
 
-    //print_exp(processed_access_exps);
     return processed_access_exps;
 }
 
@@ -634,8 +594,6 @@ vector<syntax::Elem*> SemanticAnalyser::convert_to_postfix(vector<syntax::Elem*>
     while (!infix.empty()) {
         syntax::Elem* e = infix.front();
         infix.erase(infix.begin());
-        //cout << "LIDO: " << read_elem_type(e);
-        //print_exp(infix);
 
         if (e->get_elem_type() == syntax::Elem::NUM) {
             postfix.push_back(e);
