@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <exception>
+#include <utility>
 #include <vector>
 
 #include "syntax.hpp"
@@ -15,10 +16,12 @@ class SymbolTable {
     {}
 
     int insert_variable(syntax::Var* v) {
-        if (int var_index = select_variable(v) != 0)
+        if (int var_index = select_variable(v) != 0) {
             return var_index;
+        }
 
-        variables.push_back(v);
+        v->set_index(index);
+        variables.push_back(std::make_pair(v, index));
         return index++;
     }
 
@@ -26,7 +29,8 @@ class SymbolTable {
         if (int var_index = select_variable(dynamic_cast<syntax::Var*>(a)) != 0)
             return var_index;
 
-        variables.push_back(a);
+        a->set_index(index);
+        variables.push_back(std::make_pair(a, index));
         int var_index = index;
 
         int size = 1;
@@ -38,13 +42,12 @@ class SymbolTable {
     }
 
     int select_variable(syntax::Var* v) {
-        using namespace std;
         if (variables.empty())
             return 0;
 
-        for (auto var : variables) {
-            if (var->get_identifier() == v->get_identifier()) {
-                return var->get_index();
+        for (auto pair : variables) {
+            if (std::get<0>(pair)->get_identifier() == v->get_identifier()) {
+                return std::get<1>(pair);
             }
         }
 
@@ -55,9 +58,9 @@ class SymbolTable {
         if (variables.empty())
             return nullptr;
 
-        for (auto var : variables) {
-            if (var->get_identifier() == v->get_identifier()) {
-                return var;
+        for (auto pair : variables) {
+            if (std::get<0>(pair)->get_identifier() == v->get_identifier()) {
+                return std::get<0>(pair);
             }
         }
 
@@ -66,15 +69,15 @@ class SymbolTable {
 
     int total_variable_size() {
         int total_size = 4;
-        for (auto var : variables) {
-            total_size += var->get_size();
+        for (auto pair : variables) {
+            total_size += std::get<0>(pair)->get_size();
         }
         return total_size;
     }
 
     void print_variables() {
         for (int i = 0; i < variables.size(); i++) {
-            std::cout << "[" << variables.at(i)->get_index() << "] " << variables.at(i)->get_identifier() << std::endl;
+            std::cout << "[" << std::get<1>(variables.at(i)) << "] " << std::get<0>(variables.at(i))->get_identifier() << std::endl;
         }
     }
 
@@ -112,7 +115,7 @@ class SymbolTable {
     
     private:
     int index = 1;
-    std::vector<syntax::Var*> variables;
+    std::vector<std::pair<syntax::Var*, int>> variables;
     std::vector<syntax::Def*> functions;
 };
 
