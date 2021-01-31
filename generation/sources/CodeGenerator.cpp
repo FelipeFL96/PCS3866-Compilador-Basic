@@ -112,13 +112,13 @@ void CodeGenerator::generate(syntax::Data* data, std::vector<pair<syntax::Var*, 
     output << endl;
 }
 
-void CodeGenerator::generate(syntax::Goto* go) {
+void CodeGenerator::generate(syntax::Goto* go, int destination) {
     output << "L" << go->get_index() << ":" << endl;
-    output << "\tB        L" << go->get_destination() << endl;
+    output << "\tB        L" << destination << endl;
     output << endl;
 }
 
-void CodeGenerator::generate(syntax::If* ift, std::vector<syntax::Elem*> left, std::vector<syntax::Elem*> right, int next_index) {
+void CodeGenerator::generate(syntax::If* ift, std::vector<syntax::Elem*> left, std::vector<syntax::Elem*> right, int destination, int next_index) {
     output << "L" << ift->get_index() << ":" << endl;
     generate_expression(left);
     output << "\tSTMFD    sp!, {r0}" << endl;
@@ -127,22 +127,22 @@ void CodeGenerator::generate(syntax::If* ift, std::vector<syntax::Elem*> left, s
     output << "\tCMP      r1, r0" << endl;
     switch (ift->get_op()) {
         case syntax::If::EQL:
-            output << "\tBEQ      " << "L" << ift->get_destination() << endl;
+            output << "\tBEQ      " << "L" << destination << endl;
             break;
         case syntax::If::NEQ:
-            output << "\tBNE      " << "L" << ift->get_destination() << endl;
+            output << "\tBNE      " << "L" << destination << endl;
             break;
         case syntax::If::GTN:
-            output << "\tBGT      " << "L" << ift->get_destination() << endl;
+            output << "\tBGT      " << "L" << destination << endl;
             break;
         case syntax::If::LTN:
-            output << "\tBLT      " << "L" << ift->get_destination() << endl;
+            output << "\tBLT      " << "L" << destination << endl;
             break;
         case syntax::If::GEQ:
-            output << "\tBGE      " << "L" << ift->get_destination() << endl;
+            output << "\tBGE      " << "L" << destination << endl;
             break;
         case syntax::If::LEQ:
-            output << "\tBLE      " << "L" << ift->get_destination() << endl;
+            output << "\tBLE      " << "L" << destination << endl;
             break;
     }
     output << "\tB        L" << next_index << endl;
@@ -200,10 +200,10 @@ void CodeGenerator::generate(syntax::Def* def, std::vector<syntax::Elem*>& exp) 
     output << endl;
 }
 
-void CodeGenerator::generate(syntax::Gosub* gosub) {
+void CodeGenerator::generate(syntax::Gosub* gosub, int destination) {
     output << "L" << gosub->get_index() << ":" << endl;
     output << "\tSTMFD    r11!, {lr}" << endl;
-    output << "\tBL       L" << gosub->get_destination() << endl;
+    output << "\tBL       L" << destination << endl;
     output << "\tLDMFD    r11!, {lr}" << endl;
     output << endl;
 }

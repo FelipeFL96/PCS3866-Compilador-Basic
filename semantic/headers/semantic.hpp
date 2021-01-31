@@ -42,14 +42,10 @@ class SymbolTable {
         if (variables.empty())
             return 0;
 
-        //cout << "Procurando por variável de nome: " << v->get_identifier() << endl;
         for (auto var : variables) {
-            //cout << "Testando [" << var->get_identifier() << "] : ";
             if (var->get_identifier() == v->get_identifier()) {
-                //cout << "JÁ EXISTE" << endl;
                 return var->get_index();
             }
-            //cout << "AINDA NÃO EXISTE" << endl;
         }
 
         return 0;
@@ -60,12 +56,9 @@ class SymbolTable {
             return nullptr;
 
         for (auto var : variables) {
-            //cout << "Testando [" << var->get_identifier() << "] : ";
             if (var->get_identifier() == v->get_identifier()) {
-                //cout << "JÁ EXISTE" << endl;
                 return var;
             }
-            //cout << "AINDA NÃO EXISTE" << endl;
         }
 
         return nullptr;
