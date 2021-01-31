@@ -1,0 +1,4 @@
+00 LET a = 0
+01 FOR I = 2 TO 5 STEP 2
+02 LET a = a + 1
+05 END

@@ -1,0 +1,5 @@
+00 LET a = 5
+01 GO TO 03
+02 LET y = 20
+07 LET a = 5
+50 END

@@ -1,0 +1,7 @@
+01 LET r = 4
+05 FOR I = 2 TO 5 STEP 2
+06 FOR J = 2 TO 5 STEP 2
+07 LET r = r + 1
+08 NEXT I
+09 NEXT J
+14 END
