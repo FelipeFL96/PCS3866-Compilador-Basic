@@ -143,8 +143,6 @@ void SemanticAnalyser::run() {
     }
 
     gen.generate_variables();
-
-    symb_table.print_variables();
 }
 
 void SemanticAnalyser::process_assign(syntax::Assign* assign) {
